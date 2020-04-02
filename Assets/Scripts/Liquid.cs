@@ -27,8 +27,7 @@ public class Liquid : MonoBehaviour
 
     private IEnumerator BeginFlow()
     {
-        while (gameObject.activeSelf)
-        {
+        while (gameObject.activeSelf) {
             targetPosition = FindEndPoint();
             MoveToPosition(0, transform.position);
             AnimateToPosition(1, targetPosition);
@@ -44,8 +43,7 @@ public class Liquid : MonoBehaviour
 
     private IEnumerator EndFlow()
     {
-        while (!HasReachedPostion(0, targetPosition))
-        {
+        while (!HasReachedPostion(0, targetPosition)) {
             AnimateToPosition(0, targetPosition);
             AnimateToPosition(1, targetPosition);
             yield return null;

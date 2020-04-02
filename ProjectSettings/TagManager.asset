@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Bar
+    uniqueID: 4286905787
+    locked: 0
+  - name: Clients
+    uniqueID: 1178443113
+    locked: 0
