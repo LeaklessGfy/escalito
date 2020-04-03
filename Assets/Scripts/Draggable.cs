@@ -4,6 +4,7 @@ public class Draggable : MonoBehaviour
 {
     private void OnMouseDrag()
     {
-        transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 currentPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        transform.position = currentPosition;
     }
 }

@@ -1,45 +1,53 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    enum CharacterState
+    enum State
     {
-        Idle = 0,
-        Move = 1,
-        Follow = 2
+        Idle,
+        Move,
+        Follow
     };
 
-    public Animator animator;
-    public float speed = 3f;
+    public float speed = 30f;
+    public float tolerance = 10f;
+    public int id;
 
-    private CharacterState state { get; set; } = CharacterState.Idle;
+    /* Properties */
+    private State state = State.Idle;
     private Vector2 dst;
     private Character leader;
+    private TaskCompletionSource<bool> onMoveTask;
+    private TaskCompletionSource<Cocktail> onWaitTask;
+    private float timeAwaited = 0f;
+
+    /* Unity Injection */
+    private Animator animator;
     private SpriteRenderer spriteRenderer;
 
-    private TaskCompletionSource<bool> task;
-
+    /* Constants */
     private static readonly int ANIM_IDLE = 0;
     private static readonly int ANIM_MOVE = 1;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
+        StepWait();
         switch (state) {
-            case CharacterState.Idle:
+            case State.Idle:
                 StepIdle();
                 break;
-            case CharacterState.Move:
+            case State.Move:
                 StepMove();
                 break;
-            case CharacterState.Follow:
+            case State.Follow:
                 StepFollow();
                 break;
         }
@@ -47,35 +55,53 @@ public class Character : MonoBehaviour
 
     public Task MoveTo(Vector2 position)
     {
-        if (task != null) {
-            task.TrySetCanceled();
+        if (onMoveTask != null) {
+            throw new InvalidOperationException("Client is alreay moving, can't move again");
         }
-
         dst = new Vector2(position.x, transform.position.y);
-        state = CharacterState.Move;
-        task = new TaskCompletionSource<bool>();
-
-        return task.Task;
+        state = State.Move;
+        onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return onMoveTask.Task;
     }
 
     public void Follow(Character character)
     {
-        if (task != null) {
-            task.TrySetCanceled();
+        if (onMoveTask != null) {
+            throw new InvalidOperationException("Client is already moving, can't follow");
         }
         leader = character;
-        state = CharacterState.Follow;
+        state = State.Follow;
     }
 
-    public IEnumerable<int> Follow2(Character character)
+    public Task<Cocktail> Await()
     {
-        if (task != null) {
-            task.TrySetCanceled();
+        if (onWaitTask != null) {
+            throw new InvalidOperationException("Client is already awaiting for something");
         }
+        onWaitTask = new TaskCompletionSource<Cocktail>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return onWaitTask.Task;
+    }
 
-        // yield progress, we calculate a progress by : change of leader, new position in queue (should be aware of its position ?)
-        // break when finish : finished when no more leader to follow (again, should character be aware of its leader ?)
-        yield return 1;
+    public void Serve(Cocktail cocktail)
+    {
+        if (onWaitTask == null) {
+            throw new InvalidOperationException("Client is not awaiting for something");
+        }
+        onWaitTask.TrySetResult(cocktail);
+        Clean();
+    }
+
+    private void StepWait()
+    {
+        if (onWaitTask == null || tolerance == -1) {
+            return;
+        }
+        timeAwaited += Time.deltaTime;
+        if (timeAwaited > tolerance)  {
+            onWaitTask?.TrySetCanceled();
+            spriteRenderer.color = Color.red;
+            Clean();
+        }
     }
 
     private void StepIdle()
@@ -91,27 +117,21 @@ public class Character : MonoBehaviour
             Step();
         } else {
             animator.SetInteger("State", ANIM_IDLE);
-            state = CharacterState.Idle;
-            dst = Vector2.zero;
-            if (task != null) {
-                task.TrySetResult(true);
-                task = null;
-            }
+            onMoveTask?.TrySetResult(true);
+            Clean();
         }
     }
 
     private void StepFollow()
     {
         if (leader == null) {
-            state = CharacterState.Idle;
-            dst = Vector2.zero;
-            return;
+            throw new InvalidOperationException("Client should have a leader to follow");
         }
 
         dst = new Vector2(leader.transform.position.x, transform.position.y);
         
         float distance = Vector2.Distance(transform.position, dst);
-        if (distance > spriteRenderer.bounds.size.x / 2) {
+        if (distance > spriteRenderer.bounds.extents.x + 10) {
             animator.SetInteger("State", ANIM_MOVE);
             Step();
         } else {
@@ -123,5 +143,15 @@ public class Character : MonoBehaviour
     {
         spriteRenderer.flipX = dst.x < transform.position.x ? true : false;
         transform.position = Vector2.MoveTowards(transform.position, dst, speed * Time.deltaTime);
+    }
+
+    private void Clean()
+    {
+        state = State.Idle;
+        dst = Vector2.zero;
+        leader = null;
+        onMoveTask = null;
+        onWaitTask = null;
+        timeAwaited = 0f;
     }
 }

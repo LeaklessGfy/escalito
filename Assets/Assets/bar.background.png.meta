@@ -1,8 +1,7 @@
 fileFormatVersion: 2
-guid: dd2dad11fc07b754bb379c2d23a47a01
+guid: fda395892af24d742a12e8e7e69fcb2e
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: door_0
+  fileIDToRecycleName: {}
   externalObjects: {}
   serializedVersion: 9
   mipmaps:
@@ -41,12 +40,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 2
+  spritePixelsToUnits: 3
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -94,31 +93,11 @@ TextureImporter:
     androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: door_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 29
-        width: 53
-        height: 99
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4bb7aa2ff227bfd46bb370b0a29a053a
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: cacb0f44cafcf9541b1244a73d3dc633
+    spriteID: 51bd08fb9bb0e9b4fb9daae133d3cec8
     vertices: []
     indices: 
     edges: []

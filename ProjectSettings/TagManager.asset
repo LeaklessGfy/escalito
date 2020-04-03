@@ -38,12 +38,21 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1536484239
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Bar
+  - name: Barmaid
+    uniqueID: 4239459511
+    locked: 0
+  - name: Midground
     uniqueID: 4286905787
     locked: 0
   - name: Clients
     uniqueID: 1178443113
+    locked: 0
+  - name: UI
+    uniqueID: 2995923575
     locked: 0

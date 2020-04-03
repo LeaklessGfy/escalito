@@ -1,20 +1,28 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class MainScene : MonoBehaviour
+public class Game : MonoBehaviour
 {
     public GameObject clientPrefab;
+    public Button button; 
     public Transform origin;
     public Transform barPosition;
     public int maxClients = 3;
 
+    private SpriteRenderer spriteRenderer;
     private readonly LinkedList<Character> clients = new LinkedList<Character>();
+
+    private void Awake()
+    {
+        spriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
+    }
 
     private void Start()
     {
-        InvokeRepeating("CreateNewClient", 1f, 2f);
+        InvokeRepeating("CreateNewClient", 0f, 2f);
         InvokeRepeating("TestFollow", 7f, 7f);
     }
 
@@ -28,15 +36,17 @@ public class MainScene : MonoBehaviour
         if (clients.Count >= maxClients) {
             return;
         }
-        Vector3 position = new Vector3(origin.position.x, origin.position.y, Camera.main.transform.position.z);
+
+        Vector3 position = new Vector3(origin.position.x, origin.position.y, 0);
         GameObject gameObject = Instantiate(clientPrefab, position, Quaternion.identity);
         Character client = gameObject.GetComponent<Character>();
+        client.id = clients.Count + 10;
+
         AddClient(client);
     }
 
     private void AddClient(Character client)
     {
-        // print("New client");
         if (clients.Count == 0) {
             GoToBar(client);
         } else {
@@ -47,12 +57,14 @@ public class MainScene : MonoBehaviour
 
     private async void GoToBar(Character client)
     {
-        Task move = client.MoveTo(barPosition.position); // should await here, and wait prepare order
-        Task exhausted = Task.Delay(15000); // Client.Wait();
-        Task first = await Task.WhenAny(move, exhausted);
-        if (first == move && !first.IsCanceled) {
-            Order(client);
-        } else if (first == exhausted) {
+        Vector2 point = new Vector2(barPosition.position.x - spriteRenderer.sprite.bounds.extents.x, barPosition.position.y);
+        await client.MoveTo(point);
+        Cocktail expected = Order(client);
+
+        try {
+            Cocktail actual = await client.Await();
+           // Calculate satisfaction based on order received, where to get order ?
+        } catch (TaskCanceledException) {
             Leave(client);
         }
     }
@@ -64,38 +76,39 @@ public class MainScene : MonoBehaviour
         // run exhaust parallel
     }
 
-    private void Order(Character client)
+    private Cocktail Order(Character client)
     {
-        // print("Arrive");
+        Cocktail cocktail = Cocktail.BuildRandom();
+
+        button.gameObject.SetActive(true);
+        button.transform.position = client.transform.position + new Vector3(0, spriteRenderer.sprite.bounds.extents.y, 0);
+        button.GetComponentInChildren<Text>().text = cocktail.Type.ToString();
+
+        return cocktail;
     }
 
     private async void Leave(Character client)
     {
-        print("Leave");
         LinkedListNode<Character> node = clients.Find(client);
 
         if (node == null) {
-            return;
+            throw new InvalidOperationException("Client couldn't be found in clients queue");
         }
 
-        Character leader = node.Previous != null ? node.Previous.Value : null;
         Character follower = node.Next != null ? node.Next.Value : null;
+        Character leader = node.Previous != null ? node.Previous.Value : null;
+        clients.Remove(node);
 
         if (follower) {
             if (leader) {
                 GoFollow(follower, leader);
             } else {
-                GoToBar(node.Next.Value);
+                GoToBar(follower);
             }
-            // Dispatch add exhausted time ?
+            // Dispatch minus time awaited to all awaiting clients (different waiting ?) ?
         }
 
-        clients.Remove(node);
-        try {
-            await client.MoveTo(origin.position);
-            Destroy(client.gameObject);
-        } catch (Exception e) {
-            print(e);
-        }
+        await client.MoveTo(origin.position);
+        Destroy(client.gameObject);
     }
 }
