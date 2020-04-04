@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using Assets.Scripts.Core;
+using System.Linq;
 
 public class Character : MonoBehaviour
 {
@@ -12,7 +15,7 @@ public class Character : MonoBehaviour
     };
 
     public float speed = 30f;
-    public float tolerance = 10f;
+    public float patience = 10f;
     public int id;
 
     /* Properties */
@@ -22,6 +25,7 @@ public class Character : MonoBehaviour
     private TaskCompletionSource<bool> onMoveTask;
     private TaskCompletionSource<Cocktail> onWaitTask;
     private float timeAwaited = 0f;
+    private readonly List<Func<Cocktail, Cocktail, float>> rules = new List<Func<Cocktail, Cocktail, float>>();
 
     /* Unity Injection */
     private Animator animator;
@@ -35,12 +39,14 @@ public class Character : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        rules.Add(Rules.BaseRule);
     }
 
     private void Update()
     {
         StepWait();
-        switch (state) {
+        switch (state)
+        {
             case State.Idle:
                 StepIdle();
                 break;
@@ -55,7 +61,8 @@ public class Character : MonoBehaviour
 
     public Task MoveTo(Vector2 position)
     {
-        if (onMoveTask != null) {
+        if (onMoveTask != null)
+        {
             throw new InvalidOperationException("Client is alreay moving, can't move again");
         }
         dst = new Vector2(position.x, transform.position.y);
@@ -66,7 +73,8 @@ public class Character : MonoBehaviour
 
     public void Follow(Character character)
     {
-        if (onMoveTask != null) {
+        if (onMoveTask != null)
+        {
             throw new InvalidOperationException("Client is already moving, can't follow");
         }
         leader = character;
@@ -75,7 +83,8 @@ public class Character : MonoBehaviour
 
     public Task<Cocktail> Await()
     {
-        if (onWaitTask != null) {
+        if (onWaitTask != null)
+        {
             throw new InvalidOperationException("Client is already awaiting for something");
         }
         onWaitTask = new TaskCompletionSource<Cocktail>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -84,20 +93,28 @@ public class Character : MonoBehaviour
 
     public void Serve(Cocktail cocktail)
     {
-        if (onWaitTask == null) {
+        if (onWaitTask == null)
+        {
             throw new InvalidOperationException("Client is not awaiting for something");
         }
         onWaitTask.TrySetResult(cocktail);
         Clean();
     }
 
+    public int Check(Cocktail expected, Cocktail actual)
+    {
+        return (int)rules.Sum(rule => rule(expected, actual));
+    }
+
     private void StepWait()
     {
-        if (onWaitTask == null || tolerance == -1) {
+        if (onWaitTask == null || patience == -1)
+        {
             return;
         }
         timeAwaited += Time.deltaTime;
-        if (timeAwaited > tolerance)  {
+        if (timeAwaited > patience)
+        {
             onWaitTask?.TrySetCanceled();
             spriteRenderer.color = Color.red;
             Clean();
@@ -112,10 +129,13 @@ public class Character : MonoBehaviour
     private void StepMove()
     {
         float distance = Vector2.Distance(transform.position, dst);
-        if (distance > 1) {
+        if (distance > 1)
+        {
             animator.SetInteger("State", ANIM_MOVE);
             Step();
-        } else {
+        }
+        else
+        {
             animator.SetInteger("State", ANIM_IDLE);
             onMoveTask?.TrySetResult(true);
             Clean();
@@ -124,17 +144,21 @@ public class Character : MonoBehaviour
 
     private void StepFollow()
     {
-        if (leader == null) {
+        if (leader == null)
+        {
             throw new InvalidOperationException("Client should have a leader to follow");
         }
 
         dst = new Vector2(leader.transform.position.x, transform.position.y);
-        
+
         float distance = Vector2.Distance(transform.position, dst);
-        if (distance > spriteRenderer.bounds.extents.x + 10) {
+        if (distance > spriteRenderer.bounds.extents.x + 10)
+        {
             animator.SetInteger("State", ANIM_MOVE);
             Step();
-        } else {
+        }
+        else
+        {
             animator.SetInteger("State", ANIM_IDLE);
         }
     }

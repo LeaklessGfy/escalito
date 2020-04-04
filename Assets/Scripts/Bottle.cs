@@ -8,8 +8,8 @@ public class Bottle : MonoBehaviour
     private bool isFlowing;
     private Liquid currentLiquid;
 
-    private void Update() {
-        CheckFlow();
+    private void Update()
+    {
     }
 
     private void CheckFlow()
@@ -17,14 +17,18 @@ public class Bottle : MonoBehaviour
         float zAngle = transform.localEulerAngles.z;
         bool flowCheck = zAngle > 80 && zAngle < 280;
 
-        if (isFlowing == flowCheck) {
+        if (isFlowing == flowCheck)
+        {
             return;
         }
 
         isFlowing = flowCheck;
-        if (isFlowing) {
+        if (isFlowing)
+        {
             StartFlow();
-        } else {
+        }
+        else
+        {
             EndFlow();
         }
     }

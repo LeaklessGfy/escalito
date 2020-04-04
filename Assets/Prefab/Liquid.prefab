@@ -4710,7 +4710,7 @@ GameObject:
   - component: {fileID: 5238570228697279500}
   - component: {fileID: 6995094453104305081}
   m_Layer: 0
-  m_Name: Stream
+  m_Name: Liquid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
