@@ -1,8 +1,11 @@
+using Assets.Scripts.Core;
 using UnityEngine;
 
 public class Bottle : MonoBehaviour
 {
     public Transform origin;
+    public Cocktail.Consumable consumable;
+
     private bool isFlowing;
 
     private void Update()
