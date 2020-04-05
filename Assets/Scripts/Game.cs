@@ -17,10 +17,6 @@ public class Game : MonoBehaviour
     private readonly LinkedList<Character> clients = new LinkedList<Character>();
     private readonly List<Order> orders = new List<Order>();
 
-    public void OrderTrigger()
-    {
-    }
-
     private void Awake()
     {
         spriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();

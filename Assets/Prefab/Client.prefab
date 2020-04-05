@@ -94,6 +94,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
+  patience: 10
+  id: 0
 --- !u!95 &3005728562095102801
 Animator:
   serializedVersion: 3
