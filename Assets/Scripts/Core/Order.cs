@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.Core
+﻿namespace Core
 {
     class Order
     {

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using Assets.Scripts.Core;
 using System.Linq;
+using Core;
 
 public class Character : MonoBehaviour
 {
-    enum State
+    private enum State
     {
         Idle,
         Move,
@@ -16,36 +16,37 @@ public class Character : MonoBehaviour
 
     public float speed = 30f;
     public float patience = 10f;
-    public int id;
+    public int Id { get; set; }
 
     /* Properties */
-    private State state = State.Idle;
-    private Vector2 dst;
-    private Character leader;
-    private TaskCompletionSource<bool> onMoveTask;
-    private TaskCompletionSource<Cocktail> onWaitTask;
-    private float timeAwaited = 0f;
-    private readonly List<Func<Cocktail, Cocktail, float>> rules = new List<Func<Cocktail, Cocktail, float>>();
+    private State _state = State.Idle;
+    private Vector2 _dst;
+    private Character _leader;
+    private TaskCompletionSource<bool> _onMoveTask;
+    private TaskCompletionSource<Cocktail> _onWaitTask;
+    private float _timeAwaited = 0f;
+    private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
 
     /* Unity Injection */
-    private Animator animator;
-    private SpriteRenderer spriteRenderer;
+    private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
 
     /* Constants */
-    private static readonly int ANIM_IDLE = 0;
-    private static readonly int ANIM_MOVE = 1;
+    private const int AnimIdle = 0;
+    private const int AnimMove = 1;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-        rules.Add(Rules.BaseRule);
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
+        _rules.Add(Rules.BaseRule);
     }
 
     private void Update()
     {
         StepWait();
-        switch (state)
+
+        switch (_state)
         {
             case State.Idle:
                 StepIdle();
@@ -56,126 +57,128 @@ public class Character : MonoBehaviour
             case State.Follow:
                 StepFollow();
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
-    public Task MoveTo(Vector2 position)
+    public Task MoveToAsync(Vector2 position)
     {
-        if (onMoveTask != null)
+        if (_onMoveTask != null)
         {
             throw new InvalidOperationException("Client is alreay moving, can't move again");
         }
-        dst = new Vector2(position.x, transform.position.y);
-        state = State.Move;
-        onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        return onMoveTask.Task;
+        _dst = new Vector2(position.x, transform.position.y);
+        _state = State.Move;
+        _onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return _onMoveTask.Task;
     }
 
     public void Follow(Character character)
     {
-        if (onMoveTask != null)
+        if (_onMoveTask != null)
         {
             throw new InvalidOperationException("Client is already moving, can't follow");
         }
-        leader = character;
-        state = State.Follow;
+        _leader = character;
+        _state = State.Follow;
     }
 
     public Task<Cocktail> Await()
     {
-        if (onWaitTask != null)
+        if (_onWaitTask != null)
         {
             throw new InvalidOperationException("Client is already awaiting for something");
         }
-        onWaitTask = new TaskCompletionSource<Cocktail>(TaskCreationOptions.RunContinuationsAsynchronously);
-        return onWaitTask.Task;
+        _onWaitTask = new TaskCompletionSource<Cocktail>(TaskCreationOptions.RunContinuationsAsynchronously);
+        return _onWaitTask.Task;
     }
 
     public void Serve(Cocktail cocktail)
     {
-        if (onWaitTask == null)
+        if (_onWaitTask == null)
         {
             throw new InvalidOperationException("Client is not awaiting for something");
         }
-        onWaitTask.TrySetResult(cocktail);
+        _onWaitTask.TrySetResult(cocktail);
         Clean();
     }
 
     public int Check(Cocktail expected, Cocktail actual)
     {
-        return (int)rules.Sum(rule => rule(expected, actual));
+        return (int)_rules.Sum(rule => rule(expected, actual));
     }
 
     private void StepWait()
     {
-        if (onWaitTask == null || patience == -1)
+        if (_onWaitTask == null || Math.Abs(patience - (-1)) < 0.1)
         {
             return;
         }
-        timeAwaited += Time.deltaTime;
-        if (timeAwaited > patience)
+
+        _timeAwaited += Time.deltaTime;
+        if (!(_timeAwaited > patience))
         {
-            onWaitTask?.TrySetCanceled();
-            spriteRenderer.color = Color.red;
-            Clean();
+            return;
         }
+
+        _onWaitTask?.TrySetCanceled();
+        _spriteRenderer.color = Color.red;
+        Clean();
     }
 
     private void StepIdle()
     {
-        animator.SetInteger("State", ANIM_IDLE);
+        _animator.SetInteger("State", AnimIdle);
     }
 
     private void StepMove()
     {
-        float distance = Vector2.Distance(transform.position, dst);
+        var distance = Vector2.Distance(transform.position, _dst);
         if (distance > 1)
         {
-            animator.SetInteger("State", ANIM_MOVE);
+            _animator.SetInteger("State", AnimMove);
             Step();
         }
         else
         {
-            animator.SetInteger("State", ANIM_IDLE);
-            onMoveTask?.TrySetResult(true);
+            _animator.SetInteger("State", AnimIdle);
+            _onMoveTask?.TrySetResult(true);
             Clean();
         }
     }
 
     private void StepFollow()
     {
-        if (leader == null)
-        {
-            throw new InvalidOperationException("Client should have a leader to follow");
-        }
+        var position = transform.position;
+        _dst = new Vector2(_leader.transform.position.x, position.y);
 
-        dst = new Vector2(leader.transform.position.x, transform.position.y);
-
-        float distance = Vector2.Distance(transform.position, dst);
-        if (distance > spriteRenderer.bounds.extents.x + 10)
+        var distance = Vector2.Distance(position, _dst);
+        if (distance > _spriteRenderer.bounds.extents.x + 10)
         {
-            animator.SetInteger("State", ANIM_MOVE);
+            _animator.SetInteger("State", AnimMove);
             Step();
         }
         else
         {
-            animator.SetInteger("State", ANIM_IDLE);
+            _animator.SetInteger("State", AnimIdle);
         }
     }
 
     private void Step()
     {
-        spriteRenderer.flipX = dst.x < transform.position.x ? true : false;
-        transform.position = Vector2.MoveTowards(transform.position, dst, speed * Time.deltaTime);
+        var position = transform.position;
+        _spriteRenderer.flipX = _dst.x < position.x ? true : false;
+        transform.position = Vector2.MoveTowards(position, _dst, speed * Time.deltaTime);
     }
 
     private void Clean()
     {
-        state = State.Idle;
-        dst = Vector2.zero;
-        leader = null;
-        onMoveTask = null;
-        onWaitTask = null;
-        timeAwaited = 0f;
+        _state = State.Idle;
+        _dst = Vector2.zero;
+        _leader = null;
+        _onMoveTask = null;
+        _onWaitTask = null;
+        _timeAwaited = 0f;
     }
 }

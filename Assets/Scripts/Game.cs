@@ -1,7 +1,8 @@
-﻿using Assets.Scripts.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
+using Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,17 +10,19 @@ public class Game : MonoBehaviour
 {
     public GameObject clientPrefab;
     public Button button;
+    public Text hour;
+    public Text money;
     public Transform origin;
     public Transform barPosition;
     public int maxClients = 3;
 
-    private SpriteRenderer spriteRenderer;
-    private readonly LinkedList<Character> clients = new LinkedList<Character>();
-    private readonly List<Order> orders = new List<Order>();
+    private SpriteRenderer _spriteRenderer;
+    private readonly LinkedList<Character> _clients = new LinkedList<Character>();
+    private readonly List<Order> _orders = new List<Order>();
 
     private void Awake()
     {
-        spriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
+        _spriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
     }
 
     private void Start()
@@ -28,55 +31,64 @@ public class Game : MonoBehaviour
         // InvokeRepeating("TestFollow", 7f, 7f);
     }
 
+    private void Update()
+    {
+        hour.text = Time.time.ToString(CultureInfo.InvariantCulture);
+    }
+
     private void TestFollow()
     {
-        Leave(clients.First.Next.Value);
+        if (_clients.First.Next != null)
+        {
+            LeaveAsync(_clients.First.Next.Value);
+        }
     }
 
     private void CreateNewClient()
     {
-        if (clients.Count >= maxClients)
+        if (_clients.Count >= maxClients)
         {
             return;
         }
 
-        Vector3 position = new Vector3(origin.position.x, origin.position.y, 0);
-        GameObject gameObject = Instantiate(clientPrefab, position, Quaternion.identity);
-        Character client = gameObject.GetComponent<Character>();
-        client.id = clients.Count;
+        var originPosition = origin.position;
+        var sprite = Instantiate(clientPrefab, originPosition, Quaternion.identity);
+        var client = sprite.GetComponent<Character>();
+        client.Id = _clients.Count;
 
         AddClient(client);
     }
 
     private void AddClient(Character client)
     {
-        if (clients.Count == 0)
+        if (_clients.Count == 0)
         {
-            GoToBar(client);
+            GoToBarAsync(client);
         }
         else
         {
-            GoFollow(client, clients.Last.Value);
+            GoFollow(client, _clients.Last.Value);
         }
-        clients.AddLast(client);
+        _clients.AddLast(client);
     }
 
-    private async void GoToBar(Character client)
+    private async void GoToBarAsync(Character client)
     {
-        Vector2 point = new Vector2(barPosition.position.x - spriteRenderer.sprite.bounds.extents.x, barPosition.position.y);
-        await client.MoveTo(point);
-        Cocktail expected = Order(client);
+        var position = barPosition.position;
+        var point = new Vector2(position.x - _spriteRenderer.sprite.bounds.extents.x, position.y);
+        await client.MoveToAsync(point);
+        var expected = Order(client);
 
         try
         {
-            Cocktail actual = await client.Await();
-            int satisfaction = client.Check(expected, actual);
+            var actual = await client.Await();
+            var satisfaction = client.Check(expected, actual);
             print(satisfaction);
-            Leave(client);
+            LeaveAsync(client);
         }
         catch (TaskCanceledException)
         {
-            Leave(client);
+            LeaveAsync(client);
         }
     }
 
@@ -89,20 +101,20 @@ public class Game : MonoBehaviour
 
     private Cocktail Order(Character client)
     {
-        Cocktail expected = Cocktail.BuildRandom();
+        var expected = Cocktail.BuildRandom();
 
         button.gameObject.SetActive(true);
-        button.transform.position = client.transform.position + new Vector3(0, spriteRenderer.sprite.bounds.extents.y, 0);
-        button.GetComponentInChildren<Text>().text = expected.Type.ToString();
+        button.transform.position = client.transform.position + new Vector3(0, _spriteRenderer.sprite.bounds.extents.y, 0);
+        button.GetComponentInChildren<Text>().text = expected.Recipe.ToString();
 
         button.onClick.AddListener(() =>
         {
             // add in cocktails queue ...
             // on an another trigger
             // queue of order, that contain : cocktail asked and client
-            var formula = new Dictionary<Cocktail.Consumable, int>
+            var formula = new Dictionary<Consumable, int>
             {
-                [Cocktail.Consumable.Rhum] = 50
+                [Consumable.Rum] = 50
             };
             var actual = Cocktail.BuildCustom(formula);
 
@@ -111,23 +123,23 @@ public class Game : MonoBehaviour
             button.gameObject.SetActive(false);
         });
 
-        orders.Add(new Order(client, expected));
+        _orders.Add(new Order(client, expected));
 
         return expected;
     }
 
-    private async void Leave(Character client)
+    private async void LeaveAsync(Character client)
     {
-        LinkedListNode<Character> node = clients.Find(client);
+        var node = _clients.Find(client);
 
         if (node == null)
         {
             throw new InvalidOperationException("Client couldn't be found in clients queue");
         }
 
-        Character follower = node.Next != null ? node.Next.Value : null;
-        Character leader = node.Previous != null ? node.Previous.Value : null;
-        clients.Remove(node);
+        var follower = node.Next?.Value;
+        var leader = node.Previous?.Value;
+        _clients.Remove(node);
 
         if (follower)
         {
@@ -137,12 +149,12 @@ public class Game : MonoBehaviour
             }
             else
             {
-                GoToBar(follower);
+                GoToBarAsync(follower);
             }
             // Dispatch minus time awaited to all awaiting clients (different waiting ?) ?
         }
 
-        await client.MoveTo(origin.position);
+        await client.MoveToAsync(origin.position);
         Destroy(client.gameObject);
     }
 }

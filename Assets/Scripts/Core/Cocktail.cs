@@ -2,21 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Assets.Scripts.Core
+namespace Core
 {
     public class Cocktail
     {
-        public enum CocktailType
-        {
-            Mojito,
-            Custom
-        };
-        public enum Consumable
-        {
-            Rhum
-        };
-
-        public CocktailType Type
+        public Recipe Recipe
         {
             get; private set;
         }
@@ -25,39 +15,43 @@ namespace Assets.Scripts.Core
             get; private set;
         }
 
-        private Cocktail(CocktailType type, IReadOnlyDictionary<Consumable, int> formula)
+        private Cocktail(Recipe recipe, IReadOnlyDictionary<Consumable, int> formula)
         {
-            Type = type;
+            Recipe = recipe;
             Formula = formula;
         }
 
-        public static Cocktail Build(CocktailType type)
+        private static Cocktail Build(Recipe recipe)
         {
-            IReadOnlyDictionary<Consumable, int> dict = BuildFormula(type);
-            return new Cocktail(type, dict);
+            var dict = BuildFormula(recipe);
+            return new Cocktail(recipe, dict);
         }
 
         public static Cocktail BuildRandom()
         {
-            string[] types = Enum.GetNames(typeof(CocktailType)).Where(e => !e.Equals(CocktailType.Custom.ToString())).ToArray();
-            int rand = UnityEngine.Random.Range(0, types.Length);
-            Enum.TryParse(types[rand], out CocktailType type);
+            var types = Enum.GetNames(typeof(Recipe)).Where(e => !e.Equals(Recipe.Custom.ToString())).ToArray();
+            var rand = UnityEngine.Random.Range(0, types.Length);
+            Enum.TryParse(types[rand], out Recipe type);
             return Build(type);
         }
 
         public static Cocktail BuildCustom(Dictionary<Consumable, int> formula)
         {
-            return new Cocktail(CocktailType.Custom, formula);
+            return new Cocktail(Recipe.Custom, formula);
         }
 
-        private static IReadOnlyDictionary<Consumable, int> BuildFormula(CocktailType type)
+        private static IReadOnlyDictionary<Consumable, int> BuildFormula(Recipe type)
         {
-            Dictionary<Consumable, int> dict = new Dictionary<Consumable, int>();
+            var dict = new Dictionary<Consumable, int>();
             switch (type)
             {
-                case CocktailType.Mojito:
-                    dict.Add(Consumable.Rhum, 100);
+                case Recipe.Mojito:
+                    dict.Add(Consumable.Rum, 100);
                     return dict;
+                case Recipe.Custom:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
             throw new ArgumentException("No formula for specific type " + type);
         }

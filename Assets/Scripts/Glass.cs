@@ -1,30 +1,29 @@
-﻿using Assets.Scripts.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Core;
 using UnityEngine;
 
 public class Glass : MonoBehaviour
 {
-    private BoxCollider2D boxCollider;
-    private LineRenderer lineRenderer;
-    private ParticleSystem fullParticleSystem;
+    private BoxCollider2D _boxCollider;
+    private LineRenderer _lineRenderer;
+    private ParticleSystem _fullParticleSystem;
 
-    public Dictionary<Cocktail.Consumable, int> Consumables
+    public Dictionary<Consumable, int> Consumables
     {
         get; private set;
-    } = new Dictionary<Cocktail.Consumable, int>();
+    } = new Dictionary<Consumable, int>();
 
     private void Awake()
     {
-        boxCollider = GetComponent<BoxCollider2D>();
-        lineRenderer = GetComponentInChildren<LineRenderer>();
-        fullParticleSystem = GetComponentInChildren<ParticleSystem>();
+        _boxCollider = GetComponent<BoxCollider2D>();
+        _lineRenderer = GetComponentInChildren<LineRenderer>();
+        _fullParticleSystem = GetComponentInChildren<ParticleSystem>();
     }
 
     private void Update()
     {
-        float zAngle = transform.localEulerAngles.z;
-        bool shouldFlow = zAngle > 80 && zAngle < 280;
-
+        var zAngle = transform.localEulerAngles.z;
+        var shouldFlow = zAngle > 80 && zAngle < 280;
         if (shouldFlow && !IsEmpty())
         {
             ThrowConsumable();
@@ -33,47 +32,45 @@ public class Glass : MonoBehaviour
 
     private void OnParticleCollision(GameObject origin)
     {
-        ParticleSystem particleSystem = origin.GetComponent<ParticleSystem>();
-        Color color = particleSystem.main.startColor.color;
+        var liquid = origin.GetComponent<ParticleSystem>();
+        var color = liquid.main.startColor.color;
 
-        //lineRenderer.startColor = new Color(color.r, color.g, color.b, 0.60f);
-        //lineRenderer.endColor = new Color(color.r, color.g, color.b, 0.70f);
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
+        _lineRenderer.startColor = color; // new Color(color.r, color.g, color.b, 0.60f);
+        _lineRenderer.endColor = color; // new Color(color.r, color.g, color.b, 0.60f);
 
         if (!IsFull())
         {
             AddConsumable(origin);
         }
-        else if (!fullParticleSystem.isPlaying)
+        else if (!_fullParticleSystem.isPlaying)
         {
-            var main = fullParticleSystem.main;
+            var main = _fullParticleSystem.main;
             main.startColor = color;
-            fullParticleSystem.Play();
+            _fullParticleSystem.Play();
         }
     }
 
     private void AddConsumable(GameObject origin)
     {
-        Vector3 currentPosition = lineRenderer.GetPosition(0);
-        Vector3 stepPosition = Vector3.up * 0.1f;
-        Vector3 newPosition = currentPosition + stepPosition;
-        lineRenderer.SetPosition(0, newPosition);
+        var currentPosition = _lineRenderer.GetPosition(0);
+        var stepPosition = Vector3.up * 0.1f;
+        var newPosition = currentPosition + stepPosition;
+        _lineRenderer.SetPosition(0, newPosition);
 
-        Bottle bottle = origin.GetComponentInParent<Bottle>();
+        var bottle = origin.GetComponentInParent<Bottle>();
         Consumables.TryGetValue(bottle.consumable, out var prev);
         Consumables[bottle.consumable] = prev + 1;
     }
 
     private void ThrowConsumable()
     {
-        Vector3 currentPosition = lineRenderer.GetPosition(0);
-        Vector3 stepPosition = Vector3.up * 0.1f;
-        Vector3 newPosition = currentPosition - stepPosition;
-        lineRenderer.SetPosition(0, newPosition);
+        var currentPosition = _lineRenderer.GetPosition(0);
+        var stepPosition = Vector3.up * 0.1f;
+        var newPosition = currentPosition - stepPosition;
+        _lineRenderer.SetPosition(0, newPosition);
 
-        List<Cocktail.Consumable> keys = new List<Cocktail.Consumable>(Consumables.Keys);
-        foreach (Cocktail.Consumable key in keys)
+        var keys = new List<Consumable>(Consumables.Keys);
+        foreach (var key in keys)
         {
             Consumables[key] = Consumables[key] - 1;
         }
@@ -81,11 +78,11 @@ public class Glass : MonoBehaviour
 
     private bool IsFull()
     {
-        return lineRenderer.GetPosition(0).y >= boxCollider.size.y;
+        return _lineRenderer.GetPosition(0).y >= _boxCollider.size.y;
     }
 
     private bool IsEmpty()
     {
-        return lineRenderer.GetPosition(0).y <= 0;
+        return _lineRenderer.GetPosition(0).y <= 0;
     }
 }

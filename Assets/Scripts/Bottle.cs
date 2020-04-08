@@ -1,31 +1,36 @@
-using Assets.Scripts.Core;
+using Core;
 using UnityEngine;
 
 public class Bottle : MonoBehaviour
 {
-    public Transform origin;
-    public Cocktail.Consumable consumable;
+    public Consumable consumable;
 
-    private bool isFlowing;
+    private bool _isFlowing;
+    private ParticleSystem _particleSystem;
+
+    private void Awake()
+    {
+        _particleSystem = GetComponentInChildren<ParticleSystem>();
+    }
 
     private void Update()
     {
-        float zAngle = transform.localEulerAngles.z;
-        bool shouldFlow = zAngle > 80 && zAngle < 280;
+        var zAngle = transform.localEulerAngles.z;
+        var shouldFlow = zAngle > 80 && zAngle < 280;
 
-        if (isFlowing == shouldFlow)
+        if (_isFlowing == shouldFlow)
         {
             return;
         }
 
-        isFlowing = shouldFlow;
-        if (isFlowing)
+        _isFlowing = shouldFlow;
+        if (_isFlowing)
         {
-            origin.GetComponent<ParticleSystem>().Play();
+            _particleSystem.Play();
         }
         else
         {
-            origin.GetComponent<ParticleSystem>().Stop();
+            _particleSystem.Stop();
         }
     }
 }
