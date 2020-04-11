@@ -7,11 +7,17 @@ public class Glass : MonoBehaviour
     private BoxCollider2D _boxCollider;
     private LineRenderer _lineRenderer;
     private ParticleSystem _fullParticleSystem;
+    private Dictionary<Consumable, int> _consumables = new Dictionary<Consumable, int>();
 
-    public Dictionary<Consumable, int> Consumables
+    public IReadOnlyDictionary<Consumable, int> Consumables => _consumables;
+
+    public void Drain()
     {
-        get; private set;
-    } = new Dictionary<Consumable, int>();
+        var currentPosition = _lineRenderer.GetPosition(0);
+        var newPosition = new Vector3(currentPosition.x, 0, 0);
+        _lineRenderer.SetPosition(0, newPosition);
+        _consumables = new Dictionary<Consumable, int>();
+    }
 
     private void Awake()
     {
@@ -58,8 +64,8 @@ public class Glass : MonoBehaviour
         _lineRenderer.SetPosition(0, newPosition);
 
         var bottle = origin.GetComponentInParent<Bottle>();
-        Consumables.TryGetValue(bottle.consumable, out var prev);
-        Consumables[bottle.consumable] = prev + 1;
+        _consumables.TryGetValue(bottle.consumable, out var prev);
+        _consumables[bottle.consumable] = prev + 1;
     }
 
     private void ThrowConsumable()
@@ -69,10 +75,10 @@ public class Glass : MonoBehaviour
         var newPosition = currentPosition - stepPosition;
         _lineRenderer.SetPosition(0, newPosition);
 
-        var keys = new List<Consumable>(Consumables.Keys);
+        var keys = new List<Consumable>(_consumables.Keys);
         foreach (var key in keys)
         {
-            Consumables[key] = Consumables[key] - 1;
+            _consumables[key] = Consumables[key] - 1;
         }
     }
 

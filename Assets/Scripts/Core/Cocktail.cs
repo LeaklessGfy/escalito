@@ -6,54 +6,64 @@ namespace Core
 {
     public class Cocktail
     {
-        public Recipe Recipe
-        {
-            get; private set;
-        }
-        public IReadOnlyDictionary<Consumable, int> Formula
-        {
-            get; private set;
-        }
+        public CocktailName Name { get; }
+        public int Price { get; }
+        public IReadOnlyDictionary<Consumable, int> Recipe { get; }
 
-        private Cocktail(Recipe recipe, IReadOnlyDictionary<Consumable, int> formula)
+        private Cocktail(CocktailName name, int price, IReadOnlyDictionary<Consumable, int> recipe)
         {
+            Name = name;
+            Price = price;
             Recipe = recipe;
-            Formula = formula;
         }
 
-        private static Cocktail Build(Recipe recipe)
+        private static Cocktail Build(CocktailName name)
         {
-            var dict = BuildFormula(recipe);
-            return new Cocktail(recipe, dict);
+            var price = BuildPrice(name);
+            var recipe = BuildRecipe(name);
+            return new Cocktail(name, price, recipe);
         }
 
         public static Cocktail BuildRandom()
         {
-            var types = Enum.GetNames(typeof(Recipe)).Where(e => !e.Equals(Recipe.Custom.ToString())).ToArray();
-            var rand = UnityEngine.Random.Range(0, types.Length);
-            Enum.TryParse(types[rand], out Recipe type);
-            return Build(type);
+            var names = Enum.GetNames(typeof(CocktailName)).Where(e => !e.Equals(CocktailName.Custom.ToString())).ToArray();
+            var rand = UnityEngine.Random.Range(0, names.Length);
+            Enum.TryParse(names[rand], out CocktailName name);
+            return Build(name);
         }
 
-        public static Cocktail BuildCustom(Dictionary<Consumable, int> formula)
+        public static Cocktail BuildCustom(IReadOnlyDictionary<Consumable, int> recipe)
         {
-            return new Cocktail(Recipe.Custom, formula);
+            return new Cocktail(CocktailName.Custom, 0, recipe);
         }
 
-        private static IReadOnlyDictionary<Consumable, int> BuildFormula(Recipe type)
+        private static int BuildPrice(CocktailName name)
         {
-            var dict = new Dictionary<Consumable, int>();
-            switch (type)
+            switch (name)
             {
-                case Recipe.Mojito:
-                    dict.Add(Consumable.Rum, 100);
-                    return dict;
-                case Recipe.Custom:
+                case CocktailName.Mojito:
+                    return 5;
+                case CocktailName.Custom:
+                    return 0;
+                default:
+                    return 0;
+            }
+        }
+
+        private static IReadOnlyDictionary<Consumable, int> BuildRecipe(CocktailName name)
+        {
+            var recipe = new Dictionary<Consumable, int>();
+            switch (name)
+            {
+                case CocktailName.Mojito:
+                    recipe.Add(Consumable.Rum, 100);
+                    return recipe;
+                case CocktailName.Custom:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    throw new ArgumentOutOfRangeException(nameof(name), name, null);
             }
-            throw new ArgumentException("No formula for specific type " + type);
+            throw new ArgumentException("No formula for specific type " + name);
         }
     }
 }

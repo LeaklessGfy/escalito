@@ -14,8 +14,6 @@ public class Character : MonoBehaviour
         Follow
     };
 
-    public float speed = 30f;
-    public float patience = 10f;
     public int Id { get; set; }
 
     /* Properties */
@@ -23,8 +21,8 @@ public class Character : MonoBehaviour
     private Vector2 _dst;
     private Character _leader;
     private TaskCompletionSource<bool> _onMoveTask;
-    private TaskCompletionSource<Cocktail> _onWaitTask;
-    private float _timeAwaited = 0f;
+    private TaskCompletionSource<bool> _onWaitTask;
+    private float _timeAwaited;
     private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
 
     /* Unity Injection */
@@ -34,6 +32,8 @@ public class Character : MonoBehaviour
     /* Constants */
     private const int AnimIdle = 0;
     private const int AnimMove = 1;
+    private const float Speed = 30f;
+    private const float Patience = 10f;
 
     private void Awake()
     {
@@ -84,46 +84,51 @@ public class Character : MonoBehaviour
         _state = State.Follow;
     }
 
-    public Task<Cocktail> Await()
+    public Task Await()
     {
         if (_onWaitTask != null)
         {
             throw new InvalidOperationException("Client is already awaiting for something");
         }
-        _onWaitTask = new TaskCompletionSource<Cocktail>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _onWaitTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         return _onWaitTask.Task;
     }
 
-    public void Serve(Cocktail cocktail)
+    public float Serve(Cocktail expected, Cocktail actual)
     {
         if (_onWaitTask == null)
         {
             throw new InvalidOperationException("Client is not awaiting for something");
         }
-        _onWaitTask.TrySetResult(cocktail);
+        _onWaitTask.TrySetResult(true);
         Clean();
+        return _rules.Sum(rule => rule(expected, actual));
     }
 
-    public int Check(Cocktail expected, Cocktail actual)
+    public void PatienceBonus(int bonus)
     {
-        return (int)_rules.Sum(rule => rule(expected, actual));
+        _timeAwaited -= bonus;
+    }
+
+    public void Satisfaction(float satisfaction)
+    {
+        _spriteRenderer.color = satisfaction < 0 ? Color.red : Color.green;
     }
 
     private void StepWait()
     {
-        if (_onWaitTask == null || Math.Abs(patience - (-1)) < 0.1)
+        if (_onWaitTask == null || Math.Abs(Patience - (-1)) < 0.1)
         {
             return;
         }
 
         _timeAwaited += Time.deltaTime;
-        if (!(_timeAwaited > patience))
+        if (_timeAwaited < Patience)
         {
             return;
         }
 
         _onWaitTask?.TrySetCanceled();
-        _spriteRenderer.color = Color.red;
         Clean();
     }
 
@@ -169,7 +174,7 @@ public class Character : MonoBehaviour
     {
         var position = transform.position;
         _spriteRenderer.flipX = _dst.x < position.x ? true : false;
-        transform.position = Vector2.MoveTowards(position, _dst, speed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(position, _dst, Speed * Time.deltaTime);
     }
 
     private void Clean()

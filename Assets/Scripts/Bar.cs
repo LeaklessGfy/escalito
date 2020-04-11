@@ -1,13 +1,22 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-class Bar : MonoBehaviour
+public class Bar : MonoBehaviour
 {
+    private readonly List<Action<Glass>> _collisionsListeners = new List<Action<Glass>>();
+
+    public void AddCollisionListener(Action<Glass> action)
+    {
+        _collisionsListeners.Add(action);
+    }
+    
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Glass glass = collision.gameObject.GetComponent<Glass>();
-        foreach (var value in glass.Consumables)
+        var glass = collision.gameObject.GetComponent<Glass>();
+        foreach (var listener in _collisionsListeners)
         {
-            print(value.Key + " " + value.Value);
+            listener(glass);
         }
     }
 }

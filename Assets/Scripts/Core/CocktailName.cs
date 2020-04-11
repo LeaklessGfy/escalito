@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public enum Recipe
+    public enum CocktailName
     {
         Mojito,
         Custom
