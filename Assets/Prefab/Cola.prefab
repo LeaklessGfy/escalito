@@ -12,12 +12,10 @@ GameObject:
   - component: {fileID: 942552757864026004}
   - component: {fileID: 942552757864026008}
   - component: {fileID: 5812735022290613786}
-  - component: {fileID: 942552757864026011}
-  - component: {fileID: 942552757864026010}
   - component: {fileID: 942552757864026005}
   - component: {fileID: 5797098790670993698}
   m_Layer: 0
-  m_Name: Bottle Cola
+  m_Name: Cola
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,7 +99,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 1
   m_AngularDrag: 1
-  m_GravityScale: 20
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -133,31 +131,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 11.944092, y: 43.28291}
   m_EdgeRadius: 0
---- !u!114 &942552757864026011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 942552757864026006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa7c5b51cdf7ac84eb9c0d9772263bc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &942552757864026010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 942552757864026006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d115cbe2715d8c4ab3683713de67da5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 150
 --- !u!114 &942552757864026005
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,36 +1,17 @@
 ﻿using System.Collections.Generic;
 using Core;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class Glass : MonoBehaviour, IPointerDownHandler
+public class Glass : MonoBehaviour
 {
+    /* UNITY */
     private BoxCollider2D _boxCollider;
     private ParticleSystem _fullParticleSystem;
     private LineRenderer _lineRenderer;
-    private Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
+    
+    private readonly Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
 
     public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (eventData.clickCount < 2)
-        {
-            return;
-        }
-
-        Drain();
-    }
-
-    public void Drain()
-    {
-        var currentPosition = _lineRenderer.GetPosition(0);
-        var newPosition = new Vector3(currentPosition.x, 0, 0);
-        _lineRenderer.SetPosition(0, newPosition);
-        _recipe = new Dictionary<Ingredient, int>();
-        transform.position = new Vector3(0, 0, 0);
-        _fullParticleSystem.Stop();
-    }
 
     private void Awake()
     {

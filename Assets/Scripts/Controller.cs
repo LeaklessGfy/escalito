@@ -9,28 +9,30 @@ using Selectable = Components.Selectable;
 
 public class Controller : MonoBehaviour
 {
+    /* CONSTANT */
     private const int MinutesPerDay = 10;
     public static Controller Main;
 
-    private readonly LinkedList<Character> _clients = new LinkedList<Character>();
-    private int _cash;
+    private readonly LinkedList<Client> _clients = new LinkedList<Client>();
+    private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
 
+    /* UNITY */
     private AudioSource _audioSource;
-    private SpriteRenderer _clientSpriteRenderer;
-    private Order _currentOrder;
-    private float _currentTime;
-    private Text _orderAskText;
-
     private Text _selectedText;
-    private float _spawnTime;
+    private Text _clockText;
+    private Text _moneyText;
 
-    public Bar bar;
-    public GameObject clientPrefab;
-    public Text clock;
-    public int maxClients = 3;
-    public Text money;
-    public Button orderAskButton;
+    /* STATE */
+    private int _cash;
+    private float _currentTime;
+    private float _spawnTime;
+    private Vector2 _range = new Vector2(10f, 10f);
+
+    public Transform bar;
     public Transform origin;
+    public GameObject clientPrefab;
+    public GameObject glassPrefab;
+    public int maxClients = 3;
 
     public Selectable Selected { get; set; }
 
@@ -39,36 +41,44 @@ public class Controller : MonoBehaviour
         Main = this;
 
         _audioSource = GetComponent<AudioSource>();
-        _clientSpriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
-        _orderAskText = orderAskButton.GetComponentInChildren<Text>();
         _selectedText = GameObject.Find("Selected").GetComponent<Text>();
-        bar.CollisionListeners += ReceiveOrder;
+        _clockText = GameObject.Find("Clock").GetComponent<Text>();
+        _moneyText = GameObject.Find("Money").GetComponent<Text>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        UpdateClock();
-        UpdateMoney();
+        UpdateUI();
         UpdateSelected();
+        UpdateQueue();
         UpdateSpawn();
     }
 
-    private void UpdateClock()
+    private void UpdateUI()
     {
-        var now = GetTime();
-        var hours = now.Hours.ToString().PadLeft(2, '0');
-        var minutes = now.Minutes.ToString().PadLeft(2, '0');
-        clock.text = hours + ":" + minutes;
-    }
-
-    private void UpdateMoney()
-    {
-        money.text = _cash + "$";
+        _clockText.text = GetTime();
+        _moneyText.text = _cash + "$";
     }
 
     private void UpdateSelected()
     {
         _selectedText.text = Selected ? Selected.name : "";
+    }
+
+    private void UpdateQueue()
+    {
+        for (var node = _clients.Last; node != null;)
+        {
+            if (node.Previous != null)
+            {
+                GoFollow(node.Value, node.Previous.Value);
+            }
+            else
+            {
+                GoToBarAsync(node.Value);
+            }
+            node = node.Previous;
+        }
     }
 
     private void UpdateSpawn()
@@ -79,7 +89,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        _spawnTime = Random.Range(5.0f, 10.0f);
+        _spawnTime = Random.Range(_range.x, _range.y);
         _currentTime = 0;
         CreateNewClient();
     }
@@ -91,14 +101,14 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        var originPosition = origin.position;
-        var sprite = Instantiate(clientPrefab, originPosition, Quaternion.identity);
-        var client = sprite.GetComponent<Character>();
+        var sprite = Instantiate(clientPrefab, origin.position, Quaternion.identity);
+        var client = sprite.GetComponent<Client>();
+        client.CollisionListeners += ReceiveOrder;
 
         AddClient(client);
     }
 
-    private void AddClient(Character client)
+    private void AddClient(Client client)
     {
         if (_clients.Count == 0)
         {
@@ -112,11 +122,14 @@ public class Controller : MonoBehaviour
         _clients.AddLast(client);
     }
 
-    private async void GoToBarAsync(Character client)
+    private async void GoToBarAsync(Client client)
     {
-        var position = bar.transform.position;
-        var point = new Vector2(position.x - _clientSpriteRenderer.sprite.bounds.extents.x, position.y);
-        await client.MoveToAsync(point);
+        var hasMoved = await client.MoveToAsync(bar.transform.position);
+        if (!hasMoved)
+        {
+            return;
+        }
+        
         AskOrder(client);
 
         try
@@ -129,58 +142,61 @@ public class Controller : MonoBehaviour
         }
     }
 
-    private void GoFollow(Character client, Character leader)
+    private async void GoFollow(Client client, Client leader)
     {
-        client.Follow(leader);
-        // on progress, increment exhaust ?
-        // run exhaust parallel
-    }
-
-    private void AskOrder(Character client)
-    {
-        var expected = Cocktail.BuildRandom();
-        _currentOrder = new Order(client, expected);
-
-        orderAskButton.gameObject.SetActive(true);
-        orderAskButton.transform.position = client.transform.position +
-                                            new Vector3(0, _clientSpriteRenderer.sprite.bounds.extents.y, 0);
-        _orderAskText.text = expected.Name.ToString();
-
-        orderAskButton.onClick.AddListener(() => { client.PatienceBonus(2); });
-    }
-
-    private void ReceiveOrder(Glass glass)
-    {
-        if (_currentOrder == null)
+        var hasMoved = await client.MoveToAsync(leader.transform.position, 2);
+        if (!hasMoved)
         {
             return;
         }
 
-        var client = _currentOrder.Client;
-        var expected = _currentOrder.Cocktail;
-        var actual = Cocktail.BuildCustom(glass.Recipe);
-
-        var satisfaction = client.Serve(expected, actual);
-        LeaveAsync(client, satisfaction);
-
-        if (satisfaction > 20)
+        AskOrder(client);
+        
+        try
         {
-            _cash += expected.Price;
-            _audioSource.Play();
+            await client.Await();
+        }
+        catch (TaskCanceledException)
+        {
+            LeaveAsync(client);
+        }
+    }
+
+    private void AskOrder(Client client)
+    {
+        _orders[client] = client.Order();
+    }
+
+    private void ReceiveOrder(Client client, Glass glass)
+    {
+        if (!_orders.TryGetValue(client, out var expected))
+        {
+            return;
         }
 
-        glass.Drain();
-        CleanOrderAsk();
+        _orders.Remove(client);
+        var actual = Cocktail.BuildCustom(glass.Recipe);
+        var satisfaction = client.Serve(expected, actual);
+        
+        if (satisfaction > 20)
+        {
+            var price = expected.Price + (satisfaction > 100 ? Random.Range(0, 5) : 0);
+            client.Pay(price);
+            _cash += price;
+            _audioSource.Play();
+        }
+        else
+        {
+            client.GetComponent<AudioSource>().Play();
+        }
+
+        Destroy(glass.gameObject);
+        LeaveAsync(client, satisfaction);
+        Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
+        _range.x = Mathf.Max(0, _range.x - 1);
     }
 
-    private void CleanOrderAsk()
-    {
-        orderAskButton.onClick.RemoveAllListeners();
-        orderAskButton.gameObject.SetActive(false);
-        _currentOrder = null;
-    }
-
-    private async void LeaveAsync(Character client, float satisfaction = 0f)
+    private async void LeaveAsync(Client client, float satisfaction = 0f)
     {
         var node = _clients.Find(client);
 
@@ -188,39 +204,24 @@ public class Controller : MonoBehaviour
         {
             throw new InvalidOperationException("Client couldn't be found in clients queue");
         }
-
-        var follower = node.Next?.Value;
-        var leader = node.Previous?.Value;
+        
         _clients.Remove(node);
-        CleanOrderAsk();
-
-        if (follower)
-        {
-            if (leader)
-            {
-                GoFollow(follower, leader);
-            }
-            else
-            {
-                GoToBarAsync(follower);
-            }
-
-            // Dispatch bonus time awaited to all awaiting clients (different waiting ?) ?
-        }
-
+        client.Leave();
         client.Satisfaction(satisfaction);
         await client.MoveToAsync(origin.position);
         Destroy(client.gameObject);
     }
 
-    private static TimeSpan GetTime()
+    private static string GetTime()
     {
         var now = DateTime.Now;
-        var timeNow = now.TimeOfDay;
-        var hours = timeNow.TotalMinutes % MinutesPerDay;
+        var hours = now.TimeOfDay.TotalMinutes % MinutesPerDay;
         var minutes = hours % 1 * 60;
-        var seconds = minutes % 1 * 60;
+        var timeStamp = new TimeSpan((int) hours, (int) minutes, 0);
+        
+        var hoursString = timeStamp.Hours.ToString().PadLeft(2, '0');
+        var minutesString = timeStamp.Minutes.ToString().PadLeft(2, '0');
 
-        return new TimeSpan((int) hours, (int) minutes, (int) seconds);
+        return hoursString + ":" + minutesString;
     }
 }
