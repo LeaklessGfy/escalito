@@ -1,17 +1,19 @@
-using System;
 using Core;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class Bottle : MonoBehaviour, IPointerDownHandler
+public class Bottle : MonoBehaviour
 {
+    private bool _isClicked;
     private bool _isFlowing;
     private ParticleSystem _particleSystem;
+    private Rigidbody2D _rigidBody2D;
+
     public Ingredient ingredient;
 
     private void Awake()
     {
         _particleSystem = GetComponentInChildren<ParticleSystem>();
+        _rigidBody2D = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -22,6 +24,11 @@ public class Bottle : MonoBehaviour, IPointerDownHandler
         if (_isFlowing == shouldFlow)
         {
             return;
+        }
+
+        if (!_isClicked)
+        {
+            ResetPosition();
         }
 
         _isFlowing = shouldFlow;
@@ -35,18 +42,20 @@ public class Bottle : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    private void OnMouseUp()
+    private void OnMouseDown()
     {
-        transform.rotation = Quaternion.identity;
+        _isClicked = true;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private void OnMouseUp()
     {
-        if (eventData.clickCount < 2)
-        {
-            return;
-        }
+        _isClicked = false;
+        ResetPosition();
+    }
 
+    private void ResetPosition()
+    {
         transform.rotation = Quaternion.identity;
+        _rigidBody2D.angularVelocity = 0f;
     }
 }

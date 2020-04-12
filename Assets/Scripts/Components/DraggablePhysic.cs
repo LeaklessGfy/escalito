@@ -1,12 +1,11 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Components
 {
     public class DraggablePhysic : MonoBehaviour
     {
         private Rigidbody2D _rigidBody2D;
-        
+
         private void Awake()
         {
             _rigidBody2D = GetComponent<Rigidbody2D>();

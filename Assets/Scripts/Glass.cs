@@ -6,11 +6,21 @@ using UnityEngine.EventSystems;
 public class Glass : MonoBehaviour, IPointerDownHandler
 {
     private BoxCollider2D _boxCollider;
-    private Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
     private ParticleSystem _fullParticleSystem;
     private LineRenderer _lineRenderer;
+    private Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
 
     public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.clickCount < 2)
+        {
+            return;
+        }
+
+        Drain();
+    }
 
     public void Drain()
     {
@@ -57,15 +67,6 @@ public class Glass : MonoBehaviour, IPointerDownHandler
             main.startColor = color;
             _fullParticleSystem.Play();
         }
-    }
-    
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (eventData.clickCount < 2)
-        {
-            return;
-        }
-        Drain();
     }
 
     private void AddConsumable(GameObject origin)

@@ -12,7 +12,7 @@ public class Character : MonoBehaviour
     private const int AnimIdle = 0;
     private const int AnimMove = 1;
     private const float Speed = 30f;
-    private const float Patience = 10000f;
+    private const float Patience = 20f;
 
     private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
 
@@ -117,7 +117,20 @@ public class Character : MonoBehaviour
 
     public void Satisfaction(float satisfaction)
     {
-        _spriteRenderer.color = satisfaction <= 0 ? Color.red : Color.green;
+        var color = Color.green;
+        if (satisfaction < 20)
+        {
+            color = Color.red;
+        }
+        else if (satisfaction < 60)
+        {
+            color = Color.yellow;
+        }
+        else if (satisfaction > 100)
+        {
+            color = Color.magenta;
+        }
+        _spriteRenderer.color = color;
     }
 
     private void StepWait()

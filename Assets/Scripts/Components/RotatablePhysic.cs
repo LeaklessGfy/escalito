@@ -5,10 +5,10 @@ namespace Components
     internal class RotatablePhysic : MonoBehaviour
     {
         private static readonly float CONSTANT_FORCE = 2000;
-        public float speed = 150f;
+        private Rigidbody2D _rigidBody2D;
 
         private float _torque;
-        private Rigidbody2D _rigidBody2D;
+        public float speed = 150f;
 
         private void Awake()
         {

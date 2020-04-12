@@ -15,6 +15,7 @@ public class Controller : MonoBehaviour
     private readonly LinkedList<Character> _clients = new LinkedList<Character>();
     private int _cash;
 
+    private AudioSource _audioSource;
     private SpriteRenderer _clientSpriteRenderer;
     private Order _currentOrder;
     private float _currentTime;
@@ -37,6 +38,7 @@ public class Controller : MonoBehaviour
     {
         Main = this;
 
+        _audioSource = GetComponent<AudioSource>();
         _clientSpriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
         _orderAskText = orderAskButton.GetComponentInChildren<Text>();
         _selectedText = GameObject.Find("Selected").GetComponent<Text>();
@@ -77,7 +79,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        _spawnTime = Random.Range(5.0f, 30.0f);
+        _spawnTime = Random.Range(5.0f, 10.0f);
         _currentTime = 0;
         CreateNewClient();
     }
@@ -144,10 +146,7 @@ public class Controller : MonoBehaviour
                                             new Vector3(0, _clientSpriteRenderer.sprite.bounds.extents.y, 0);
         _orderAskText.text = expected.Name.ToString();
 
-        orderAskButton.onClick.AddListener(() =>
-        {
-            client.PatienceBonus(2);
-        });
+        orderAskButton.onClick.AddListener(() => { client.PatienceBonus(2); });
     }
 
     private void ReceiveOrder(Glass glass)
@@ -164,9 +163,10 @@ public class Controller : MonoBehaviour
         var satisfaction = client.Serve(expected, actual);
         LeaveAsync(client, satisfaction);
 
-        if (satisfaction > 0)
+        if (satisfaction > 20)
         {
             _cash += expected.Price;
+            _audioSource.Play();
         }
 
         glass.Drain();
