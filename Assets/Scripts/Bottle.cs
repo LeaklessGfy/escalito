@@ -1,12 +1,13 @@
+using System;
 using Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Bottle : MonoBehaviour
+public class Bottle : MonoBehaviour, IPointerDownHandler
 {
-    public Consumable consumable;
-
     private bool _isFlowing;
     private ParticleSystem _particleSystem;
+    public Ingredient ingredient;
 
     private void Awake()
     {
@@ -32,5 +33,20 @@ public class Bottle : MonoBehaviour
         {
             _particleSystem.Stop();
         }
+    }
+
+    private void OnMouseUp()
+    {
+        transform.rotation = Quaternion.identity;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.clickCount < 2)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.identity;
     }
 }

@@ -1,31 +1,44 @@
 using UnityEngine;
 
-namespace Assets.Scripts.Components
+namespace Components
 {
     public class RotatableTransform : MonoBehaviour
     {
+        private Rigidbody2D _rigidBody2D;
+        private bool _isClicked;
+
         public float speed = 150f;
 
-        private bool click = false;
+        private void Awake()
+        {
+            _rigidBody2D = GetComponent<Rigidbody2D>();
+        }
 
         private void Update()
         {
-            float wheelAxis = Input.GetAxis("Mouse ScrollWheel");
-            if (click && wheelAxis != 0)
+            var wheelAxis = Input.GetAxis("Mouse ScrollWheel");
+
+            if (!_isClicked || wheelAxis == 0)
             {
-                Vector3 rotation = new Vector3(transform.rotation.x, transform.rotation.y, speed * wheelAxis);
-                transform.Rotate(rotation);
+                return;
             }
+
+            var currentRotation = transform.rotation;
+            var rotation = new Vector3(currentRotation.x, currentRotation.y, speed * wheelAxis);
+            transform.Rotate(rotation);
+
+            _rigidBody2D.velocity = Vector2.zero;
+            _rigidBody2D.angularVelocity = 0f;
         }
 
         private void OnMouseDown()
         {
-            click = true;
+            _isClicked = true;
         }
 
         private void OnMouseUp()
         {
-            click = false;
+            _isClicked = false;
         }
     }
 }

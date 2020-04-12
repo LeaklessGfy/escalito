@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public enum Consumable
+    public enum Ingredient
     {
         Rum,
         Cola,

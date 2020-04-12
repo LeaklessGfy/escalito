@@ -5,41 +5,49 @@ using Core;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
+using Selectable = Components.Selectable;
 
 public class Controller : MonoBehaviour
 {
-    public GameObject clientPrefab;
-    public Button orderAskButton;
-    public Text clock;
-    public Text money;
-    public Bar bar;
-    public Transform origin;
-    public int maxClients = 3;
-
-    private SpriteRenderer _clientSpriteRenderer;
-    private Text _orderAskText;
-
-    private float _spawnTime;
-    private float _currentTime;
-    private Order _currentOrder;
-    private int _cash;
+    private const int MinutesPerDay = 10;
+    public static Controller Main;
 
     private readonly LinkedList<Character> _clients = new LinkedList<Character>();
-    // private readonly List<Order> _orders = new List<Order>();
+    private int _cash;
 
-    private const int MinutesPerDay = 10;
+    private SpriteRenderer _clientSpriteRenderer;
+    private Order _currentOrder;
+    private float _currentTime;
+    private Text _orderAskText;
+
+    private Text _selectedText;
+    private float _spawnTime;
+
+    public Bar bar;
+    public GameObject clientPrefab;
+    public Text clock;
+    public int maxClients = 3;
+    public Text money;
+    public Button orderAskButton;
+    public Transform origin;
+
+    public Selectable Selected { get; set; }
 
     private void Awake()
     {
+        Main = this;
+
         _clientSpriteRenderer = clientPrefab.GetComponent<SpriteRenderer>();
         _orderAskText = orderAskButton.GetComponentInChildren<Text>();
-        bar.AddCollisionListener(ReceiveOrder);
+        _selectedText = GameObject.Find("Selected").GetComponent<Text>();
+        bar.CollisionListeners += ReceiveOrder;
     }
 
     private void Update()
     {
         UpdateClock();
         UpdateMoney();
+        UpdateSelected();
         UpdateSpawn();
     }
 
@@ -56,6 +64,11 @@ public class Controller : MonoBehaviour
         money.text = _cash + "$";
     }
 
+    private void UpdateSelected()
+    {
+        _selectedText.text = Selected ? Selected.name : "";
+    }
+
     private void UpdateSpawn()
     {
         _currentTime += Time.deltaTime;
@@ -63,17 +76,10 @@ public class Controller : MonoBehaviour
         {
             return;
         }
+
         _spawnTime = Random.Range(5.0f, 30.0f);
         _currentTime = 0;
         CreateNewClient();
-    }
-
-    private void TestFollow()
-    {
-        if (_clients.First.Next != null)
-        {
-            LeaveAsync(_clients.First.Next.Value);
-        }
     }
 
     private void CreateNewClient()
@@ -86,7 +92,6 @@ public class Controller : MonoBehaviour
         var originPosition = origin.position;
         var sprite = Instantiate(clientPrefab, originPosition, Quaternion.identity);
         var client = sprite.GetComponent<Character>();
-        client.Id = _clients.Count;
 
         AddClient(client);
     }
@@ -101,6 +106,7 @@ public class Controller : MonoBehaviour
         {
             GoFollow(client, _clients.Last.Value);
         }
+
         _clients.AddLast(client);
     }
 
@@ -131,39 +137,47 @@ public class Controller : MonoBehaviour
     private void AskOrder(Character client)
     {
         var expected = Cocktail.BuildRandom();
+        _currentOrder = new Order(client, expected);
 
         orderAskButton.gameObject.SetActive(true);
-        orderAskButton.transform.position = client.transform.position + new Vector3(0, _clientSpriteRenderer.sprite.bounds.extents.y, 0);
+        orderAskButton.transform.position = client.transform.position +
+                                            new Vector3(0, _clientSpriteRenderer.sprite.bounds.extents.y, 0);
         _orderAskText.text = expected.Name.ToString();
 
         orderAskButton.onClick.AddListener(() =>
         {
-            // _orders.Add(new Order(client, expected));
             client.PatienceBonus(2);
-            _currentOrder = new Order(client, expected);
-            CleanOrderAsk();
         });
     }
 
     private void ReceiveOrder(Glass glass)
     {
-        // No order awaiting
         if (_currentOrder == null)
         {
             return;
         }
-            
+
         var client = _currentOrder.Client;
         var expected = _currentOrder.Cocktail;
-        var actual = Cocktail.BuildCustom(glass.Consumables);
-        
+        var actual = Cocktail.BuildCustom(glass.Recipe);
+
         var satisfaction = client.Serve(expected, actual);
         LeaveAsync(client, satisfaction);
 
-        _cash += expected.Price;
-        _currentOrder = null;
+        if (satisfaction > 0)
+        {
+            _cash += expected.Price;
+        }
+
         glass.Drain();
-        glass.transform.position = new Vector3(0, 0, 0);
+        CleanOrderAsk();
+    }
+
+    private void CleanOrderAsk()
+    {
+        orderAskButton.onClick.RemoveAllListeners();
+        orderAskButton.gameObject.SetActive(false);
+        _currentOrder = null;
     }
 
     private async void LeaveAsync(Character client, float satisfaction = 0f)
@@ -190,6 +204,7 @@ public class Controller : MonoBehaviour
             {
                 GoToBarAsync(follower);
             }
+
             // Dispatch bonus time awaited to all awaiting clients (different waiting ?) ?
         }
 
@@ -198,20 +213,14 @@ public class Controller : MonoBehaviour
         Destroy(client.gameObject);
     }
 
-    private void CleanOrderAsk()
-    {
-        orderAskButton.onClick.RemoveAllListeners();
-        orderAskButton.gameObject.SetActive(false);
-    }
-    
     private static TimeSpan GetTime()
     {
         var now = DateTime.Now;
-        var timeNow  = now.TimeOfDay;
+        var timeNow = now.TimeOfDay;
         var hours = timeNow.TotalMinutes % MinutesPerDay;
-        var minutes = (hours % 1) * 60;
-        var seconds = (minutes % 1) * 60;
-        
-        return new TimeSpan((int)hours, (int)minutes, (int)seconds);
+        var minutes = hours % 1 * 60;
+        var seconds = minutes % 1 * 60;
+
+        return new TimeSpan((int) hours, (int) minutes, (int) seconds);
     }
 }

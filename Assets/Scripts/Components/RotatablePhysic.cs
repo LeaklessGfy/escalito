@@ -1,25 +1,31 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Components
+namespace Components
 {
-    class RotatablePhysic : MonoBehaviour
+    internal class RotatablePhysic : MonoBehaviour
     {
+        private static readonly float CONSTANT_FORCE = 2000;
         public float speed = 150f;
 
-        private float torque = 0;
-        private static readonly float CONSTANT_FORCE = 2000;
+        private float _torque;
+        private Rigidbody2D _rigidBody2D;
+
+        private void Awake()
+        {
+            _rigidBody2D = GetComponent<Rigidbody2D>();
+        }
 
         private void FixedUpdate()
         {
-            float wheelAxis = Input.GetAxis("Mouse ScrollWheel");
+            var wheelAxis = Input.GetAxis("Mouse ScrollWheel");
 
             if (wheelAxis == 0)
             {
                 return;
             }
 
-            torque = wheelAxis * speed * CONSTANT_FORCE;
-            GetComponent<Rigidbody2D>().AddTorque(torque, ForceMode2D.Force);
+            _torque = wheelAxis * speed * CONSTANT_FORCE;
+            _rigidBody2D.AddTorque(_torque, ForceMode2D.Force);
         }
     }
 }

@@ -1,22 +1,25 @@
 ﻿using System.Collections.Generic;
 using Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Glass : MonoBehaviour
+public class Glass : MonoBehaviour, IPointerDownHandler
 {
     private BoxCollider2D _boxCollider;
-    private LineRenderer _lineRenderer;
+    private Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
     private ParticleSystem _fullParticleSystem;
-    private Dictionary<Consumable, int> _consumables = new Dictionary<Consumable, int>();
+    private LineRenderer _lineRenderer;
 
-    public IReadOnlyDictionary<Consumable, int> Consumables => _consumables;
+    public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
 
     public void Drain()
     {
         var currentPosition = _lineRenderer.GetPosition(0);
         var newPosition = new Vector3(currentPosition.x, 0, 0);
         _lineRenderer.SetPosition(0, newPosition);
-        _consumables = new Dictionary<Consumable, int>();
+        _recipe = new Dictionary<Ingredient, int>();
+        transform.position = new Vector3(0, 0, 0);
+        _fullParticleSystem.Stop();
     }
 
     private void Awake()
@@ -55,6 +58,15 @@ public class Glass : MonoBehaviour
             _fullParticleSystem.Play();
         }
     }
+    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.clickCount < 2)
+        {
+            return;
+        }
+        Drain();
+    }
 
     private void AddConsumable(GameObject origin)
     {
@@ -64,8 +76,8 @@ public class Glass : MonoBehaviour
         _lineRenderer.SetPosition(0, newPosition);
 
         var bottle = origin.GetComponentInParent<Bottle>();
-        _consumables.TryGetValue(bottle.consumable, out var prev);
-        _consumables[bottle.consumable] = prev + 1;
+        _recipe.TryGetValue(bottle.ingredient, out var prev);
+        _recipe[bottle.ingredient] = prev + 1;
     }
 
     private void ThrowConsumable()
@@ -75,11 +87,8 @@ public class Glass : MonoBehaviour
         var newPosition = currentPosition - stepPosition;
         _lineRenderer.SetPosition(0, newPosition);
 
-        var keys = new List<Consumable>(_consumables.Keys);
-        foreach (var key in keys)
-        {
-            _consumables[key] = Consumables[key] - 1;
-        }
+        var keys = new List<Ingredient>(_recipe.Keys);
+        foreach (var key in keys) _recipe[key] = Recipe[key] - 1;
     }
 
     private bool IsFull()

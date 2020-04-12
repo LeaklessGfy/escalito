@@ -15,12 +15,13 @@
             <e p="DraggableTransform.cs" t="Include" />
             <e p="RotatablePhysic.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
+            <e p="Selectable.cs" t="Include" />
           </e>
           <e p="Controller.cs" t="Include" />
           <e p="Core" t="Include">
             <e p="Cocktail.cs" t="Include" />
             <e p="CocktailName.cs" t="Include" />
-            <e p="Consumable.cs" t="Include" />
+            <e p="Ingredient.cs" t="Include" />
             <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
           </e>

@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Components
+namespace Components
 {
-    class DraggableTransform : MonoBehaviour
+    internal class DraggableTransform : MonoBehaviour
     {
         private void OnMouseDrag()
         {
+            if (Camera.main == null)
+            {
+                return;
+            }
+
             Vector2 currentPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = currentPosition;
         }

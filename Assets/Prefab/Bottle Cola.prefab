@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 942552757864026011}
   - component: {fileID: 942552757864026010}
   - component: {fileID: 942552757864026005}
+  - component: {fileID: 5797098790670993698}
   m_Layer: 0
   m_Name: Bottle Cola
   m_TagString: Untagged
@@ -100,7 +101,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 1
   m_AngularDrag: 1
-  m_GravityScale: 50
+  m_GravityScale: 20
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -169,7 +170,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6672b97c0871d84a9e9bd9b9ee3d0f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  consumable: 1
+  ingredient: 1
+--- !u!114 &5797098790670993698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942552757864026006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f1ad0d20b04420addea86704003328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hover: {fileID: 2800000, guid: b017dfab3916c1342b99c499d7ab500b, type: 3}
+  normal: {fileID: 2800000, guid: 2e71a8202d3b4a3448ec85ced5a40265, type: 3}
 --- !u!1 &942552757934316313
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3990679437426272946}
   - component: {fileID: 3990679437426272947}
   - component: {fileID: 3990679437426272945}
+  - component: {fileID: 6760367641054987713}
   m_Layer: 0
   m_Name: Bottle Rhum
   m_TagString: Untagged
@@ -100,7 +101,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 1
   m_AngularDrag: 1
-  m_GravityScale: 50
+  m_GravityScale: 20
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -180,6 +181,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   consumable: 0
+--- !u!114 &6760367641054987713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3990679437426272948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f1ad0d20b04420addea86704003328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  normal: {fileID: 2800000, guid: 2e71a8202d3b4a3448ec85ced5a40265, type: 3}
+  hover: {fileID: 2800000, guid: b017dfab3916c1342b99c499d7ab500b, type: 3}
 --- !u!1 &3990679437943048090
 GameObject:
   m_ObjectHideFlags: 0

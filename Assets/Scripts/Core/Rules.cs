@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Core
 {
-    static class Rules
+    internal static class Rules
     {
         public static float BaseRule(Cocktail expected, Cocktail actual)
         {
@@ -12,7 +13,7 @@ namespace Core
 
             foreach (var consumable in expected.Recipe)
             {
-                actual.Recipe.TryGetValue(consumable.Key, out int actualValue);
+                actual.Recipe.TryGetValue(consumable.Key, out var actualValue);
 
                 float difference = Math.Abs(consumable.Value - actualValue);
                 float sub = actualValue - consumable.Value;
@@ -30,6 +31,32 @@ namespace Core
             }
 
             return sum / total;
+        }
+
+        public static float CocktailRule(Cocktail expected, Cocktail actual)
+        {
+            var unitSatisfaction = new List<float>();
+            
+            UnityEngine.Debug.Log("-- NEW COCKTAIL --");
+            foreach (var ingredient in expected.Recipe)
+            {
+                actual.Recipe.TryGetValue(ingredient.Key, out var actualValue);
+                var satisfaction = ComputeSatisfaction(ingredient.Value, actualValue);
+                UnityEngine.Debug.Log("expected : " + ingredient.Value + ", actual : " + actualValue + ", satisfaction : " + satisfaction);
+                unitSatisfaction.Add(satisfaction);
+            }
+            
+            var total = unitSatisfaction.Sum() / unitSatisfaction.Count;
+            UnityEngine.Debug.Log("Total : " + total);
+            return total;
+        }
+
+        private static float ComputeSatisfaction(float expectedValue, float actualValue)
+        {
+            var difference = actualValue - expectedValue;
+            var differencePercentage = (difference / expectedValue) * 100;
+
+            return 100 + differencePercentage;
         }
     }
 }

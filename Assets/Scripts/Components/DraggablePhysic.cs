@@ -1,13 +1,26 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace Assets.Scripts.Components
+namespace Components
 {
     public class DraggablePhysic : MonoBehaviour
     {
+        private Rigidbody2D _rigidBody2D;
+        
+        private void Awake()
+        {
+            _rigidBody2D = GetComponent<Rigidbody2D>();
+        }
+
         private void OnMouseDrag()
         {
+            if (Camera.main == null)
+            {
+                return;
+            }
+
             Vector2 currentPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            GetComponent<Rigidbody2D>().velocity = (currentPosition - (Vector2)transform.position) * 5;
+            _rigidBody2D.velocity = (currentPosition - (Vector2) transform.position) * 5;
         }
     }
 }

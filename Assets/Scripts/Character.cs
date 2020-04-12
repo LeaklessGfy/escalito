@@ -1,45 +1,41 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEngine;
 using System.Linq;
+using System.Threading.Tasks;
 using Core;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class Character : MonoBehaviour
 {
-    private enum State
-    {
-        Idle,
-        Move,
-        Follow
-    };
-
-    public int Id { get; set; }
-
-    /* Properties */
-    private State _state = State.Idle;
-    private Vector2 _dst;
-    private Character _leader;
-    private TaskCompletionSource<bool> _onMoveTask;
-    private TaskCompletionSource<bool> _onWaitTask;
-    private float _timeAwaited;
-    private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
-
-    /* Unity Injection */
-    private Animator _animator;
-    private SpriteRenderer _spriteRenderer;
-
     /* Constants */
     private const int AnimIdle = 0;
     private const int AnimMove = 1;
     private const float Speed = 30f;
-    private const float Patience = 10f;
+    private const float Patience = 10000f;
+
+    private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
+
+    private Animator _animator;
+    private Vector2 _dst;
+    private Character _leader;
+    private TaskCompletionSource<bool> _onMoveTask;
+    private TaskCompletionSource<bool> _onWaitTask;
+    private Slider _slider;
+    private SpriteRenderer _spriteRenderer;
+    private State _state = State.Idle;
+    private float _timeAwaited;
 
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-        _rules.Add(Rules.BaseRule);
+        _slider = GetComponentInChildren<Slider>();
+        _slider.minValue = 0;
+        _slider.maxValue = Patience;
+        _slider.gameObject.SetActive(false);
+
+        _rules.Add(Rules.CocktailRule);
     }
 
     private void Update()
@@ -66,11 +62,13 @@ public class Character : MonoBehaviour
     {
         if (_onMoveTask != null)
         {
-            throw new InvalidOperationException("Client is alreay moving, can't move again");
+            throw new InvalidOperationException("Client is already moving, can't move again");
         }
+
         _dst = new Vector2(position.x, transform.position.y);
         _state = State.Move;
         _onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
         return _onMoveTask.Task;
     }
 
@@ -78,8 +76,9 @@ public class Character : MonoBehaviour
     {
         if (_onMoveTask != null)
         {
-            throw new InvalidOperationException("Client is already moving, can't follow");
+            throw new InvalidOperationException("Client is moving, can't follow");
         }
+
         _leader = character;
         _state = State.Follow;
     }
@@ -88,9 +87,12 @@ public class Character : MonoBehaviour
     {
         if (_onWaitTask != null)
         {
-            throw new InvalidOperationException("Client is already awaiting for something");
+            throw new InvalidOperationException("Client is already awaiting");
         }
+
         _onWaitTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _slider.gameObject.SetActive(true);
+
         return _onWaitTask.Task;
     }
 
@@ -98,10 +100,13 @@ public class Character : MonoBehaviour
     {
         if (_onWaitTask == null)
         {
-            throw new InvalidOperationException("Client is not awaiting for something");
+            throw new InvalidOperationException("Client is not awaiting");
         }
+
         _onWaitTask.TrySetResult(true);
+        _slider.gameObject.SetActive(false);
         Clean();
+
         return _rules.Sum(rule => rule(expected, actual));
     }
 
@@ -112,23 +117,26 @@ public class Character : MonoBehaviour
 
     public void Satisfaction(float satisfaction)
     {
-        _spriteRenderer.color = satisfaction < 0 ? Color.red : Color.green;
+        _spriteRenderer.color = satisfaction <= 0 ? Color.red : Color.green;
     }
 
     private void StepWait()
     {
-        if (_onWaitTask == null || Math.Abs(Patience - (-1)) < 0.1)
+        if (_onWaitTask == null || Patience < -1)
         {
             return;
         }
 
         _timeAwaited += Time.deltaTime;
+        _slider.value = Patience - _timeAwaited;
         if (_timeAwaited < Patience)
         {
             return;
         }
 
         _onWaitTask?.TrySetCanceled();
+        _slider.gameObject.SetActive(false);
+
         Clean();
     }
 
@@ -173,7 +181,7 @@ public class Character : MonoBehaviour
     private void Step()
     {
         var position = transform.position;
-        _spriteRenderer.flipX = _dst.x < position.x ? true : false;
+        _spriteRenderer.flipX = _dst.x < position.x;
         transform.position = Vector2.MoveTowards(position, _dst, Speed * Time.deltaTime);
     }
 
@@ -185,5 +193,12 @@ public class Character : MonoBehaviour
         _onMoveTask = null;
         _onWaitTask = null;
         _timeAwaited = 0f;
+    }
+
+    private enum State
+    {
+        Idle,
+        Move,
+        Follow
     }
 }
