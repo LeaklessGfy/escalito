@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Client : MonoBehaviour
 {
@@ -15,15 +15,16 @@ public class Client : MonoBehaviour
     private const float Speed = 30f;
     private const float Patience = 10f;
 
-    private readonly List<Func<Cocktail, Cocktail, float>> _rules = new List<Func<Cocktail, Cocktail, float>>();
-
     /* UNITY */
     private Animator _animator;
-    private Button _orderButton;
-    private TextMeshProUGUI _orderText;
-    public TextMeshProUGUI _cashText;
-    private Slider _slider;
     private SpriteRenderer _spriteRenderer;
+    
+    /* DEPENDENCIES */
+    [SerializeField] private Button orderButton = default;
+    [SerializeField] private Text orderText = default;
+    [SerializeField] private Text cashText = default;
+    [SerializeField] private Slider waitingSlider = default;
+    [SerializeField] private Image waitingImage = default;
 
     /* STATE */
     private Vector2 _dst;
@@ -31,30 +32,28 @@ public class Client : MonoBehaviour
     private TaskCompletionSource<bool> _onWaitTask;
     private State _state = State.Idle;
     private float _timeAwaited;
-
     private Cocktail _order;
+    private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
 
+    /* PUBLIC */
     public event Action<Client, Glass> CollisionListeners;
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _orderButton = GetComponentInChildren<Button>();
-        _orderText = _orderButton.GetComponentInChildren<TextMeshProUGUI>();
-        _slider = GetComponentInChildren<Slider>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        
-        _orderButton.gameObject.SetActive(false);
-        _orderButton.onClick.AddListener(() =>
+        _rules.Add(Rules.CocktailRule);
+
+        orderButton.gameObject.SetActive(false);
+        orderButton.onClick.AddListener(() =>
         {
             _timeAwaited -= 1;
         });
-        _cashText.gameObject.SetActive(false);
-        _slider.minValue = 0;
-        _slider.maxValue = Patience;
-        _slider.gameObject.SetActive(false);
+        cashText.gameObject.SetActive(false);
 
-        _rules.Add(Rules.CocktailRule);
+        waitingSlider.minValue = 0;
+        waitingSlider.maxValue = Patience;
+        waitingSlider.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -78,6 +77,11 @@ public class Client : MonoBehaviour
     {
         var glass = collision.gameObject.GetComponent<Glass>();
         CollisionListeners?.Invoke(this, glass);
+    }
+
+    public String GetName()
+    {
+        return "Michel";
     }
 
     public Task<bool> MoveToAsync(Vector2 position, float overflow = 1f)
@@ -110,8 +114,9 @@ public class Client : MonoBehaviour
         }
         
         _order = Cocktail.BuildRandom();
-        _orderButton.gameObject.SetActive(true);
-        _orderText.text = _order.Name.ToString();
+        orderButton.gameObject.SetActive(true);
+        orderText.text = _order.Name.ToString();
+
         return _order;
     }
 
@@ -123,12 +128,12 @@ public class Client : MonoBehaviour
         }
 
         _onWaitTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _slider.gameObject.SetActive(true);
+        waitingSlider.gameObject.SetActive(true);
 
         return _onWaitTask.Task;
     }
 
-    public float Serve(Cocktail expected, Cocktail actual)
+    public int Serve(Cocktail expected, Cocktail actual)
     {
         if (_onWaitTask == null)
         {
@@ -136,38 +141,31 @@ public class Client : MonoBehaviour
         }
 
         _onWaitTask.TrySetResult(true);
-        _slider.gameObject.SetActive(false);
+        waitingSlider.gameObject.SetActive(false);
         Clean();
 
         return _rules.Sum(rule => rule(expected, actual));
     }
 
-    public void Pay(int price)
+    public int Pay(int expectedPrice, int satisfaction)
     {
-        _cashText.gameObject.SetActive(true);
-        _cashText.text = "+" + price + " $";
+        var bonus = satisfaction > Satisfaction.High && Random.Range(0, 4) == 0;
+        var price = expectedPrice + (bonus ? Random.Range(1, 5) : 0);
+
+        cashText.gameObject.SetActive(true);
+        cashText.text = "+" + price + "$";
+        cashText.color = Satisfaction.GetColor(satisfaction);
+
+        return price;
     }
 
-    public void Satisfaction(float satisfaction)
+    public void Leave(int satisfaction)
     {
-        var color = Color.green;
-        if (satisfaction < 20)
-        {
-            color = Color.red;
-        }
-        else if (satisfaction < 60)
-        {
-            color = Color.yellow;
-        }
-        _spriteRenderer.color = color;
+        _spriteRenderer.color = Satisfaction.GetColor(satisfaction);
+        orderButton.gameObject.SetActive(false);
+        waitingSlider.gameObject.SetActive(false);
     }
-
-    public void Leave()
-    {
-        _orderButton.gameObject.SetActive(false);
-        _slider.gameObject.SetActive(false);
-    }
-
+    
     private void StepWait()
     {
         if (_onWaitTask == null)
@@ -176,14 +174,17 @@ public class Client : MonoBehaviour
         }
 
         _timeAwaited += Time.deltaTime;
-        _slider.value = Patience - _timeAwaited;
+        var percent = 100 - ((_timeAwaited / Patience) * 100);
+        waitingSlider.value = Patience - _timeAwaited;
+        waitingImage.color = Satisfaction.GetColor((int) percent);
+
         if (_timeAwaited < Patience)
         {
             return;
         }
 
         _onWaitTask?.TrySetCanceled();
-        _slider.gameObject.SetActive(false);
+        waitingSlider.gameObject.SetActive(false);
 
         Clean();
     }
@@ -208,25 +209,6 @@ public class Client : MonoBehaviour
             Clean();
         }
     }
-
-    /*private void StepFollow()
-    {
-        var position = transform.position;
-        _dst = new Vector2(_leader.transform.position.x, position.y);
-
-        var distance = Vector2.Distance(position, _dst);
-        if (distance > _spriteRenderer.bounds.extents.x + 10)
-        {
-            _animator.SetInteger("State", AnimMove);
-            Step();
-        }
-        else
-        {
-            _animator.SetInteger("State", AnimIdle);
-            _onMoveTask?.TrySetResult(true);
-            Clean();
-        }
-    }*/
 
     private void Step()
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Components;
 using Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,56 +14,49 @@ public class Controller : MonoBehaviour
     private const int MinutesPerDay = 10;
     public static Controller Main;
 
-    private readonly LinkedList<Client> _clients = new LinkedList<Client>();
-    private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
-
-    /* UNITY */
-    private AudioSource _audioSource;
-    private Text _selectedText;
-    private Text _clockText;
-    private Text _moneyText;
+    /* DEPENDENCIES */
+    [SerializeField] private Text selectedText = default;
+    [SerializeField] private Text clockText = default;
+    [SerializeField] private Text moneyText = default;
+    [SerializeField] private Transform bar = default;
+    [SerializeField] private Transform origin = default;
+    [SerializeField] private GameObject clientPrefab = default;
+    [SerializeField] private GameObject glassPrefab = default;
+    [SerializeField] private int maxClients = 3;
 
     /* STATE */
     private int _cash;
     private float _currentTime;
     private float _spawnTime;
     private Vector2 _range = new Vector2(10f, 10f);
+    private readonly LinkedList<Client> _clients = new LinkedList<Client>();
+    private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
 
-    public Transform bar;
-    public Transform origin;
-    public GameObject clientPrefab;
-    public GameObject glassPrefab;
-    public int maxClients = 3;
-
+    /* PUBLIC */
     public Selectable Selected { get; set; }
 
     private void Awake()
     {
         Main = this;
-
-        _audioSource = GetComponent<AudioSource>();
-        _selectedText = GameObject.Find("Selected").GetComponent<Text>();
-        _clockText = GameObject.Find("Clock").GetComponent<Text>();
-        _moneyText = GameObject.Find("Money").GetComponent<Text>();
     }
 
     private void FixedUpdate()
     {
-        UpdateUI();
+        UpdateUi();
         UpdateSelected();
         UpdateQueue();
         UpdateSpawn();
     }
 
-    private void UpdateUI()
+    private void UpdateUi()
     {
-        _clockText.text = GetTime();
-        _moneyText.text = _cash + "$";
+        clockText.text = GetTime();
+        moneyText.text = _cash + "$";
     }
 
     private void UpdateSelected()
     {
-        _selectedText.text = Selected ? Selected.name : "";
+        selectedText.text = Selected ? Selected.name : "";
     }
 
     private void UpdateQueue()
@@ -84,6 +78,7 @@ public class Controller : MonoBehaviour
     private void UpdateSpawn()
     {
         _currentTime += Time.deltaTime;
+
         if (_currentTime < _spawnTime)
         {
             return;
@@ -103,6 +98,7 @@ public class Controller : MonoBehaviour
 
         var sprite = Instantiate(clientPrefab, origin.position, Quaternion.identity);
         var client = sprite.GetComponent<Client>();
+        sprite.name = client.GetName();
         client.CollisionListeners += ReceiveOrder;
 
         AddClient(client);
@@ -150,7 +146,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        AskOrder(client);
+        /*AskOrder(client);
         
         try
         {
@@ -159,7 +155,7 @@ public class Controller : MonoBehaviour
         catch (TaskCanceledException)
         {
             LeaveAsync(client);
-        }
+        }*/
     }
 
     private void AskOrder(Client client)
@@ -178,25 +174,21 @@ public class Controller : MonoBehaviour
         var actual = Cocktail.BuildCustom(glass.Recipe);
         var satisfaction = client.Serve(expected, actual);
         
-        if (satisfaction > 20)
+        if (satisfaction > Satisfaction.Low)
         {
-            var price = expected.Price + (satisfaction > 100 ? Random.Range(0, 5) : 0);
-            client.Pay(price);
-            _cash += price;
-            _audioSource.Play();
-        }
-        else
-        {
-            client.GetComponent<AudioSource>().Play();
+            _cash += client.Pay(expected.Price, satisfaction);
         }
 
         Destroy(glass.gameObject);
         LeaveAsync(client, satisfaction);
-        Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
+        
+        var newInstance = Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
+        newInstance.name = "Glass";
+        
         _range.x = Mathf.Max(0, _range.x - 1);
     }
 
-    private async void LeaveAsync(Client client, float satisfaction = 0f)
+    private async void LeaveAsync(Client client, int satisfaction = 0)
     {
         var node = _clients.Find(client);
 
@@ -204,10 +196,18 @@ public class Controller : MonoBehaviour
         {
             throw new InvalidOperationException("Client couldn't be found in clients queue");
         }
+
+        if (satisfaction > Satisfaction.Low)
+        {
+            AudioManager.Main.PlaySuccess();
+        }
+        else
+        {
+            AudioManager.Main.PlayFailure();
+        }
         
         _clients.Remove(node);
-        client.Leave();
-        client.Satisfaction(satisfaction);
+        client.Leave(satisfaction);
         await client.MoveToAsync(origin.position);
         Destroy(client.gameObject);
     }

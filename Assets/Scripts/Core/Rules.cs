@@ -5,7 +5,7 @@ namespace Core
 {
     internal static class Rules
     {
-        public static float CocktailRule(Cocktail expected, Cocktail actual)
+        public static int CocktailRule(Cocktail expected, Cocktail actual)
         {
             var satisfactions = new List<float>();
 
@@ -25,7 +25,8 @@ namespace Core
             }
 
             var total = satisfactions.Sum() / satisfactions.Count;
-            return total;
+            
+            return (int) total;
         }
 
         private static float ComputeSatisfaction(float expectedValue, float actualValue)

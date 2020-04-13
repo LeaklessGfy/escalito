@@ -6,9 +6,12 @@ public class Bottle : MonoBehaviour
     /* UNITY */
     private Vector2 _formerPosition;
     private ParticleSystem _particleSystem;
+    
+    /* DEPENDENCIES */
+    [SerializeField] private Ingredient ingredient = default;
 
-    /* STATE */
-    public Ingredient ingredient;
+    /* PUBLIC */
+    public Ingredient Ingredient => ingredient;
 
     private void Awake()
     {
