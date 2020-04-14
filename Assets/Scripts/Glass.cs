@@ -22,6 +22,8 @@ public class Glass : MonoBehaviour
     public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
     public LinkedList<LineRenderer> LineRenderers => _lineRenderers;
 
+    public bool hasCollide;
+
     private void Awake()
     {
         _boxCollider = GetComponent<BoxCollider2D>();

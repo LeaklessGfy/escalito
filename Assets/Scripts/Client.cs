@@ -28,6 +28,7 @@ public class Client : MonoBehaviour
 
     /* STATE */
     private Vector2 _dst;
+    private float _minDistance;
     private TaskCompletionSource<bool> _onMoveTask;
     private TaskCompletionSource<bool> _onWaitTask;
     private State _state = State.Idle;
@@ -76,41 +77,60 @@ public class Client : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         var glass = collision.gameObject.GetComponent<Glass>();
-        CollisionListeners?.Invoke(this, glass);
+        // Forbid two collision
+        if (!glass.hasCollide)
+        {
+            CollisionListeners?.Invoke(this, glass);
+        }
+        glass.hasCollide = true;
     }
 
-    public String GetName()
+    public static string GetName()
     {
         return "Michel";
     }
 
-    public Task<bool> MoveToAsync(Vector2 position, float overflow = 1f)
+    public float GetOffset()
     {
-        if (_onMoveTask != null)
+        return _spriteRenderer.sprite.bounds.extents.x;
+    }
+
+    public bool ShouldMove(Vector2 dst, float minDistance)
+    {
+        if (dst == _dst)
         {
-            //throw new InvalidOperationException("Client is already moving, can't move again");
-            return Task.FromResult(false);
+            return false;
+        }
+        return Vector2.Distance(transform.position, dst) > minDistance;
+    }
+
+    public Task<bool> MoveToAsync(Vector2 dst, float minDistance)
+    {
+        if (!ShouldMove(dst, minDistance))
+        {
+            throw new InvalidOperationException("Client is already at position");
         }
 
-        var x = position.x - (_spriteRenderer.sprite.bounds.extents.x * overflow);
-        _dst = new Vector2(x, transform.position.y);
-
-        if (Vector2.Distance(transform.position, _dst) < 2)
-        {
-            return Task.FromResult(false);
-        }
-        
+        _onMoveTask?.SetCanceled(); // Cancel former destination
+        _dst = dst;
+        _minDistance = minDistance;
         _state = State.Move;
         _onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _spriteRenderer.flipX = _dst.x < transform.position.x;
 
         return _onMoveTask.Task;
+    }
+
+    public bool HasOrder()
+    {
+        return _order != null;
     }
 
     public Cocktail Order()
     {
         if (_order != null)
         {
-            return _order;
+            throw new InvalidOperationException("Client has already order");
         }
         
         _order = Cocktail.BuildRandom();
@@ -140,9 +160,11 @@ public class Client : MonoBehaviour
             throw new InvalidOperationException("Client is not awaiting");
         }
 
-        _onWaitTask.TrySetResult(true);
+        _onWaitTask.SetResult(true);
         waitingSlider.gameObject.SetActive(false);
-        Clean();
+        _onWaitTask = null;
+        _timeAwaited = 0;
+        _order = null;
 
         return _rules.Sum(rule => rule(expected, actual));
     }
@@ -183,10 +205,10 @@ public class Client : MonoBehaviour
             return;
         }
 
-        _onWaitTask?.TrySetCanceled();
+        _onWaitTask.SetCanceled();
         waitingSlider.gameObject.SetActive(false);
-
-        Clean();
+        _onWaitTask = null;
+        _timeAwaited = 0;
     }
 
     private void StepIdle()
@@ -196,8 +218,7 @@ public class Client : MonoBehaviour
 
     private void StepMove()
     {
-        var distance = Vector2.Distance(transform.position, _dst);
-        if (distance > 1)
+        if (Vector2.Distance(transform.position, _dst) > _minDistance)
         {
             _animator.SetInteger("State", AnimMove);
             Step();
@@ -205,25 +226,17 @@ public class Client : MonoBehaviour
         else
         {
             _animator.SetInteger("State", AnimIdle);
-            _onMoveTask?.TrySetResult(true);
-            Clean();
+            _onMoveTask.SetResult(true);
+            _state = State.Idle;
+            _dst = Vector2.zero;
+            _minDistance = 0;
+            _onMoveTask = null;
         }
     }
 
     private void Step()
     {
-        var position = transform.position;
-        _spriteRenderer.flipX = _dst.x < position.x;
-        transform.position = Vector2.MoveTowards(position, _dst, Speed * Time.deltaTime);
-    }
-
-    private void Clean()
-    {
-        _state = State.Idle;
-        _dst = Vector2.zero;
-        _onMoveTask = null;
-        _onWaitTask = null;
-        _timeAwaited = 0f;
+        transform.position = Vector2.MoveTowards(transform.position, _dst, Speed * Time.deltaTime);
     }
 
     private enum State

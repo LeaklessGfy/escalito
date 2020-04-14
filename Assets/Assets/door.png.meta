@@ -2,7 +2,8 @@ fileFormatVersion: 2
 guid: dd2dad11fc07b754bb379c2d23a47a01
 TextureImporter:
   fileIDToRecycleName:
-    21300000: door_0
+    21300000: door_close
+    21300002: door_open
   externalObjects: {}
   serializedVersion: 9
   mipmaps:
@@ -96,10 +97,30 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: door_0
+      name: door_close
       rect:
         serializedVersion: 2
         x: 0
+        y: 29
+        width: 53
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4bb7aa2ff227bfd46bb370b0a29a053a
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: door_open
+      rect:
+        serializedVersion: 2
+        x: 54
         y: 29
         width: 53
         height: 99
@@ -110,7 +131,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4bb7aa2ff227bfd46bb370b0a29a053a
+      spriteID: addce609d0864d04ca40bd72a7e6516f
       vertices: []
       indices: 
       edges: []

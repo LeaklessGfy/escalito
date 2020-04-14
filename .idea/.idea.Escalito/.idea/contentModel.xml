@@ -24,6 +24,7 @@
             <e p="Rules.cs" t="Include" />
             <e p="Satisfaction.cs" t="Include" />
           </e>
+          <e p="Door.cs" t="Include" />
           <e p="Glass.cs" t="Include" />
           <e p="Shaker.cs" t="Include" />
         </e>

@@ -12,6 +12,8 @@ public class Controller : MonoBehaviour
 {
     /* CONSTANT */
     private const int MinutesPerDay = 10;
+    private const int MinDistance = 2;
+    private const int MaxDistance = 20;
     public static Controller Main;
 
     /* DEPENDENCIES */
@@ -26,9 +28,11 @@ public class Controller : MonoBehaviour
 
     /* STATE */
     private int _cash;
-    private float _currentTime;
-    private float _spawnTime;
-    private Vector2 _range = new Vector2(10f, 10f);
+    private float _nextSpawnTime;
+    private float _currentSpawnTime;
+    private Vector2 _spawnTimeRange = new Vector2(1f, 2);
+    private bool _barIsOpen;
+
     private readonly LinkedList<Client> _clients = new LinkedList<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
 
@@ -48,6 +52,15 @@ public class Controller : MonoBehaviour
         UpdateSpawn();
     }
 
+    public bool ToggleBar()
+    {
+        if (_barIsOpen)
+        {
+            return _barIsOpen = false;
+        }
+        return _barIsOpen = true;
+    }
+
     private void UpdateUi()
     {
         clockText.text = GetTime();
@@ -63,13 +76,13 @@ public class Controller : MonoBehaviour
     {
         for (var node = _clients.Last; node != null;)
         {
-            if (node.Previous != null)
+            if (node.Previous == null)
             {
-                GoFollow(node.Value, node.Previous.Value);
+                GoToBar(node.Value);
             }
             else
             {
-                GoToBarAsync(node.Value);
+                GoToClient(node.Value, node.Previous.Value);
             }
             node = node.Previous;
         }
@@ -77,15 +90,20 @@ public class Controller : MonoBehaviour
 
     private void UpdateSpawn()
     {
-        _currentTime += Time.deltaTime;
-
-        if (_currentTime < _spawnTime)
+        if (!_barIsOpen)
         {
             return;
         }
+        
+        _currentSpawnTime += Time.deltaTime;
 
-        _spawnTime = Random.Range(_range.x, _range.y);
-        _currentTime = 0;
+        if (_currentSpawnTime < _nextSpawnTime)
+        {
+            return;
+        }
+        
+        _currentSpawnTime = 0;
+        _nextSpawnTime = Random.Range(_spawnTimeRange.x, _spawnTimeRange.y);
         CreateNewClient();
     }
 
@@ -98,7 +116,7 @@ public class Controller : MonoBehaviour
 
         var sprite = Instantiate(clientPrefab, origin.position, Quaternion.identity);
         var client = sprite.GetComponent<Client>();
-        sprite.name = client.GetName();
+        sprite.name = Client.GetName();
         client.CollisionListeners += ReceiveOrder;
 
         AddClient(client);
@@ -108,59 +126,62 @@ public class Controller : MonoBehaviour
     {
         if (_clients.Count == 0)
         {
-            GoToBarAsync(client);
+            GoToBar(client);
         }
         else
         {
-            GoFollow(client, _clients.Last.Value);
+            GoToClient(client, _clients.Last.Value);
         }
 
         _clients.AddLast(client);
     }
 
-    private async void GoToBarAsync(Client client)
+    private void GoToBar(Client client)
     {
-        var hasMoved = await client.MoveToAsync(bar.transform.position);
-        if (!hasMoved)
-        {
-            return;
-        }
-        
-        AskOrder(client);
-
-        try
-        {
-            await client.Await();
-        }
-        catch (TaskCanceledException)
-        {
-            LeaveAsync(client);
-        }
+        GoTo(client, GetPosition(client, bar));
     }
 
-    private async void GoFollow(Client client, Client leader)
+    private void GoToClient(Client client, Client leader)
     {
-        var hasMoved = await client.MoveToAsync(leader.transform.position, 2);
-        if (!hasMoved)
+        GoTo(client, GetPosition(client, leader));
+    }
+
+    private async void GoTo(Client client, Vector2 dst)
+    {
+        if (!client.ShouldMove(dst, MinDistance))
         {
             return;
         }
 
-        /*AskOrder(client);
-        
         try
         {
-            await client.Await();
+            await client.MoveToAsync(dst, MinDistance);
+            if (client.HasOrder())
+            {
+                return;
+            }
+
+            if (Vector2.Distance(client.transform.position, GetPosition(client, bar)) < MaxDistance)
+            {
+                AskOrder(client);
+            }
         }
         catch (TaskCanceledException)
         {
-            LeaveAsync(client);
-        }*/
+        }
     }
 
-    private void AskOrder(Client client)
+    private async void AskOrder(Client client)
     {
         _orders[client] = client.Order();
+        try
+        {
+            await client.Await();
+        }
+        catch (TaskCanceledException)
+        {
+            LeaveAsync(client);
+        }
     }
 
     private void ReceiveOrder(Client client, Glass glass)
@@ -185,7 +206,7 @@ public class Controller : MonoBehaviour
         var newInstance = Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
         newInstance.name = "Glass";
         
-        _range.x = Mathf.Max(0, _range.x - 1);
+        _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
     private async void LeaveAsync(Client client, int satisfaction = 0)
@@ -208,8 +229,13 @@ public class Controller : MonoBehaviour
         
         _clients.Remove(node);
         client.Leave(satisfaction);
-        await client.MoveToAsync(origin.position);
+        await client.MoveToAsync(origin.position, MinDistance);
         Destroy(client.gameObject);
+    }
+    
+    private static Vector2 GetPosition(Client client, Component component)
+    {
+        return new Vector2(component.transform.position.x - client.GetOffset(), client.transform.position.y);
     }
 
     private static string GetTime()
