@@ -1,104 +1,113 @@
 ﻿using System.Collections.Generic;
 using Core;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
-public class Glass : MonoBehaviour, IPointerDownHandler
+public class Glass : MonoBehaviour
 {
+    /* UNITY */
     private BoxCollider2D _boxCollider;
     private ParticleSystem _fullParticleSystem;
-    private LineRenderer _lineRenderer;
-    private Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
+    
+    /* DEPENDENCIES */
+    [SerializeField] private Material material = default;
 
+    /* STATE */
+    private Ingredient _last;
+
+    private readonly LinkedList<LineRenderer> _lineRenderers = new LinkedList<LineRenderer>();
+    private readonly Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
+
+    /* PUBLIC */
     public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
+    public LinkedList<LineRenderer> LineRenderers => _lineRenderers;
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (eventData.clickCount < 2)
-        {
-            return;
-        }
-
-        Drain();
-    }
-
-    public void Drain()
-    {
-        var currentPosition = _lineRenderer.GetPosition(0);
-        var newPosition = new Vector3(currentPosition.x, 0, 0);
-        _lineRenderer.SetPosition(0, newPosition);
-        _recipe = new Dictionary<Ingredient, int>();
-        transform.position = new Vector3(0, 0, 0);
-        _fullParticleSystem.Stop();
-    }
+    public bool hasCollide;
 
     private void Awake()
     {
         _boxCollider = GetComponent<BoxCollider2D>();
-        _lineRenderer = GetComponentInChildren<LineRenderer>();
         _fullParticleSystem = GetComponentInChildren<ParticleSystem>();
-    }
-
-    private void Update()
-    {
-        var zAngle = transform.localEulerAngles.z;
-        var shouldFlow = zAngle > 80 && zAngle < 280;
-        if (shouldFlow && !IsEmpty())
-        {
-            ThrowConsumable();
-        }
     }
 
     private void OnParticleCollision(GameObject origin)
     {
         var liquid = origin.GetComponent<ParticleSystem>();
         var color = liquid.main.startColor.color;
-
-        _lineRenderer.startColor = color; // new Color(color.r, color.g, color.b, 0.60f);
-        _lineRenderer.endColor = color; // new Color(color.r, color.g, color.b, 0.60f);
-
-        if (!IsFull())
-        {
-            AddConsumable(origin);
-        }
-        else if (!_fullParticleSystem.isPlaying)
-        {
-            var main = _fullParticleSystem.main;
-            main.startColor = color;
-            _fullParticleSystem.Play();
-        }
-    }
-
-    private void AddConsumable(GameObject origin)
-    {
-        var currentPosition = _lineRenderer.GetPosition(0);
-        var stepPosition = Vector3.up * 0.1f;
-        var newPosition = currentPosition + stepPosition;
-        _lineRenderer.SetPosition(0, newPosition);
-
         var bottle = origin.GetComponentInParent<Bottle>();
-        _recipe.TryGetValue(bottle.ingredient, out var prev);
-        _recipe[bottle.ingredient] = prev + 1;
+
+        if (_lineRenderers.Count < 1 || bottle.Ingredient != _last)
+        {
+            _lineRenderers.AddLast(CreateLineRenderer(color, _lineRenderers.Last?.Value));
+            _last = bottle.Ingredient;
+        }
+
+        AddIngredient(bottle.Ingredient);
     }
 
-    private void ThrowConsumable()
+    public bool NeedMix()
     {
-        var currentPosition = _lineRenderer.GetPosition(0);
-        var stepPosition = Vector3.up * 0.1f;
-        var newPosition = currentPosition - stepPosition;
-        _lineRenderer.SetPosition(0, newPosition);
+        return _lineRenderers.Count > 1;
+    }
 
-        var keys = new List<Ingredient>(_recipe.Keys);
-        foreach (var key in keys) _recipe[key] = Recipe[key] - 1;
+    public LineRenderer CreateLineRenderer(Color color, LineRenderer last)
+    {
+        var line = new GameObject();
+        line.transform.SetParent(gameObject.transform);
+        line.transform.position = Vector3.zero;
+        line.transform.localPosition = Vector3.zero;
+        
+        var lineRenderer = line.AddComponent<LineRenderer>();
+        lineRenderer.startWidth = 14;
+        lineRenderer.endWidth = 14;
+        lineRenderer.startColor = color;
+        lineRenderer.endColor = color;
+        lineRenderer.material = material;
+        lineRenderer.sortingLayerName = "Clients";
+        lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        lineRenderer.receiveShadows = false;
+        lineRenderer.allowOcclusionWhenDynamic = false;
+        lineRenderer.useWorldSpace = false;
+        
+        var position = last != null ? last.GetPosition(1) : Vector3.zero;
+        lineRenderer.SetPosition(0, position);
+        lineRenderer.SetPosition(1, position);
+
+        return lineRenderer;
+    }
+
+    private void AddIngredient(Ingredient ingredient)
+    {
+        if (IsFull())
+        {
+            PlayFull();
+            return;
+        }
+        
+        var currentPosition = _lineRenderers.Last.Value.GetPosition(1);
+        var stepPosition = Vector3.up * 0.1f;
+        _lineRenderers.Last.Value.SetPosition(1, currentPosition + stepPosition);
+
+        _recipe.TryGetValue(ingredient, out var prev);
+        _recipe[ingredient] = prev + 1;
     }
 
     private bool IsFull()
     {
-        return _lineRenderer.GetPosition(0).y >= _boxCollider.size.y;
+        return _lineRenderers.Last.Value.GetPosition(1).y >= _boxCollider.size.y - 1;
     }
 
-    private bool IsEmpty()
+    private void PlayFull()
     {
-        return _lineRenderer.GetPosition(0).y <= 0;
+        if (_fullParticleSystem.isPlaying)
+        {
+            return;
+        }
+
+        var lastColor = _lineRenderers.Last.Value.startColor;
+        var main = _fullParticleSystem.main;
+        main.startColor = lastColor;
+
+        _fullParticleSystem.Play();
     }
 }

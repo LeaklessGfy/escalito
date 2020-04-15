@@ -3,59 +3,54 @@ using UnityEngine;
 
 public class Bottle : MonoBehaviour
 {
-    private bool _isClicked;
-    private bool _isFlowing;
+    /* UNITY */
+    private Vector2 _formerPosition;
+    private Vector2 _initialPosition;
     private ParticleSystem _particleSystem;
-    private Rigidbody2D _rigidBody2D;
+    
+    /* DEPENDENCIES */
+    [SerializeField] private Ingredient ingredient = default;
 
-    public Ingredient ingredient;
+    /* PUBLIC */
+    public Ingredient Ingredient => ingredient;
 
     private void Awake()
     {
+        _formerPosition = transform.position;
         _particleSystem = GetComponentInChildren<ParticleSystem>();
-        _rigidBody2D = GetComponent<Rigidbody2D>();
     }
 
-    private void Update()
+    private void OnMouseDrag()
     {
-        var zAngle = transform.localEulerAngles.z;
-        var shouldFlow = zAngle > 80 && zAngle < 280;
-
-        if (_isFlowing == shouldFlow)
+        if (Camera.main == null)
         {
             return;
         }
 
-        if (!_isClicked)
-        {
-            ResetPosition();
-        }
+        var currentPosition = transform.position;
+        var pointerPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        _isFlowing = shouldFlow;
-        if (_isFlowing)
-        {
-            _particleSystem.Play();
-        }
-        else
-        {
-            _particleSystem.Stop();
-        }
+        transform.position = new Vector3( pointerPosition.x - _initialPosition.x, currentPosition.y, currentPosition.z);
     }
 
     private void OnMouseDown()
     {
-        _isClicked = true;
+        if (Camera.main == null)
+        {
+            return;
+        }
+        
+        transform.position = new Vector2(0, 50);
+        transform.Rotate(0, 0, 180);
+        _initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _particleSystem.Play();
     }
 
     private void OnMouseUp()
     {
-        _isClicked = false;
-        ResetPosition();
-    }
-
-    private void ResetPosition()
-    {
+        transform.position = _formerPosition;
         transform.rotation = Quaternion.identity;
-        _rigidBody2D.angularVelocity = 0f;
+        _initialPosition = Vector2.zero;
+        _particleSystem.Stop();
     }
 }

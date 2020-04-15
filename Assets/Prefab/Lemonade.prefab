@@ -26,42 +26,7 @@ PrefabInstance:
     - target: {fileID: 942552757864026006, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
       propertyPath: m_Name
-      value: Bottle Lemonade Variant
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
+      value: Lemonade
       objectReference: {fileID: 0}
     - target: {fileID: 942552757864026007, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
@@ -108,5 +73,7 @@ PrefabInstance:
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.17254902
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 942552757864026010, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}
+    - {fileID: 942552757864026008, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}

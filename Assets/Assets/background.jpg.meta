@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: dd2dad11fc07b754bb379c2d23a47a01
+guid: ee3a1e8c255d1574089d1d2cc7aea9c5
 TextureImporter:
   fileIDToRecycleName:
-    21300000: door_close
-    21300002: door_open
+    21300000: background_0
+    21300002: background_1
   externalObjects: {}
   serializedVersion: 9
   mipmaps:
@@ -38,7 +38,7 @@ TextureImporter:
     mipBias: -100
     wrapU: 1
     wrapV: 1
-    wrapW: -1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -65,7 +65,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -76,7 +76,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -87,7 +87,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -97,33 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: door_close
+      name: background_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 29
-        width: 53
-        height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4bb7aa2ff227bfd46bb370b0a29a053a
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: door_open
-      rect:
-        serializedVersion: 2
-        x: 54
-        y: 29
-        width: 53
-        height: 99
+        x: 2
+        y: 0
+        width: 253
+        height: 290
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,7 +111,27 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: addce609d0864d04ca40bd72a7e6516f
+      spriteID: 59d28b1e10fabc94ebce5ac8e31d3ab9
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: background_1
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 0
+        width: 247
+        height: 290
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0fecb233c7f6ae04a841a6a3420dc58c
       vertices: []
       indices: 
       edges: []
@@ -139,7 +139,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: cacb0f44cafcf9541b1244a73d3dc633
+    spriteID: bb7d4343fb31f18419fa01f2b291c6e5
     vertices: []
     indices: 
     edges: []

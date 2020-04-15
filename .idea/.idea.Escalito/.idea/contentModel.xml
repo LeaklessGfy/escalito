@@ -7,13 +7,12 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
-          <e p="Bar.cs" t="Include" />
           <e p="Bottle.cs" t="Include" />
-          <e p="Character.cs" t="Include" />
+          <e p="Client.cs" t="Include" />
           <e p="Components" t="Include">
-            <e p="DraggablePhysic.cs" t="Include" />
+            <e p="AudioManager.cs" t="Include" />
+            <e p="CursorManager.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
-            <e p="RotatablePhysic.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
             <e p="Selectable.cs" t="Include" />
           </e>
@@ -22,10 +21,12 @@
             <e p="Cocktail.cs" t="Include" />
             <e p="CocktailName.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
-            <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
+            <e p="Satisfaction.cs" t="Include" />
           </e>
+          <e p="Door.cs" t="Include" />
           <e p="Glass.cs" t="Include" />
+          <e p="Shaker.cs" t="Include" />
         </e>
       </e>
       <e p="Escalito.sln" t="IncludeFlat" />

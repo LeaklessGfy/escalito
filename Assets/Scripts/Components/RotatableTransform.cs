@@ -43,7 +43,7 @@ namespace Components
         {
             _rigidBody2D.velocity = Vector2.zero;
             _rigidBody2D.angularVelocity = 0f;
-            
+
             var currentRotation = transform.rotation;
             var rotation = new Vector3(currentRotation.x, currentRotation.y, speed * axis);
             transform.Rotate(rotation);
