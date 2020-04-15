@@ -10,6 +10,9 @@ namespace Components
         {
             Controller.Main.Selected = this;
             CursorManager.Main.SetHover(true);
+
+            var position = transform.position;
+            transform.position = new Vector3(position.x, position.y, -2f);
         }
 
         private void OnMouseExit()
@@ -21,6 +24,9 @@ namespace Components
 
             Controller.Main.Selected = null;
             CursorManager.Main.SetHover(false);
+            
+            var position = transform.position;
+            transform.position = new Vector3(position.x, position.y, 0f);
         }
 
         private void OnMouseDown()
