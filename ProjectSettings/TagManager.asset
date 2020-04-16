@@ -53,6 +53,9 @@ TagManager:
   - name: Clients
     uniqueID: 1178443113
     locked: 0
+  - name: Ingredients
+    uniqueID: 1916926635
+    locked: 0
   - name: UI
     uniqueID: 2995923575
     locked: 0
