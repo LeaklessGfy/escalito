@@ -91,23 +91,24 @@ public class Client : MonoBehaviour
         return _spriteRenderer.sprite.bounds.extents.x;
     }
 
-    public bool IsNear(Vector2 dst, float minDistance)
+    private Vector2 Normalize(Vector2 dst, float offset)
     {
-        if (dst == _dst)
-        {
-            return false;
-        }
-        return Vector2.Distance(transform.position, dst) > minDistance;
+        return new Vector2(dst.x + offset, transform.position.y);
+    }
+    
+    public bool IsNear(Vector2 dst, float offset, float minDistance)
+    {
+        return Vector2.Distance(transform.position, Normalize(dst, offset)) <= minDistance;
     }
 
-    public void MoveTo(Vector2 dst, float minDistance)
+    public void MoveTo(Vector2 dst, float offset, float minDistance)
     {
-        if (!IsNear(dst, minDistance))
+        if (dst == _dst || IsNear(dst, offset, minDistance))
         {
             return;
         }
 
-        _dst = dst;
+        _dst = Normalize(dst, offset);
         _minDistance = minDistance;
         _states.Remove(State.Idle);
         _states.Add(State.Move);
@@ -135,26 +136,32 @@ public class Client : MonoBehaviour
 
     public void Await()
     {
+        if (_states.Contains(State.Wait))
+        {
+            throw new InvalidOperationException("Client is already awaiting");
+        }
+
+        _states.Add(State.Wait);
         _timeAwaited = 0;
         waitingSlider.gameObject.SetActive(true);
     }
 
     public bool IsExhausted()
     {
-        return _timeAwaited >= Patience;
+        return _states.Contains(State.Wait) && _timeAwaited >= Patience;
     }
 
     public int Serve(Cocktail expected, Cocktail actual)
     {
-        if (_states.Contains(State.Wait))
+        if (!_states.Contains(State.Wait))
         {
             throw new InvalidOperationException("Client is not awaiting");
         }
 
-        waitingSlider.gameObject.SetActive(false);
         _states.Remove(State.Wait);
-        _order = null;
         _timeAwaited = 0;
+        waitingSlider.gameObject.SetActive(false);
+        _order = null;
 
         return _rules.Sum(rule => rule(expected, actual));
     }

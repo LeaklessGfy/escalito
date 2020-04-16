@@ -2418,7 +2418,7 @@ MonoBehaviour:
   clockText: {fileID: 1112865819}
   moneyText: {fileID: 463121856}
   bar: {fileID: 1353122530}
-  origin: {fileID: 1848826899}
+  spawn: {fileID: 1848826899}
   clientPrefab: {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8,
     type: 3}
   glassPrefab: {fileID: 7461737335026085312, guid: 98036a808a1ce6f44a5f2d3ace2623b9,
@@ -3058,7 +3058,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1848826899}
   m_Layer: 0
-  m_Name: Client Origin
+  m_Name: Spawn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

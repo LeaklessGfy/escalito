@@ -12,7 +12,7 @@ public class Controller : MonoBehaviour
     /* CONSTANT */
     private const int MinutesPerDay = 10;
     private const int MinDistance = 2;
-    private const int MaxDistance = 20;
+    private const int MaxDistance = 3;
     public static Controller Main;
 
     /* DEPENDENCIES */
@@ -20,7 +20,7 @@ public class Controller : MonoBehaviour
     [SerializeField] private Text clockText = default;
     [SerializeField] private Text moneyText = default;
     [SerializeField] private Transform bar = default;
-    [SerializeField] private Transform origin = default;
+    [SerializeField] private Transform spawn = default;
     [SerializeField] private GameObject clientPrefab = default;
     [SerializeField] private GameObject glassPrefab = default;
     [SerializeField] private int maxClients = 3;
@@ -33,6 +33,7 @@ public class Controller : MonoBehaviour
     private bool _barIsOpen;
 
     private readonly LinkedList<Client> _clients = new LinkedList<Client>();
+    private readonly Queue<Client> _leavingClients = new Queue<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
 
     /* PUBLIC */
@@ -85,17 +86,32 @@ public class Controller : MonoBehaviour
             {
                 GoToClient(client, node.Previous.Value);
             }
+            
+            if (client.IsExhausted())
+            {
+                Leave(client);
+            }
 
-            if (client.IsNear(GetPosition(client, bar), MaxDistance))
+            if (!client.HasOrder() && client.IsNear(bar.position, -client.GetOffset(), MaxDistance))
             {
                 AskOrder(client);
             }
-            else if (client.HasOrder() && client.IsExhausted())
-            {
-                LeaveAsync(client);
-            }
 
             node = node.Previous;
+        }
+        
+        while (_leavingClients.Count > 0)
+        {
+            var leavingClient = _leavingClients.Peek();
+            if (leavingClient.IsNear(spawn.position, 0, MinDistance))
+            {
+                _leavingClients.Dequeue();
+                Destroy(leavingClient.gameObject);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
@@ -125,7 +141,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        var sprite = Instantiate(clientPrefab, origin.position, Quaternion.identity);
+        var sprite = Instantiate(clientPrefab, spawn.position, Quaternion.identity);
         var client = sprite.GetComponent<Client>();
         sprite.name = Client.GetName();
         client.CollisionListeners += ReceiveOrder;
@@ -134,12 +150,12 @@ public class Controller : MonoBehaviour
 
     private void GoToBar(Client client)
     {
-        client.MoveTo(GetPosition(client, bar), MinDistance);
+        client.MoveTo(bar.position, -client.GetOffset(), MinDistance);
     }
 
     private void GoToClient(Client client, Client leader)
     {
-        client.MoveTo(GetPosition(client, leader), MinDistance);
+        client.MoveTo(leader.transform.position, -client.GetOffset(), MinDistance);
     }
 
     private void AskOrder(Client client)
@@ -165,7 +181,7 @@ public class Controller : MonoBehaviour
         }
 
         Destroy(glass.gameObject);
-        LeaveAsync(client, satisfaction);
+        Leave(client, satisfaction);
         
         var newInstance = Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
         newInstance.name = "Glass";
@@ -173,7 +189,7 @@ public class Controller : MonoBehaviour
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
-    private void LeaveAsync(Client client, int satisfaction = 0)
+    private void Leave(Client client, int satisfaction = 0)
     {
         var node = _clients.Find(client);
 
@@ -192,14 +208,9 @@ public class Controller : MonoBehaviour
         }
         
         _clients.Remove(node);
+        _leavingClients.Enqueue(client);
         client.Leave(satisfaction);
-        client.MoveTo(origin.position, MinDistance);
-        // Destroy(client.gameObject); in update
-    }
-    
-    private static Vector2 GetPosition(Client client, Component component)
-    {
-        return new Vector2(component.transform.position.x - client.GetOffset(), client.transform.position.y);
+        client.MoveTo(spawn.position, 0, MinDistance);
     }
 
     private static string GetTime()
