@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Components;
 using Core;
 using UnityEngine;
@@ -76,14 +75,26 @@ public class Controller : MonoBehaviour
     {
         for (var node = _clients.Last; node != null;)
         {
+            var client = node.Value;
+            
             if (node.Previous == null)
             {
-                GoToBar(node.Value);
+                GoToBar(client);
             }
             else
             {
-                GoToClient(node.Value, node.Previous.Value);
+                GoToClient(client, node.Previous.Value);
             }
+
+            if (client.IsNear(GetPosition(client, bar), MaxDistance))
+            {
+                AskOrder(client);
+            }
+            else if (client.HasOrder() && client.IsExhausted())
+            {
+                LeaveAsync(client);
+            }
+
             node = node.Previous;
         }
     }
@@ -118,70 +129,23 @@ public class Controller : MonoBehaviour
         var client = sprite.GetComponent<Client>();
         sprite.name = Client.GetName();
         client.CollisionListeners += ReceiveOrder;
-
-        AddClient(client);
-    }
-
-    private void AddClient(Client client)
-    {
-        if (_clients.Count == 0)
-        {
-            GoToBar(client);
-        }
-        else
-        {
-            GoToClient(client, _clients.Last.Value);
-        }
-
         _clients.AddLast(client);
     }
 
     private void GoToBar(Client client)
     {
-        GoTo(client, GetPosition(client, bar));
+        client.MoveTo(GetPosition(client, bar), MinDistance);
     }
 
     private void GoToClient(Client client, Client leader)
     {
-        GoTo(client, GetPosition(client, leader));
+        client.MoveTo(GetPosition(client, leader), MinDistance);
     }
 
-    private async void GoTo(Client client, Vector2 dst)
-    {
-        if (!client.ShouldMove(dst, MinDistance))
-        {
-            return;
-        }
-
-        try
-        {
-            await client.MoveToAsync(dst, MinDistance);
-            if (client.HasOrder())
-            {
-                return;
-            }
-
-            if (Vector2.Distance(client.transform.position, GetPosition(client, bar)) < MaxDistance)
-            {
-                AskOrder(client);
-            }
-        }
-        catch (TaskCanceledException)
-        {
-        }
-    }
-
-    private async void AskOrder(Client client)
+    private void AskOrder(Client client)
     {
         _orders[client] = client.Order();
-        try
-        {
-            await client.Await();
-        }
-        catch (TaskCanceledException)
-        {
-            LeaveAsync(client);
-        }
+        client.Await();
     }
 
     private void ReceiveOrder(Client client, Glass glass)
@@ -209,7 +173,7 @@ public class Controller : MonoBehaviour
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
-    private async void LeaveAsync(Client client, int satisfaction = 0)
+    private void LeaveAsync(Client client, int satisfaction = 0)
     {
         var node = _clients.Find(client);
 
@@ -229,8 +193,8 @@ public class Controller : MonoBehaviour
         
         _clients.Remove(node);
         client.Leave(satisfaction);
-        await client.MoveToAsync(origin.position, MinDistance);
-        Destroy(client.gameObject);
+        client.MoveTo(origin.position, MinDistance);
+        // Destroy(client.gameObject); in update
     }
     
     private static Vector2 GetPosition(Client client, Component component)

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,9 +28,7 @@ public class Client : MonoBehaviour
     /* STATE */
     private Vector2 _dst;
     private float _minDistance;
-    private TaskCompletionSource<bool> _onMoveTask;
-    private TaskCompletionSource<bool> _onWaitTask;
-    private State _state = State.Idle;
+    private HashSet<State> _states = new HashSet<State>{ State.Idle };
     private float _timeAwaited;
     private Cocktail _order;
     private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
@@ -59,18 +56,17 @@ public class Client : MonoBehaviour
 
     private void Update()
     {
-        StepWait();
-
-        switch (_state)
+        if (_states.Contains(State.Wait))
         {
-            case State.Idle:
-                StepIdle();
-                break;
-            case State.Move:
-                StepMove();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            StepWait();
+        }
+        if (_states.Contains(State.Idle))
+        {
+            StepIdle();
+        }
+        if (_states.Contains(State.Move))
+        {
+            StepMove();
         }
     }
 
@@ -95,7 +91,7 @@ public class Client : MonoBehaviour
         return _spriteRenderer.sprite.bounds.extents.x;
     }
 
-    public bool ShouldMove(Vector2 dst, float minDistance)
+    public bool IsNear(Vector2 dst, float minDistance)
     {
         if (dst == _dst)
         {
@@ -104,21 +100,18 @@ public class Client : MonoBehaviour
         return Vector2.Distance(transform.position, dst) > minDistance;
     }
 
-    public Task<bool> MoveToAsync(Vector2 dst, float minDistance)
+    public void MoveTo(Vector2 dst, float minDistance)
     {
-        if (!ShouldMove(dst, minDistance))
+        if (!IsNear(dst, minDistance))
         {
-            throw new InvalidOperationException("Client is already at position");
+            return;
         }
 
-        _onMoveTask?.SetCanceled(); // Cancel former destination
         _dst = dst;
         _minDistance = minDistance;
-        _state = State.Move;
-        _onMoveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _states.Remove(State.Idle);
+        _states.Add(State.Move);
         _spriteRenderer.flipX = _dst.x < transform.position.x;
-
-        return _onMoveTask.Task;
     }
 
     public bool HasOrder()
@@ -140,31 +133,28 @@ public class Client : MonoBehaviour
         return _order;
     }
 
-    public Task Await()
+    public void Await()
     {
-        if (_onWaitTask != null)
-        {
-            throw new InvalidOperationException("Client is already awaiting");
-        }
-
-        _onWaitTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _timeAwaited = 0;
         waitingSlider.gameObject.SetActive(true);
+    }
 
-        return _onWaitTask.Task;
+    public bool IsExhausted()
+    {
+        return _timeAwaited >= Patience;
     }
 
     public int Serve(Cocktail expected, Cocktail actual)
     {
-        if (_onWaitTask == null)
+        if (_states.Contains(State.Wait))
         {
             throw new InvalidOperationException("Client is not awaiting");
         }
 
-        _onWaitTask.SetResult(true);
         waitingSlider.gameObject.SetActive(false);
-        _onWaitTask = null;
-        _timeAwaited = 0;
+        _states.Remove(State.Wait);
         _order = null;
+        _timeAwaited = 0;
 
         return _rules.Sum(rule => rule(expected, actual));
     }
@@ -190,14 +180,10 @@ public class Client : MonoBehaviour
     
     private void StepWait()
     {
-        if (_onWaitTask == null)
-        {
-            return;
-        }
-
         _timeAwaited += Time.deltaTime;
-        var percent = 100 - ((_timeAwaited / Patience) * 100);
         waitingSlider.value = Patience - _timeAwaited;
+        
+        var percent = 100 - ((_timeAwaited / Patience) * 100);
         waitingImage.color = Satisfaction.GetColor((int) percent);
 
         if (_timeAwaited < Patience)
@@ -205,10 +191,7 @@ public class Client : MonoBehaviour
             return;
         }
 
-        _onWaitTask.SetCanceled();
         waitingSlider.gameObject.SetActive(false);
-        _onWaitTask = null;
-        _timeAwaited = 0;
     }
 
     private void StepIdle()
@@ -221,27 +204,22 @@ public class Client : MonoBehaviour
         if (Vector2.Distance(transform.position, _dst) > _minDistance)
         {
             _animator.SetInteger("State", AnimMove);
-            Step();
+            transform.position = Vector2.MoveTowards(transform.position, _dst, Speed * Time.deltaTime);
         }
         else
         {
             _animator.SetInteger("State", AnimIdle);
-            _onMoveTask.SetResult(true);
-            _state = State.Idle;
+            _states.Remove(State.Move);
+            _states.Add(State.Idle);
             _dst = Vector2.zero;
             _minDistance = 0;
-            _onMoveTask = null;
         }
-    }
-
-    private void Step()
-    {
-        transform.position = Vector2.MoveTowards(transform.position, _dst, Speed * Time.deltaTime);
     }
 
     private enum State
     {
         Idle,
-        Move
+        Move,
+        Wait
     }
 }
