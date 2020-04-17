@@ -19,6 +19,8 @@ public class Controller : MonoBehaviour
     [SerializeField] private Text selectedText = default;
     [SerializeField] private Text clockText = default;
     [SerializeField] private Text moneyText = default;
+    [SerializeField] private Button shopButton = default;
+    [SerializeField] private GameObject shopPanel = default;
     [SerializeField] private Transform bar = default;
     [SerializeField] private Transform spawn = default;
     [SerializeField] private GameObject clientPrefab = default;
@@ -35,23 +37,11 @@ public class Controller : MonoBehaviour
     private readonly LinkedList<Client> _clients = new LinkedList<Client>();
     private readonly Queue<Client> _leavingClients = new Queue<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
+    private readonly Dictionary<Ingredient, int> _inventory = new Dictionary<Ingredient, int>();
 
     /* PUBLIC */
     public Selectable Selected { get; set; }
-
-    private void Awake()
-    {
-        Main = this;
-    }
-
-    private void FixedUpdate()
-    {
-        UpdateUi();
-        UpdateSelected();
-        UpdateQueue();
-        UpdateSpawn();
-    }
-
+    
     public bool ToggleBar()
     {
         if (_barIsOpen)
@@ -59,6 +49,27 @@ public class Controller : MonoBehaviour
             return _barIsOpen = false;
         }
         return _barIsOpen = true;
+    }
+
+    public void ToggleShop()
+    {
+        shopPanel.SetActive(!shopPanel.activeSelf);
+    }
+
+    private void Awake()
+    {
+        Main = this;
+        
+        shopPanel.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        UpdateUi();
+        UpdateSelected();
+        UpdateQueue();
+        UpdateLeaving();
+        UpdateSpawn();
     }
 
     private void UpdateUi()
@@ -91,7 +102,6 @@ public class Controller : MonoBehaviour
             {
                 Leave(client);
             }
-
             if (!client.HasOrder() && client.IsNear(bar.position, -client.GetOffset(), MaxDistance))
             {
                 AskOrder(client);
@@ -99,7 +109,10 @@ public class Controller : MonoBehaviour
 
             node = node.Previous;
         }
-        
+    }
+
+    private void UpdateLeaving()
+    {
         while (_leavingClients.Count > 0)
         {
             var leavingClient = _leavingClients.Peek();
