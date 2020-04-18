@@ -28,6 +28,11 @@ PrefabInstance:
       propertyPath: ingredient
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredientKey
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 942552757864026006, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
       propertyPath: m_Name

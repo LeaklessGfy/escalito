@@ -13,13 +13,13 @@ public class Glass : MonoBehaviour
     [SerializeField] private Material material = default;
 
     /* STATE */
-    private Ingredient _last;
+    private IngredientKey _last;
 
     private readonly LinkedList<LineRenderer> _lineRenderers = new LinkedList<LineRenderer>();
-    private readonly Dictionary<Ingredient, int> _recipe = new Dictionary<Ingredient, int>();
+    private readonly Dictionary<IngredientKey, int> _recipe = new Dictionary<IngredientKey, int>();
 
     /* PUBLIC */
-    public IReadOnlyDictionary<Ingredient, int> Recipe => _recipe;
+    public IReadOnlyDictionary<IngredientKey, int> Recipe => _recipe;
     public LinkedList<LineRenderer> LineRenderers => _lineRenderers;
 
     public bool hasCollide;
@@ -36,13 +36,13 @@ public class Glass : MonoBehaviour
         var color = liquid.main.startColor.color;
         var bottle = origin.GetComponentInParent<Bottle>();
 
-        if (_lineRenderers.Count < 1 || bottle.Ingredient != _last)
+        if (_lineRenderers.Count < 1 || bottle.IngredientKey != _last)
         {
             _lineRenderers.AddLast(CreateLineRenderer(color, _lineRenderers.Last?.Value));
-            _last = bottle.Ingredient;
+            _last = bottle.IngredientKey;
         }
 
-        AddIngredient(bottle.Ingredient);
+        AddIngredient(bottle.IngredientKey);
     }
 
     public bool NeedMix()
@@ -76,7 +76,7 @@ public class Glass : MonoBehaviour
         return lineRenderer;
     }
 
-    private void AddIngredient(Ingredient ingredient)
+    private void AddIngredient(IngredientKey ingredientKey)
     {
         if (IsFull())
         {
@@ -88,8 +88,8 @@ public class Glass : MonoBehaviour
         var stepPosition = Vector3.up * 0.1f;
         _lineRenderers.Last.Value.SetPosition(1, currentPosition + stepPosition);
 
-        _recipe.TryGetValue(ingredient, out var prev);
-        _recipe[ingredient] = prev + 1;
+        _recipe.TryGetValue(ingredientKey, out var prev);
+        _recipe[ingredientKey] = prev + 1;
     }
 
     private bool IsFull()

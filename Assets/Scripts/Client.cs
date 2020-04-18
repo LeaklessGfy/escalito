@@ -28,9 +28,9 @@ public class Client : MonoBehaviour
     /* STATE */
     private Vector2 _dst;
     private float _minDistance;
-    private HashSet<State> _states = new HashSet<State>{ State.Idle };
     private float _timeAwaited;
     private Cocktail _order;
+    private readonly HashSet<State> _states = new HashSet<State>{ State.Idle };
     private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
 
     /* PUBLIC */
@@ -129,7 +129,7 @@ public class Client : MonoBehaviour
         
         _order = Cocktail.BuildRandom();
         orderButton.gameObject.SetActive(true);
-        orderText.text = _order.Name.ToString();
+        orderText.text = _order.Key.ToString();
 
         return _order;
     }

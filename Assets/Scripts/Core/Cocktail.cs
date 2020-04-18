@@ -7,85 +7,85 @@ namespace Core
 {
     public class Cocktail
     {
-        private Cocktail(CocktailName name, int price, IReadOnlyDictionary<Ingredient, int> recipe)
+        private Cocktail(CocktailKey key, int price, IReadOnlyDictionary<IngredientKey, int> recipe)
         {
-            Name = name;
+            Key = key;
             Price = price;
             Recipe = recipe;
         }
 
-        public CocktailName Name { get; }
+        public CocktailKey Key { get; }
         public int Price { get; }
-        public IReadOnlyDictionary<Ingredient, int> Recipe { get; }
+        public IReadOnlyDictionary<IngredientKey, int> Recipe { get; }
 
-        private static Cocktail Build(CocktailName name)
+        private static Cocktail Build(CocktailKey key)
         {
-            var price = BuildPrice(name);
-            var recipe = BuildRecipe(name);
-            return new Cocktail(name, price, recipe);
+            var price = BuildPrice(key);
+            var recipe = BuildRecipe(key);
+            return new Cocktail(key, price, recipe);
         }
 
         public static Cocktail BuildRandom()
         {
-            var names = Enum.GetNames(typeof(CocktailName)).Where(e => !e.Equals(CocktailName.Custom.ToString()))
+            var names = Enum.GetNames(typeof(CocktailKey)).Where(e => !e.Equals(CocktailKey.Custom.ToString()))
                 .ToArray();
             var rand = Random.Range(0, names.Length);
-            Enum.TryParse(names[rand], out CocktailName name);
+            Enum.TryParse(names[rand], out CocktailKey name);
             return Build(name);
         }
 
-        public static Cocktail BuildCustom(IReadOnlyDictionary<Ingredient, int> recipe)
+        public static Cocktail BuildCustom(IReadOnlyDictionary<IngredientKey, int> recipe)
         {
-            return new Cocktail(CocktailName.Custom, 0, recipe);
+            return new Cocktail(CocktailKey.Custom, 0, recipe);
         }
 
-        private static int BuildPrice(CocktailName name)
+        private static int BuildPrice(CocktailKey key)
         {
-            switch (name)
+            switch (key)
             {
-                case CocktailName.Mojito:
+                case CocktailKey.Mojito:
                     return 5;
-                case CocktailName.CubaLibre:
+                case CocktailKey.CubaLibre:
                     return 10;
-                case CocktailName.Rum:
+                case CocktailKey.Rum:
                     return 5;
-                case CocktailName.Coca:
+                case CocktailKey.Coca:
                     return 3;
-                case CocktailName.Lemonade:
+                case CocktailKey.Lemonade:
                     return 3;
-                case CocktailName.Custom:
+                case CocktailKey.Custom:
                     return 0;
                 default:
                     return 0;
             }
         }
 
-        private static IReadOnlyDictionary<Ingredient, int> BuildRecipe(CocktailName name)
+        private static IReadOnlyDictionary<IngredientKey, int> BuildRecipe(CocktailKey key)
         {
-            var recipe = new Dictionary<Ingredient, int>();
+            var recipe = new Dictionary<IngredientKey, int>();
 
-            switch (name)
+            switch (key)
             {
-                case CocktailName.Mojito:
-                    recipe.Add(Ingredient.Rum, 100);
+                case CocktailKey.Mojito:
+                    recipe.Add(IngredientKey.Rum, 100);
                     break;
-                case CocktailName.CubaLibre:
-                    recipe.Add(Ingredient.Rum, 50);
-                    recipe.Add(Ingredient.Cola, 50);
+                case CocktailKey.CubaLibre:
+                    recipe.Add(IngredientKey.Rum, 50);
+                    recipe.Add(IngredientKey.Cola, 50);
                     break;
-                case CocktailName.Rum:
-                    recipe.Add(Ingredient.Rum, 100);
+                case CocktailKey.Rum:
+                    recipe.Add(IngredientKey.Rum, 100);
                     break;
-                case CocktailName.Coca:
-                    recipe.Add(Ingredient.Cola, 100);
+                case CocktailKey.Coca:
+                    recipe.Add(IngredientKey.Cola, 100);
                     break;
-                case CocktailName.Lemonade:
-                    recipe.Add(Ingredient.Lemonade, 100);
+                case CocktailKey.Lemonade:
+                    recipe.Add(IngredientKey.Lemonade, 100);
                     break;
-                case CocktailName.Custom:
+                case CocktailKey.Custom:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(name), name, null);
+                    throw new ArgumentOutOfRangeException(nameof(key), key, null);
             }
 
             return recipe;

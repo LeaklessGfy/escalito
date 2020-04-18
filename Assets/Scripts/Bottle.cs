@@ -9,10 +9,10 @@ public class Bottle : MonoBehaviour
     private ParticleSystem _particleSystem;
     
     /* DEPENDENCIES */
-    [SerializeField] private Ingredient ingredient = default;
+    [SerializeField] private IngredientKey ingredientKey = default;
 
     /* PUBLIC */
-    public Ingredient Ingredient => ingredient;
+    public IngredientKey IngredientKey => ingredientKey;
 
     private void Awake()
     {

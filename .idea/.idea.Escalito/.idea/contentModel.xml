@@ -10,23 +10,29 @@
           <e p="Bottle.cs" t="Include" />
           <e p="Client.cs" t="Include" />
           <e p="Components" t="Include">
-            <e p="AudioManager.cs" t="Include" />
-            <e p="CursorManager.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
+            <e p="Payable.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
             <e p="Selectable.cs" t="Include" />
           </e>
           <e p="Controller.cs" t="Include" />
           <e p="Core" t="Include">
             <e p="Cocktail.cs" t="Include" />
-            <e p="CocktailName.cs" t="Include" />
+            <e p="CocktailKey.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
+            <e p="IngredientKey.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
             <e p="Satisfaction.cs" t="Include" />
+            <e p="Spawnable.cs" t="Include" />
           </e>
           <e p="Door.cs" t="Include" />
           <e p="Glass.cs" t="Include" />
           <e p="Shaker.cs" t="Include" />
+          <e p="Singleton" t="Include">
+            <e p="AudioManager.cs" t="Include" />
+            <e p="CursorManager.cs" t="Include" />
+            <e p="SpawnManager.cs" t="Include" />
+          </e>
         </e>
       </e>
       <e p="Escalito.sln" t="IncludeFlat" />

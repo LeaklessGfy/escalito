@@ -1,9 +1,10 @@
-﻿namespace Core
+﻿using UnityEngine;
+
+namespace Core
 {
-    public enum Ingredient
+    public class Ingredient
     {
-        Rum,
-        Cola,
-        Lemonade
+        [SerializeField] private IngredientKey key;
+        [SerializeField] private int price;
     }
 }

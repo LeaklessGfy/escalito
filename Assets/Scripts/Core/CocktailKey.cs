@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public enum CocktailName
+    public enum CocktailKey
     {
         Mojito,
         CubaLibre,

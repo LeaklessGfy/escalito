@@ -18,8 +18,7 @@ public class Door : MonoBehaviour
         {
             return;
         }
-        
-        var isOpen = Controller.Main.ToggleBar();
-        _spriteRenderer.sprite = isOpen ? openSprite : closeSprite;
+        Controller.Main.BarIsOpen = !Controller.Main.BarIsOpen;
+        _spriteRenderer.sprite = Controller.Main.BarIsOpen ? openSprite : closeSprite;
     }
 }

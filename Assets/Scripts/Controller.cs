@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Components;
 using Core;
+using Singleton;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -18,38 +18,25 @@ public class Controller : MonoBehaviour
     /* DEPENDENCIES */
     [SerializeField] private Text selectedText = default;
     [SerializeField] private Text clockText = default;
-    [SerializeField] private Text moneyText = default;
-    [SerializeField] private Button shopButton = default;
+    [SerializeField] private Text cashText = default;
     [SerializeField] private GameObject shopPanel = default;
     [SerializeField] private Transform bar = default;
     [SerializeField] private Transform spawn = default;
-    [SerializeField] private GameObject clientPrefab = default;
-    [SerializeField] private GameObject glassPrefab = default;
     [SerializeField] private int maxClients = 3;
 
     /* STATE */
-    private int _cash;
+    public int Cash { get; set; }
+    public bool BarIsOpen { get; set; }
+    public Selectable Selected { get; set; }
+
     private float _nextSpawnTime;
     private float _currentSpawnTime;
     private Vector2 _spawnTimeRange = new Vector2(1f, 2);
-    private bool _barIsOpen;
 
     private readonly LinkedList<Client> _clients = new LinkedList<Client>();
     private readonly Queue<Client> _leavingClients = new Queue<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
-    private readonly Dictionary<Ingredient, int> _inventory = new Dictionary<Ingredient, int>();
-
-    /* PUBLIC */
-    public Selectable Selected { get; set; }
-    
-    public bool ToggleBar()
-    {
-        if (_barIsOpen)
-        {
-            return _barIsOpen = false;
-        }
-        return _barIsOpen = true;
-    }
+    private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
 
     public void ToggleShop()
     {
@@ -75,7 +62,7 @@ public class Controller : MonoBehaviour
     private void UpdateUi()
     {
         clockText.text = GetTime();
-        moneyText.text = _cash + "$";
+        cashText.text = Cash + "$";
     }
 
     private void UpdateSelected()
@@ -130,7 +117,7 @@ public class Controller : MonoBehaviour
 
     private void UpdateSpawn()
     {
-        if (!_barIsOpen)
+        if (!BarIsOpen)
         {
             return;
         }
@@ -154,9 +141,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        var sprite = Instantiate(clientPrefab, spawn.position, Quaternion.identity);
-        var client = sprite.GetComponent<Client>();
-        sprite.name = Client.GetName();
+        var client = SpawnManager.Main.Spawn<Client>(Spawnable.Client);
         client.CollisionListeners += ReceiveOrder;
         _clients.AddLast(client);
     }
@@ -190,15 +175,13 @@ public class Controller : MonoBehaviour
         
         if (satisfaction > Satisfaction.Low)
         {
-            _cash += client.Pay(expected.Price, satisfaction);
+            Cash += client.Pay(expected.Price, satisfaction);
         }
 
         Destroy(glass.gameObject);
         Leave(client, satisfaction);
         
-        var newInstance = Instantiate(glassPrefab, new Vector3(0, 20, 0), Quaternion.identity);
-        newInstance.name = "Glass";
-        
+        SpawnManager.Main.Spawn(Spawnable.Glass);
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Singleton;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Components
