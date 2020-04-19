@@ -93,6 +93,16 @@ PrefabInstance:
       propertyPath: TriggerModule.collisionShape0
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5042623234448622457, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5042623234448622457, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 942552757864026010, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}
     - {fileID: 942552757864026008, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}

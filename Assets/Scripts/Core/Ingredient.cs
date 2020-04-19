@@ -8,6 +8,6 @@ namespace Core
     {
         public Color color;
         public IngredientKey key;
-        public int stock;
+        public float stock;
     }
 }

@@ -19,6 +19,7 @@ namespace Singleton
         public static SpawnManager Main;
 
         private readonly Dictionary<Spawnable, SpawnEntry> _prefabFactory = new Dictionary<Spawnable, SpawnEntry>();
+
         private readonly Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>> _scriptFactories =
             new Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>>();
 
@@ -64,22 +65,22 @@ namespace Singleton
             factory(entry);
         }
 
-        private Client CreateClient(SpawnEntry spawnEntry)
+        private static Client CreateClient(SpawnEntry spawnEntry)
         {
             return Create<Client>(spawnEntry.prefab, spawnEntry.spawn, _ => Client.GetName());
         }
 
-        private Glass CreateGlass(SpawnEntry spawnEntry)
+        private static Glass CreateGlass(SpawnEntry spawnEntry)
         {
             return Create<Glass>(spawnEntry.prefab, spawnEntry.spawn, _ => "Glass");
         }
 
-        private Consumable CreateConsumable(SpawnEntry spawnEntry)
+        private static Consumable CreateConsumable(SpawnEntry spawnEntry)
         {
             return Create<Consumable>(spawnEntry.prefab, spawnEntry.spawn, _ => spawnEntry.spawnable.ToString());
         }
 
-        private T Create<T>(GameObject prefab, Transform spawn, Func<T, string> nameProvider) where T : MonoBehaviour
+        private static T Create<T>(GameObject prefab, Transform spawn, Func<T, string> nameProvider) where T : MonoBehaviour
         {
             var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
             var component = impl.GetComponent<T>();

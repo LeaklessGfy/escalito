@@ -2672,8 +2672,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741019293}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -110, y: -68, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
+  m_LocalPosition: {x: -110, y: -71, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1343695594}
   m_RootOrder: 15
@@ -6672,7 +6672,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &2046220463
 Animator:
   serializedVersion: 3
@@ -7159,6 +7159,16 @@ PrefabInstance:
       propertyPath: TriggerModule.collisionShape0
       value: 
       objectReference: {fileID: 528173620}
+    - target: {fileID: 5042623234448622457, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5042623234448622457, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}
 --- !u!1001 &3990679439192406820
@@ -7168,6 +7178,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1343695594}
     m_Modifications:
+    - target: {fileID: 2772422814287698083, guid: f13dd373909a4514abb187918a39c198,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2772422814287698083, guid: f13dd373909a4514abb187918a39c198,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3990679437426272948, guid: f13dd373909a4514abb187918a39c198,
         type: 3}
       propertyPath: m_Name
@@ -7321,6 +7341,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1343695594}
     m_Modifications:
+    - target: {fileID: 3619541613253076401, guid: fb87079e43918374986b571677da1248,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3619541613253076401, guid: fb87079e43918374986b571677da1248,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8851068928408709469, guid: fb87079e43918374986b571677da1248,
         type: 3}
       propertyPath: ingredient

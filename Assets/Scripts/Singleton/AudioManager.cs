@@ -6,8 +6,8 @@ namespace Singleton
     {
         public static AudioManager Main;
         [SerializeField] private AudioSource failure;
-        [SerializeField] private AudioSource success;
         [SerializeField] private AudioSource laugh;
+        [SerializeField] private AudioSource success;
 
         private void Awake()
         {

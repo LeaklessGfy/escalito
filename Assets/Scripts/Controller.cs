@@ -18,11 +18,11 @@ public class Controller : MonoBehaviour
     private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
     private readonly Queue<Client> _leavingClients = new Queue<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
+    private int _combo;
 
     private float _currentSpawnTime;
     private float _nextSpawnTime;
     private Vector2 _spawnTimeRange = new Vector2(1f, 2);
-    private int _combo;
 
     [SerializeField] private Transform bar;
     [SerializeField] private Text cashText;
