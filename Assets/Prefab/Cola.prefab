@@ -121,7 +121,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6672b97c0871d84a9e9bd9b9ee3d0f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ingredientKey: 1
+  ingredient:
+    key: 1
+    price: 0
+    stock: 100
+    color: {r: 0.18867922, g: 0.17354928, b: 0.17354928, a: 1}
 --- !u!114 &5797098790670993698
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,21 +3,19 @@ using UnityEngine;
 
 public class Bottle : MonoBehaviour
 {
-    /* UNITY */
     private Vector2 _formerPosition;
     private Vector2 _initialPosition;
     private ParticleSystem _particleSystem;
-    
-    /* DEPENDENCIES */
-    [SerializeField] private IngredientKey ingredientKey = default;
 
-    /* PUBLIC */
-    public IngredientKey IngredientKey => ingredientKey;
+    public Ingredient ingredient;
 
     private void Awake()
     {
         _formerPosition = transform.position;
         _particleSystem = GetComponentInChildren<ParticleSystem>();
+
+        var main = _particleSystem.main;
+        main.startColor = ingredient.color;
     }
 
     private void OnMouseDrag()
@@ -30,7 +28,7 @@ public class Bottle : MonoBehaviour
         var currentPosition = transform.position;
         var pointerPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        transform.position = new Vector3( pointerPosition.x - _initialPosition.x, currentPosition.y, currentPosition.z);
+        transform.position = new Vector3(pointerPosition.x - _initialPosition.x, currentPosition.y, currentPosition.z);
     }
 
     private void OnMouseDown()
@@ -39,7 +37,7 @@ public class Bottle : MonoBehaviour
         {
             return;
         }
-        
+
         transform.position = new Vector2(0, 50);
         transform.Rotate(0, 0, 180);
         _initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);

@@ -9,34 +9,31 @@ using Selectable = Components.Selectable;
 
 public class Controller : MonoBehaviour
 {
-    /* CONSTANT */
     private const int MinutesPerDay = 10;
     private const int MinDistance = 2;
     private const int MaxDistance = 3;
     public static Controller Main;
 
-    /* DEPENDENCIES */
-    [SerializeField] private Text selectedText = default;
-    [SerializeField] private Text clockText = default;
-    [SerializeField] private Text cashText = default;
-    [SerializeField] private GameObject shopPanel = default;
-    [SerializeField] private Transform bar = default;
-    [SerializeField] private Transform spawn = default;
-    [SerializeField] private int maxClients = 3;
-
-    /* STATE */
-    public int Cash { get; set; }
-    public bool BarIsOpen { get; set; }
-    public Selectable Selected { get; set; }
-
-    private float _nextSpawnTime;
-    private float _currentSpawnTime;
-    private Vector2 _spawnTimeRange = new Vector2(1f, 2);
-
     private readonly LinkedList<Client> _clients = new LinkedList<Client>();
+    private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
     private readonly Queue<Client> _leavingClients = new Queue<Client>();
     private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
-    private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
+
+    private float _currentSpawnTime;
+    private float _nextSpawnTime;
+    private Vector2 _spawnTimeRange = new Vector2(1f, 2);
+    private int _combo;
+
+    [SerializeField] private Transform bar;
+    [SerializeField] private Text cashText;
+    [SerializeField] private Text clockText;
+    [SerializeField] private int maxClients = 3;
+    [SerializeField] private Text selectedText;
+    [SerializeField] private GameObject shopPanel;
+    [SerializeField] private Transform spawn;
+
+    public bool BarIsOpen { get; set; }
+    public Selectable Selected { get; set; }
 
     public void ToggleShop()
     {
@@ -46,7 +43,7 @@ public class Controller : MonoBehaviour
     private void Awake()
     {
         Main = this;
-        
+
         shopPanel.gameObject.SetActive(false);
     }
 
@@ -62,7 +59,7 @@ public class Controller : MonoBehaviour
     private void UpdateUi()
     {
         clockText.text = GetTime();
-        cashText.text = Cash + "$";
+        cashText.text = CashManager.Main.Cash + "$";
     }
 
     private void UpdateSelected()
@@ -75,7 +72,7 @@ public class Controller : MonoBehaviour
         for (var node = _clients.Last; node != null;)
         {
             var client = node.Value;
-            
+
             if (node.Previous == null)
             {
                 GoToBar(client);
@@ -84,11 +81,12 @@ public class Controller : MonoBehaviour
             {
                 GoToClient(client, node.Previous.Value);
             }
-            
+
             if (client.IsExhausted())
             {
                 Leave(client);
             }
+
             if (!client.HasOrder() && client.IsNear(bar.position, -client.GetOffset(), MaxDistance))
             {
                 AskOrder(client);
@@ -121,14 +119,14 @@ public class Controller : MonoBehaviour
         {
             return;
         }
-        
+
         _currentSpawnTime += Time.deltaTime;
 
         if (_currentSpawnTime < _nextSpawnTime)
         {
             return;
         }
-        
+
         _currentSpawnTime = 0;
         _nextSpawnTime = Random.Range(_spawnTimeRange.x, _spawnTimeRange.y);
         CreateNewClient();
@@ -172,15 +170,22 @@ public class Controller : MonoBehaviour
         _orders.Remove(client);
         var actual = Cocktail.BuildCustom(glass.Recipe);
         var satisfaction = client.Serve(expected, actual);
-        
+
         if (satisfaction > Satisfaction.Low)
         {
-            Cash += client.Pay(expected.Price, satisfaction);
+            var price = CashManager.Main.GetPrice(expected.Key);
+            CashManager.Main.Cash += client.Pay(price, satisfaction);
+            _combo++;
+
+            if (_combo % 3 == 0)
+            {
+                AudioManager.Main.PlayLaugh();
+            }
         }
 
         Destroy(glass.gameObject);
         Leave(client, satisfaction);
-        
+
         SpawnManager.Main.Spawn(Spawnable.Glass);
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
@@ -202,7 +207,7 @@ public class Controller : MonoBehaviour
         {
             AudioManager.Main.PlayFailure();
         }
-        
+
         _clients.Remove(node);
         _leavingClients.Enqueue(client);
         client.Leave(satisfaction);
@@ -215,7 +220,7 @@ public class Controller : MonoBehaviour
         var hours = now.TimeOfDay.TotalMinutes % MinutesPerDay;
         var minutes = hours % 1 * 60;
         var timeStamp = new TimeSpan((int) hours, (int) minutes, 0);
-        
+
         var hoursString = timeStamp.Hours.ToString().PadLeft(2, '0');
         var minutesString = timeStamp.Minutes.ToString().PadLeft(2, '0');
 

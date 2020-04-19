@@ -8,16 +8,6 @@ namespace Components
     {
         private bool _isClicked;
 
-        private void OnMouseDown()
-        {
-            _isClicked = true;
-        }
-
-        private void OnMouseUp()
-        {
-            _isClicked = false;
-        }
-
         public void OnPointerEnter(PointerEventData eventData)
         {
             Controller.Main.Selected = this;
@@ -36,9 +26,19 @@ namespace Components
 
             Controller.Main.Selected = null;
             CursorManager.Main.SetHover(false);
-            
+
             var position = transform.position;
             transform.position = new Vector3(position.x, position.y, 0f);
+        }
+
+        private void OnMouseDown()
+        {
+            _isClicked = true;
+        }
+
+        private void OnMouseUp()
+        {
+            _isClicked = false;
         }
     }
 }

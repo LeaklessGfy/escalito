@@ -7,22 +7,19 @@ namespace Core
 {
     public class Cocktail
     {
-        private Cocktail(CocktailKey key, int price, IReadOnlyDictionary<IngredientKey, int> recipe)
+        private Cocktail(CocktailKey key, IReadOnlyDictionary<IngredientKey, int> recipe)
         {
             Key = key;
-            Price = price;
             Recipe = recipe;
         }
 
         public CocktailKey Key { get; }
-        public int Price { get; }
         public IReadOnlyDictionary<IngredientKey, int> Recipe { get; }
 
         private static Cocktail Build(CocktailKey key)
         {
-            var price = BuildPrice(key);
             var recipe = BuildRecipe(key);
-            return new Cocktail(key, price, recipe);
+            return new Cocktail(key, recipe);
         }
 
         public static Cocktail BuildRandom()
@@ -36,28 +33,7 @@ namespace Core
 
         public static Cocktail BuildCustom(IReadOnlyDictionary<IngredientKey, int> recipe)
         {
-            return new Cocktail(CocktailKey.Custom, 0, recipe);
-        }
-
-        private static int BuildPrice(CocktailKey key)
-        {
-            switch (key)
-            {
-                case CocktailKey.Mojito:
-                    return 5;
-                case CocktailKey.CubaLibre:
-                    return 10;
-                case CocktailKey.Rum:
-                    return 5;
-                case CocktailKey.Coca:
-                    return 3;
-                case CocktailKey.Lemonade:
-                    return 3;
-                case CocktailKey.Custom:
-                    return 0;
-                default:
-                    return 0;
-            }
+            return new Cocktail(CocktailKey.Custom, recipe);
         }
 
         private static IReadOnlyDictionary<IngredientKey, int> BuildRecipe(CocktailKey key)
@@ -68,6 +44,7 @@ namespace Core
             {
                 case CocktailKey.Mojito:
                     recipe.Add(IngredientKey.Rum, 100);
+                    recipe.Add(IngredientKey.Lemon, 1);
                     break;
                 case CocktailKey.CubaLibre:
                     recipe.Add(IngredientKey.Rum, 50);
@@ -76,7 +53,7 @@ namespace Core
                 case CocktailKey.Rum:
                     recipe.Add(IngredientKey.Rum, 100);
                     break;
-                case CocktailKey.Coca:
+                case CocktailKey.Cola:
                     recipe.Add(IngredientKey.Cola, 100);
                     break;
                 case CocktailKey.Lemonade:

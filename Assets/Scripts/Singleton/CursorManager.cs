@@ -8,9 +8,9 @@ namespace Singleton
 
         public static CursorManager Main;
 
-        [SerializeField] private Texture2D hover = default;
-        [SerializeField] private Texture2D normal = default;
-        
+        [SerializeField] private Texture2D hover;
+        [SerializeField] private Texture2D normal;
+
         private void Awake()
         {
             Main = this;

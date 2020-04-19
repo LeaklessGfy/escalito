@@ -4,6 +4,8 @@
     {
         Rum,
         Cola,
-        Lemonade
+        Lemonade,
+        Lemon,
+        Strawberry
     }
 }

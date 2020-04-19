@@ -14,10 +14,12 @@ namespace Core
             {
                 return Color.red;
             }
+
             if (satisfaction < Medium)
             {
                 return Color.yellow;
             }
+
             return Color.green;
         }
     }

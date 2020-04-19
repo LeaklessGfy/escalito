@@ -10,6 +10,7 @@
           <e p="Bottle.cs" t="Include" />
           <e p="Client.cs" t="Include" />
           <e p="Components" t="Include">
+            <e p="Consumable.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
             <e p="Payable.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
@@ -30,6 +31,7 @@
           <e p="Shaker.cs" t="Include" />
           <e p="Singleton" t="Include">
             <e p="AudioManager.cs" t="Include" />
+            <e p="CashManager.cs" t="Include" />
             <e p="CursorManager.cs" t="Include" />
             <e p="SpawnManager.cs" t="Include" />
           </e>

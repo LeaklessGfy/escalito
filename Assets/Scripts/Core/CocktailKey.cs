@@ -5,7 +5,7 @@
         Mojito,
         CubaLibre,
         Rum,
-        Coca,
+        Cola,
         Lemonade,
         Custom
     }

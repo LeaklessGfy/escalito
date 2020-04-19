@@ -8,32 +8,26 @@ using Random = UnityEngine.Random;
 
 public class Client : MonoBehaviour
 {
-    /* CONSTANT */
     private const int AnimIdle = 0;
     private const int AnimMove = 1;
     private const float Speed = 30f;
     private const float Patience = 10f;
+    private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
+    private readonly HashSet<State> _states = new HashSet<State> {State.Idle};
 
-    /* UNITY */
     private Animator _animator;
-    private SpriteRenderer _spriteRenderer;
-    
-    /* DEPENDENCIES */
-    [SerializeField] private Button orderButton = default;
-    [SerializeField] private Text orderText = default;
-    [SerializeField] private Text cashText = default;
-    [SerializeField] private Slider waitingSlider = default;
-    [SerializeField] private Image waitingImage = default;
-
-    /* STATE */
     private Vector2 _dst;
     private float _minDistance;
-    private float _timeAwaited;
     private Cocktail _order;
-    private readonly HashSet<State> _states = new HashSet<State>{ State.Idle };
-    private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
+    private SpriteRenderer _spriteRenderer;
+    private float _timeAwaited;
 
-    /* PUBLIC */
+    [SerializeField] private Text cashText;
+    [SerializeField] private Button orderButton;
+    [SerializeField] private Text orderText;
+    [SerializeField] private Image waitingImage;
+    [SerializeField] private Slider waitingSlider;
+
     public event Action<Client, Glass> CollisionListeners;
 
     private void Awake()
@@ -43,10 +37,7 @@ public class Client : MonoBehaviour
         _rules.Add(Rules.CocktailRule);
 
         orderButton.gameObject.SetActive(false);
-        orderButton.onClick.AddListener(() =>
-        {
-            _timeAwaited -= 1;
-        });
+        orderButton.onClick.AddListener(() => { _timeAwaited -= 1; });
         cashText.gameObject.SetActive(false);
 
         waitingSlider.minValue = 0;
@@ -60,10 +51,12 @@ public class Client : MonoBehaviour
         {
             StepWait();
         }
+
         if (_states.Contains(State.Idle))
         {
             StepIdle();
         }
+
         if (_states.Contains(State.Move))
         {
             StepMove();
@@ -72,12 +65,17 @@ public class Client : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!HasOrder())
+        {
+            return;
+        }
+
         var glass = collision.gameObject.GetComponent<Glass>();
-        // Forbid two collision
         if (!glass.hasCollide)
         {
             CollisionListeners?.Invoke(this, glass);
         }
+
         glass.hasCollide = true;
     }
 
@@ -95,7 +93,7 @@ public class Client : MonoBehaviour
     {
         return new Vector2(dst.x + offset, transform.position.y);
     }
-    
+
     public bool IsNear(Vector2 dst, float offset, float minDistance)
     {
         return Vector2.Distance(transform.position, Normalize(dst, offset)) <= minDistance;
@@ -126,7 +124,7 @@ public class Client : MonoBehaviour
         {
             throw new InvalidOperationException("Client has already order");
         }
-        
+
         _order = Cocktail.BuildRandom();
         orderButton.gameObject.SetActive(true);
         orderText.text = _order.Key.ToString();
@@ -184,13 +182,13 @@ public class Client : MonoBehaviour
         orderButton.gameObject.SetActive(false);
         waitingSlider.gameObject.SetActive(false);
     }
-    
+
     private void StepWait()
     {
         _timeAwaited += Time.deltaTime;
         waitingSlider.value = Patience - _timeAwaited;
-        
-        var percent = 100 - ((_timeAwaited / Patience) * 100);
+
+        var percent = 100 - _timeAwaited / Patience * 100;
         waitingImage.color = Satisfaction.GetColor((int) percent);
 
         if (_timeAwaited < Patience)

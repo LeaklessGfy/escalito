@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Components;
 using Core;
 using UnityEngine;
 
@@ -8,29 +9,29 @@ namespace Singleton
     [Serializable]
     public class SpawnEntry
     {
-        public Spawnable spawnable;
         public GameObject prefab;
         public Transform spawn;
+        public Spawnable spawnable;
     }
-        
+
     public class SpawnManager : MonoBehaviour
     {
         public static SpawnManager Main;
 
-        [SerializeField] private SpawnEntry[] spawnEntries;
-
         private readonly Dictionary<Spawnable, SpawnEntry> _prefabFactory = new Dictionary<Spawnable, SpawnEntry>();
-        private readonly Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>> _scriptFactories = new Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>>();
+        private readonly Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>> _scriptFactories =
+            new Dictionary<Spawnable, Func<SpawnEntry, MonoBehaviour>>();
+
+        [SerializeField] private SpawnEntry[] spawnEntries;
 
         private void Awake()
         {
             Main = this;
-            foreach (var spawnEntry in spawnEntries)
-            {
-                _prefabFactory.Add(spawnEntry.spawnable, spawnEntry);
-            }
+            foreach (var spawnEntry in spawnEntries) _prefabFactory.Add(spawnEntry.spawnable, spawnEntry);
             _scriptFactories.Add(Spawnable.Client, CreateClient);
             _scriptFactories.Add(Spawnable.Glass, CreateGlass);
+            _scriptFactories.Add(Spawnable.Lemon, CreateConsumable);
+            _scriptFactories.Add(Spawnable.Strawberry, CreateConsumable);
         }
 
         public T Spawn<T>(Spawnable spawnable) where T : MonoBehaviour
@@ -39,10 +40,12 @@ namespace Singleton
             {
                 throw new InvalidOperationException();
             }
+
             if (!_scriptFactories.TryGetValue(spawnable, out var factory))
             {
                 throw new InvalidOperationException();
             }
+
             return factory(entry) as T;
         }
 
@@ -52,21 +55,28 @@ namespace Singleton
             {
                 throw new InvalidOperationException();
             }
+
             if (!_scriptFactories.TryGetValue(spawnable, out var factory))
             {
                 throw new InvalidOperationException();
             }
+
             factory(entry);
         }
-        
+
         private Client CreateClient(SpawnEntry spawnEntry)
         {
-            return Create<Client>(spawnEntry.prefab, spawnEntry.spawn, c => Client.GetName());
+            return Create<Client>(spawnEntry.prefab, spawnEntry.spawn, _ => Client.GetName());
         }
 
         private Glass CreateGlass(SpawnEntry spawnEntry)
         {
-            return Create<Glass>(spawnEntry.prefab, spawnEntry.spawn, g => "Glass");
+            return Create<Glass>(spawnEntry.prefab, spawnEntry.spawn, _ => "Glass");
+        }
+
+        private Consumable CreateConsumable(SpawnEntry spawnEntry)
+        {
+            return Create<Consumable>(spawnEntry.prefab, spawnEntry.spawn, _ => spawnEntry.spawnable.ToString());
         }
 
         private T Create<T>(GameObject prefab, Transform spawn, Func<T, string> nameProvider) where T : MonoBehaviour

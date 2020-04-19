@@ -5,9 +5,9 @@ namespace Singleton
     public class AudioManager : MonoBehaviour
     {
         public static AudioManager Main;
-        
-        [SerializeField] private AudioSource success = default;
-        [SerializeField] private AudioSource failure = default;
+        [SerializeField] private AudioSource failure;
+        [SerializeField] private AudioSource success;
+        [SerializeField] private AudioSource laugh;
 
         private void Awake()
         {
@@ -22,6 +22,11 @@ namespace Singleton
         public void PlayFailure()
         {
             failure.Play();
+        }
+
+        public void PlayLaugh()
+        {
+            laugh.Play();
         }
     }
 }

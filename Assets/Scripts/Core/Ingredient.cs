@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Core
 {
+    [Serializable]
     public class Ingredient
     {
-        [SerializeField] private IngredientKey key;
-        [SerializeField] private int price;
+        public Color color;
+        public IngredientKey key;
+        public int stock;
     }
 }

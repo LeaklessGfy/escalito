@@ -26,11 +26,13 @@ namespace Components
             }
 
             Vector2 pointerPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (pointerPosition.x < _screenBounds.x * -1 || pointerPosition.x > _screenBounds.x || pointerPosition.y < _screenBounds.y * -1 ||
+            if (pointerPosition.x < _screenBounds.x * -1 || pointerPosition.x > _screenBounds.x ||
+                pointerPosition.y < _screenBounds.y * -1 ||
                 pointerPosition.y > _screenBounds.y)
             {
                 return;
             }
+
             transform.position = pointerPosition;
         }
     }

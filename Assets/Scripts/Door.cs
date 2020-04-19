@@ -3,9 +3,9 @@
 public class Door : MonoBehaviour
 {
     private SpriteRenderer _spriteRenderer;
-    
-    [SerializeField] private Sprite openSprite = default;
-    [SerializeField] private Sprite closeSprite = default;
+
+    [SerializeField] private Sprite closeSprite;
+    [SerializeField] private Sprite openSprite;
 
     private void Awake()
     {
@@ -18,6 +18,7 @@ public class Door : MonoBehaviour
         {
             return;
         }
+
         Controller.Main.BarIsOpen = !Controller.Main.BarIsOpen;
         _spriteRenderer.sprite = Controller.Main.BarIsOpen ? openSprite : closeSprite;
     }

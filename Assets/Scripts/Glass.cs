@@ -1,28 +1,23 @@
 ﻿using System.Collections.Generic;
+using Components;
 using Core;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public class Glass : MonoBehaviour
 {
-    /* UNITY */
-    private BoxCollider2D _boxCollider;
-    private ParticleSystem _fullParticleSystem;
-    
-    /* DEPENDENCIES */
-    [SerializeField] private Material material = default;
-
-    /* STATE */
-    private IngredientKey _last;
-
-    private readonly LinkedList<LineRenderer> _lineRenderers = new LinkedList<LineRenderer>();
     private readonly Dictionary<IngredientKey, int> _recipe = new Dictionary<IngredientKey, int>();
 
-    /* PUBLIC */
-    public IReadOnlyDictionary<IngredientKey, int> Recipe => _recipe;
-    public LinkedList<LineRenderer> LineRenderers => _lineRenderers;
+    private BoxCollider2D _boxCollider;
+    private ParticleSystem _fullParticleSystem;
+    private IngredientKey _last;
 
     public bool hasCollide;
+
+    [SerializeField] private Material material;
+
+    public IReadOnlyDictionary<IngredientKey, int> Recipe => _recipe;
+    public LinkedList<LineRenderer> LineRenderers { get; } = new LinkedList<LineRenderer>();
 
     private void Awake()
     {
@@ -32,22 +27,37 @@ public class Glass : MonoBehaviour
 
     private void OnParticleCollision(GameObject origin)
     {
-        var liquid = origin.GetComponent<ParticleSystem>();
-        var color = liquid.main.startColor.color;
         var bottle = origin.GetComponentInParent<Bottle>();
+        var key = bottle.ingredient.key;
+        var color = bottle.ingredient.color;
 
-        if (_lineRenderers.Count < 1 || bottle.IngredientKey != _last)
+        if (LineRenderers.Count < 1 || key != _last)
         {
-            _lineRenderers.AddLast(CreateLineRenderer(color, _lineRenderers.Last?.Value));
-            _last = bottle.IngredientKey;
+            LineRenderers.AddLast(CreateLineRenderer(color, LineRenderers.Last?.Value));
+            _last = key;
         }
 
-        AddIngredient(bottle.IngredientKey);
+        AddIngredient(key);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        var origin = collision.gameObject;
+        var consumable = origin.GetComponent<Consumable>();
+        if (consumable == null)
+        {
+            return;
+        }
+
+        origin.transform.SetParent(transform);
+        Destroy(origin.GetComponent<Rigidbody2D>());
+        _recipe.TryGetValue(consumable.ingredient.key, out var prev);
+        _recipe[consumable.ingredient.key] = prev + 1;
     }
 
     public bool NeedMix()
     {
-        return _lineRenderers.Count > 1;
+        return LineRenderers.Count > 1;
     }
 
     public LineRenderer CreateLineRenderer(Color color, LineRenderer last)
@@ -56,7 +66,7 @@ public class Glass : MonoBehaviour
         line.transform.SetParent(gameObject.transform);
         line.transform.position = Vector3.zero;
         line.transform.localPosition = Vector3.zero;
-        
+
         var lineRenderer = line.AddComponent<LineRenderer>();
         lineRenderer.startWidth = 14;
         lineRenderer.endWidth = 14;
@@ -68,7 +78,7 @@ public class Glass : MonoBehaviour
         lineRenderer.receiveShadows = false;
         lineRenderer.allowOcclusionWhenDynamic = false;
         lineRenderer.useWorldSpace = false;
-        
+
         var position = last != null ? last.GetPosition(1) : Vector3.zero;
         lineRenderer.SetPosition(0, position);
         lineRenderer.SetPosition(1, position);
@@ -83,10 +93,10 @@ public class Glass : MonoBehaviour
             PlayFull();
             return;
         }
-        
-        var currentPosition = _lineRenderers.Last.Value.GetPosition(1);
+
+        var currentPosition = LineRenderers.Last.Value.GetPosition(1);
         var stepPosition = Vector3.up * 0.1f;
-        _lineRenderers.Last.Value.SetPosition(1, currentPosition + stepPosition);
+        LineRenderers.Last.Value.SetPosition(1, currentPosition + stepPosition);
 
         _recipe.TryGetValue(ingredientKey, out var prev);
         _recipe[ingredientKey] = prev + 1;
@@ -94,7 +104,7 @@ public class Glass : MonoBehaviour
 
     private bool IsFull()
     {
-        return _lineRenderers.Last.Value.GetPosition(1).y >= _boxCollider.size.y - 1;
+        return LineRenderers.Last.Value.GetPosition(1).y >= _boxCollider.size.y - 1;
     }
 
     private void PlayFull()
@@ -104,7 +114,7 @@ public class Glass : MonoBehaviour
             return;
         }
 
-        var lastColor = _lineRenderers.Last.Value.startColor;
+        var lastColor = LineRenderers.Last.Value.startColor;
         var main = _fullParticleSystem.main;
         main.startColor = lastColor;
 

@@ -26,12 +26,37 @@ PrefabInstance:
     - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
       propertyPath: ingredient
-      value: 2
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
       propertyPath: ingredientKey
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredient.color.r
+      value: 0.9960785
+      objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredient.color.g
+      value: 0.6784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredient.color.b
+      value: 0.17254902
+      objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredient.key
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 942552757864026005, guid: af858698dab2dbf4a8eabdc34fe9a020,
+        type: 3}
+      propertyPath: ingredient.color.a
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 942552757864026006, guid: af858698dab2dbf4a8eabdc34fe9a020,
         type: 3}
@@ -67,21 +92,6 @@ PrefabInstance:
         type: 3}
       propertyPath: TriggerModule.collisionShape0
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757934316316, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.9960785
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757934316316, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.6784314
-      objectReference: {fileID: 0}
-    - target: {fileID: 942552757934316316, guid: af858698dab2dbf4a8eabdc34fe9a020,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.17254902
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 942552757864026010, guid: af858698dab2dbf4a8eabdc34fe9a020, type: 3}

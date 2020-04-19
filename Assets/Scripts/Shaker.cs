@@ -8,21 +8,16 @@ public class Shaker : MonoBehaviour
 {
     private const float MixTime = 100f;
 
-    /* DEPENDENCIES */
-    [SerializeField] private Slider mixSlider = default;
-    [SerializeField] private Image mixImage = default;
-
-    /* STATE */
-    private Glass _glass;
-    private LineRenderer _mixLineRenderer;
-    
-    private bool _isClicked;
-    private bool _shouldMix;
-    private bool _isMixInit;
-    
-    private Vector3 _lastPosition = Vector3.zero;
     private float _currentMix;
+    private Glass _glass;
+    private bool _isClicked;
+    private bool _isMixInit;
+    private Vector3 _lastPosition = Vector3.zero;
+    private LineRenderer _mixLineRenderer;
+    private bool _shouldMix;
 
+    [SerializeField] private Image mixImage;
+    [SerializeField] private Slider mixSlider;
 
     private void Awake()
     {
@@ -30,7 +25,7 @@ public class Shaker : MonoBehaviour
         mixSlider.maxValue = MixTime;
         mixSlider.gameObject.SetActive(false);
     }
-    
+
     private void FixedUpdate()
     {
         if (!_isClicked || !_shouldMix)
@@ -54,7 +49,7 @@ public class Shaker : MonoBehaviour
         {
             UpdateMix(speed);
         }
-            
+
         _lastPosition = Input.mousePosition;
     }
 
@@ -69,24 +64,24 @@ public class Shaker : MonoBehaviour
         _isClicked = false;
         _lastPosition = Vector3.zero;
     }
-    
+
     public void Attach(Glass glass)
     {
         _glass = glass;
         _shouldMix = glass.NeedMix();
     }
-    
+
     private void CreateMix()
     {
         _isMixInit = true;
-        
+
         var lr = _glass.LineRenderers;
         var gradient = BuildGradient(lr);
-        
+
         _mixLineRenderer = _glass.CreateLineRenderer(Color.clear, null);
         _mixLineRenderer.colorGradient = gradient;
         _mixLineRenderer.SetPosition(1, lr.Last.Value.GetPosition(1));
-        
+
         mixSlider.gameObject.SetActive(true);
     }
 
@@ -95,7 +90,7 @@ public class Shaker : MonoBehaviour
         _currentMix += speed / 50;
         mixSlider.value = _currentMix;
         mixImage.color = Satisfaction.GetColor(GetMixPercent());
-        
+
         if (_currentMix < MixTime)
         {
             return;
@@ -109,7 +104,7 @@ public class Shaker : MonoBehaviour
         _mixLineRenderer.colorGradient = new Gradient();
         _mixLineRenderer.startColor = mixedColor;
         _mixLineRenderer.endColor = mixedColor;
-        
+
         mixSlider.gameObject.SetActive(false);
     }
 
@@ -118,7 +113,7 @@ public class Shaker : MonoBehaviour
         var gradient = new Gradient();
         var gradientColorKeys = new GradientColorKey[lr.Count];
         var gradientAlphaKeys = new GradientAlphaKey[lr.Count];
-        
+
         var i = 0;
         foreach (var lineRenderer in lr)
         {
@@ -130,7 +125,7 @@ public class Shaker : MonoBehaviour
             gradientAlphaKeys[i] = alphaKey;
             i++;
         }
-        
+
         gradient.SetKeys(gradientColorKeys, gradientAlphaKeys);
 
         return gradient;
@@ -138,6 +133,6 @@ public class Shaker : MonoBehaviour
 
     public int GetMixPercent()
     {
-        return (int) ((_currentMix / MixTime) * 100);
+        return (int) (_currentMix / MixTime * 100);
     }
 }

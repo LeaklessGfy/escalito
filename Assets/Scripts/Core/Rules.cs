@@ -17,15 +17,13 @@ namespace Core
             }
 
             foreach (var ingredient in actual.Recipe)
-            {
                 if (!expected.Recipe.ContainsKey(ingredient.Key))
                 {
                     satisfactions.Add(0);
                 }
-            }
 
             var total = satisfactions.Sum() / satisfactions.Count;
-            
+
             return (int) total;
         }
 
