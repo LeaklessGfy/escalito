@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core;
 using Singleton;
 using UnityEngine;
@@ -12,12 +13,13 @@ public class Controller : MonoBehaviour
     private const int MinutesPerDay = 10;
     private const int MinDistance = 2;
     private const int MaxDistance = 3;
+    private const int Combo = 3;
     public static Controller Main;
 
-    private readonly LinkedList<Client> _clients = new LinkedList<Client>();
+    private readonly LinkedList<Customer> _customers = new LinkedList<Customer>();
     private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
-    private readonly Queue<Client> _leavingClients = new Queue<Client>();
-    private readonly Dictionary<Client, Cocktail> _orders = new Dictionary<Client, Cocktail>();
+    private readonly Queue<Customer> _leavingCustomers = new Queue<Customer>();
+    private readonly Dictionary<Customer, Order> _orders = new Dictionary<Customer, Order>();
     private int _combo;
 
     private float _currentSpawnTime;
@@ -27,10 +29,10 @@ public class Controller : MonoBehaviour
     [SerializeField] private Transform bar;
     [SerializeField] private Text cashText;
     [SerializeField] private Text clockText;
-    [SerializeField] private int maxClients = 3;
+    [SerializeField] private int maxCustomers = 3;
     [SerializeField] private Text selectedText;
     [SerializeField] private GameObject shopPanel;
-    [SerializeField] private Transform spawn;
+    [SerializeField] private Transform spawnCustomer;
 
     public bool BarIsOpen { get; set; }
     public Selectable Selected { get; set; }
@@ -38,6 +40,11 @@ public class Controller : MonoBehaviour
     public void ToggleShop()
     {
         shopPanel.SetActive(!shopPanel.activeSelf);
+    }
+
+    public void NextStep(Glass glass)
+    {
+        GlassManager.Main.NextStep(glass);
     }
 
     private void Awake()
@@ -69,27 +76,27 @@ public class Controller : MonoBehaviour
 
     private void UpdateQueue()
     {
-        for (var node = _clients.Last; node != null;)
+        for (var node = _customers.Last; node != null;)
         {
-            var client = node.Value;
+            var customer = node.Value;
 
             if (node.Previous == null)
             {
-                GoToBar(client);
+                GoToBar(customer);
             }
             else
             {
-                GoToClient(client, node.Previous.Value);
+                GoToCustomer(customer, node.Previous.Value);
             }
 
-            if (client.IsExhausted())
+            if (customer.IsExhausted())
             {
-                Leave(client);
+                Leave(customer);
             }
 
-            if (!client.HasOrder() && client.IsNear(bar.position, -client.GetOffset(), MaxDistance))
+            if (!customer.HasOrder() && customer.IsNear(bar.position, -customer.GetOffset(), MaxDistance))
             {
-                AskOrder(client);
+                AskOrder(customer);
             }
 
             node = node.Previous;
@@ -98,13 +105,13 @@ public class Controller : MonoBehaviour
 
     private void UpdateLeaving()
     {
-        while (_leavingClients.Count > 0)
+        while (_leavingCustomers.Count > 0)
         {
-            var leavingClient = _leavingClients.Peek();
-            if (leavingClient.IsNear(spawn.position, 0, MinDistance))
+            var leavingCustomer = _leavingCustomers.Peek();
+            if (leavingCustomer.IsNear(spawnCustomer.position, 0, MinDistance))
             {
-                _leavingClients.Dequeue();
-                Destroy(leavingClient.gameObject);
+                _leavingCustomers.Dequeue();
+                Destroy(leavingCustomer.gameObject);
             }
             else
             {
@@ -129,74 +136,94 @@ public class Controller : MonoBehaviour
 
         _currentSpawnTime = 0;
         _nextSpawnTime = Random.Range(_spawnTimeRange.x, _spawnTimeRange.y);
-        CreateNewClient();
+        SpawnCustomer();
     }
 
-    private void CreateNewClient()
+    private void SpawnCustomer()
     {
-        if (_clients.Count >= maxClients)
+        if (_customers.Count >= maxCustomers)
         {
             return;
         }
 
-        var client = SpawnManager.Main.Spawn<Client>(Spawnable.Client);
-        client.CollisionListeners += ReceiveOrder;
-        _clients.AddLast(client);
+        var customer = SpawnManager.Main.Spawn<Customer>(Spawnable.Customer);
+        _customers.AddLast(customer);
     }
 
-    private void GoToBar(Client client)
+    private void GoToBar(Customer customer)
     {
-        client.MoveTo(bar.position, -client.GetOffset(), MinDistance);
+        customer.MoveTo(bar.position, -customer.GetOffset(), MinDistance);
     }
 
-    private void GoToClient(Client client, Client leader)
+    private void GoToCustomer(Customer customer, Customer leader)
     {
-        client.MoveTo(leader.transform.position, -client.GetOffset(), MinDistance);
+        customer.MoveTo(leader.transform.position, -customer.GetOffset(), MinDistance);
     }
 
-    private void AskOrder(Client client)
+    private void AskOrder(Customer customer)
     {
-        _orders[client] = client.Order();
-        client.Await();
+        var order = customer.Order();
+        _orders[customer] = order;
+        GlassManager.Main.Spawn(order);
+        customer.Await();
     }
 
-    private void ReceiveOrder(Client client, Glass glass)
+    public void ReceiveOrder(Customer customer)
     {
-        if (!_orders.TryGetValue(client, out var expected))
+        if (!_orders.TryGetValue(customer, out var order))
         {
-            return;
+            throw new InvalidOperationException("Customer has no order");
         }
 
-        _orders.Remove(client);
-        var actual = Cocktail.BuildCustom(glass.Recipe);
-        var satisfaction = client.Serve(expected, actual);
+        _orders.Remove(customer);
 
-        if (satisfaction > Satisfaction.Low)
+        var expectedQueue = order.Cocktails;
+        var actualQueue = GlassManager.Main.Ready;
+        var total = 0;
+        var size = expectedQueue.Count;
+        
+        while (expectedQueue.Count > 0 && actualQueue.Count > 0)
         {
-            var price = CashManager.Main.GetPrice(expected.Key);
-            CashManager.Main.Cash += client.Pay(price, satisfaction);
+            var expected = expectedQueue.Dequeue();
+            var actual = actualQueue.Dequeue();
+
+            var satisfaction = customer.Serve(expected, actual.Cocktail);
+            var cash = customer.Pay(expected.Price, satisfaction);
+
+            total += satisfaction;
+        }
+
+        var satisfactionAvg = total / size;
+
+        if (satisfactionAvg > Satisfaction.Low)
+        {
             _combo++;
-
-            if (_combo % 3 == 0)
-            {
-                AudioManager.Main.PlayLaugh();
-            }
+        }
+        else
+        {
+            _combo = 0;
         }
 
-        Destroy(glass.gameObject);
-        Leave(client, satisfaction);
+        if (_combo == Combo)
+        {
+            AudioManager.Main.PlayLaugh();
+            _combo = 0;
+        }
 
-        SpawnManager.Main.Spawn(Spawnable.Glass);
+        GlassManager.Main.Clean();
+        Leave(customer, satisfactionAvg);
+
+        //SpawnManager.Main.Spawn(Spawnable.Glass);
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
-    private void Leave(Client client, int satisfaction = 0)
+    private void Leave(Customer customer, int satisfaction = 0)
     {
-        var node = _clients.Find(client);
+        var node = _customers.Find(customer);
 
         if (node == null)
         {
-            throw new InvalidOperationException("Client couldn't be found in clients queue");
+            throw new InvalidOperationException("Customer couldn't be found in customers queue");
         }
 
         if (satisfaction > Satisfaction.Low)
@@ -208,10 +235,10 @@ public class Controller : MonoBehaviour
             AudioManager.Main.PlayFailure();
         }
 
-        _clients.Remove(node);
-        _leavingClients.Enqueue(client);
-        client.Leave(satisfaction);
-        client.MoveTo(spawn.position, 0, MinDistance);
+        _customers.Remove(node);
+        _leavingCustomers.Enqueue(customer);
+        customer.Leave(satisfaction);
+        customer.MoveTo(spawnCustomer.position, 0, MinDistance);
     }
 
     private static string GetTime()

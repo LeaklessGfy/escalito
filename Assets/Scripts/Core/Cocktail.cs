@@ -1,25 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Singleton;
 using Random = UnityEngine.Random;
 
 namespace Core
 {
     public class Cocktail
     {
-        private Cocktail(CocktailKey key, IReadOnlyDictionary<IngredientKey, int> recipe)
+        private Cocktail(CocktailKey key, int price, Dictionary<IngredientKey, int> recipe)
         {
             Key = key;
+            Price = price;
             Recipe = recipe;
         }
 
         public CocktailKey Key { get; }
-        public IReadOnlyDictionary<IngredientKey, int> Recipe { get; }
+        public int Price { get; }
+        public Dictionary<IngredientKey, int> Recipe { get; }
+
+        public void AddIngredient(IngredientKey key)
+        {
+            Recipe.TryGetValue(key, out var prev);
+            Recipe[key] = prev + 1;
+        }
 
         private static Cocktail Build(CocktailKey key)
         {
             var recipe = BuildRecipe(key);
-            return new Cocktail(key, recipe);
+            var price = CashManager.Main.GetPrice(key);
+            return new Cocktail(key, price, recipe);
         }
 
         public static Cocktail BuildRandom()
@@ -31,12 +41,17 @@ namespace Core
             return Build(name);
         }
 
-        public static Cocktail BuildCustom(IReadOnlyDictionary<IngredientKey, int> recipe)
+        public static Cocktail BuildCustom(Dictionary<IngredientKey, int> recipe)
         {
-            return new Cocktail(CocktailKey.Custom, recipe);
+            return new Cocktail(CocktailKey.Custom, 0, recipe);
         }
 
-        private static IReadOnlyDictionary<IngredientKey, int> BuildRecipe(CocktailKey key)
+        public static Cocktail BuildEmpty()
+        {
+            return new Cocktail(CocktailKey.Custom, 0, new Dictionary<IngredientKey, int>());
+        }
+
+        private static Dictionary<IngredientKey, int> BuildRecipe(CocktailKey key)
         {
             var recipe = new Dictionary<IngredientKey, int>();
 

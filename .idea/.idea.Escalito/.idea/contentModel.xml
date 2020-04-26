@@ -8,7 +8,6 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="Bottle.cs" t="Include" />
-          <e p="Client.cs" t="Include" />
           <e p="Components" t="Include">
             <e p="Consumable.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
@@ -22,10 +21,12 @@
             <e p="CocktailKey.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
             <e p="IngredientKey.cs" t="Include" />
+            <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
             <e p="Satisfaction.cs" t="Include" />
             <e p="Spawnable.cs" t="Include" />
           </e>
+          <e p="Customer.cs" t="Include" />
           <e p="Door.cs" t="Include" />
           <e p="Glass.cs" t="Include" />
           <e p="Shaker.cs" t="Include" />
@@ -33,6 +34,8 @@
             <e p="AudioManager.cs" t="Include" />
             <e p="CashManager.cs" t="Include" />
             <e p="CursorManager.cs" t="Include" />
+            <e p="CustomerManager.cs" t="Include" />
+            <e p="GlassManager.cs" t="Include" />
             <e p="SpawnManager.cs" t="Include" />
           </e>
         </e>

@@ -1,23 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Components;
 using Core;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Glass : MonoBehaviour
+public class Glass : MonoBehaviour, IComparable<Glass>
 {
-    private readonly Dictionary<IngredientKey, int> _recipe = new Dictionary<IngredientKey, int>();
+    public enum State
+    {
+        InProgress,
+        Ready,
+        Awaiting
+    }
 
     private BoxCollider2D _boxCollider;
     private ParticleSystem _fullParticleSystem;
     private IngredientKey _last;
 
-    public bool hasCollide;
-
     [SerializeField] private Material material;
 
-    public IReadOnlyDictionary<IngredientKey, int> Recipe => _recipe;
     public LinkedList<LineRenderer> LineRenderers { get; } = new LinkedList<LineRenderer>();
+    public Cocktail Cocktail { get; } = Cocktail.BuildEmpty();
+    public State InternalState { get; set; } = State.InProgress;
+
+    public float OverflowX => _boxCollider.size.x;
+    public float OverflowY => _boxCollider.size.y;
+
+    public int CompareTo(Glass other)
+    {
+        return 0;
+    }
 
     private void Awake()
     {
@@ -51,8 +64,12 @@ public class Glass : MonoBehaviour
 
         origin.transform.SetParent(transform);
         Destroy(origin.GetComponent<Rigidbody2D>());
-        _recipe.TryGetValue(consumable.ingredient.key, out var prev);
-        _recipe[consumable.ingredient.key] = prev + 1;
+        Cocktail.AddIngredient(consumable.ingredient.key);
+    }
+
+    private void OnMouseDown()
+    {
+        Controller.Main.NextStep(this);
     }
 
     public bool NeedMix()
@@ -97,9 +114,7 @@ public class Glass : MonoBehaviour
         var currentPosition = LineRenderers.Last.Value.GetPosition(1);
         var stepPosition = Vector3.up * 0.1f;
         LineRenderers.Last.Value.SetPosition(1, currentPosition + stepPosition);
-
-        _recipe.TryGetValue(ingredientKey, out var prev);
-        _recipe[ingredientKey] = prev + 1;
+        Cocktail.AddIngredient(ingredientKey);
     }
 
     private bool IsFull()

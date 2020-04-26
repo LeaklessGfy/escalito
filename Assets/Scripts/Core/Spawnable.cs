@@ -3,7 +3,7 @@
     public enum Spawnable
     {
         Glass,
-        Client,
+        Customer,
         Lemon,
         Strawberry
     }

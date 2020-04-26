@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-public class Client : MonoBehaviour
+public class Customer : MonoBehaviour
 {
     private const int AnimIdle = 0;
     private const int AnimMove = 1;
@@ -18,17 +18,23 @@ public class Client : MonoBehaviour
     private Animator _animator;
     private Vector2 _dst;
     private float _minDistance;
-    private Cocktail _order;
+    private Order _order;
     private SpriteRenderer _spriteRenderer;
     private float _timeAwaited;
 
     [SerializeField] private Text cashText;
+
+    public Func<Order> OrderBuilder = () =>
+    {
+        var o = new Order();
+        o.Cocktails.Enqueue(Cocktail.BuildRandom());
+        return o;
+    };
+
     [SerializeField] private Button orderButton;
     [SerializeField] private Text orderText;
     [SerializeField] private Image waitingImage;
     [SerializeField] private Slider waitingSlider;
-
-    public event Action<Client, Glass> CollisionListeners;
 
     private void Awake()
     {
@@ -63,20 +69,12 @@ public class Client : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnMouseDown()
     {
-        if (!HasOrder())
+        if (HasOrder())
         {
-            return;
+            Controller.Main.ReceiveOrder(this);
         }
-
-        var glass = collision.gameObject.GetComponent<Glass>();
-        if (!glass.hasCollide)
-        {
-            CollisionListeners?.Invoke(this, glass);
-        }
-
-        glass.hasCollide = true;
     }
 
     public static string GetName()
@@ -118,16 +116,16 @@ public class Client : MonoBehaviour
         return _order != null;
     }
 
-    public Cocktail Order()
+    public Order Order()
     {
         if (_order != null)
         {
-            throw new InvalidOperationException("Client has already order");
+            throw new InvalidOperationException("Customer has already order");
         }
 
-        _order = Cocktail.BuildRandom();
+        _order = OrderBuilder();
         orderButton.gameObject.SetActive(true);
-        orderText.text = _order.Key.ToString();
+        orderText.text = _order.Cocktails.Peek().Key.ToString();
 
         return _order;
     }
@@ -136,7 +134,7 @@ public class Client : MonoBehaviour
     {
         if (_states.Contains(State.Wait))
         {
-            throw new InvalidOperationException("Client is already awaiting");
+            throw new InvalidOperationException("Customer is already awaiting");
         }
 
         _states.Add(State.Wait);
@@ -153,7 +151,7 @@ public class Client : MonoBehaviour
     {
         if (!_states.Contains(State.Wait))
         {
-            throw new InvalidOperationException("Client is not awaiting");
+            throw new InvalidOperationException("Customer is not awaiting");
         }
 
         _states.Remove(State.Wait);
@@ -166,6 +164,11 @@ public class Client : MonoBehaviour
 
     public int Pay(int expectedPrice, int satisfaction)
     {
+        if (satisfaction < Satisfaction.Low)
+        {
+            return 0;
+        }
+
         var bonus = satisfaction > Satisfaction.High && Random.Range(0, 4) == 0;
         var price = expectedPrice + (bonus ? Random.Range(1, 5) : 0);
 
