@@ -4313,6 +4313,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1343695594}
   - component: {fileID: 1343695595}
+  - component: {fileID: 1343695603}
   - component: {fileID: 1343695600}
   - component: {fileID: 1343695596}
   - component: {fileID: 1343695599}
@@ -4320,7 +4321,6 @@ GameObject:
   - component: {fileID: 1343695598}
   - component: {fileID: 1343695597}
   - component: {fileID: 1343695602}
-  - component: {fileID: 1343695603}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -4748,7 +4748,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnAwaitingGlass: {fileID: 2082964753}
   spawnInProgressGlass: {fileID: 1354794554}
-  spawnReadyGlass: {fileID: 1353122530}
 --- !u!1 &1353122528
 GameObject:
   m_ObjectHideFlags: 0

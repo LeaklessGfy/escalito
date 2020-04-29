@@ -42,11 +42,6 @@ public class Controller : MonoBehaviour
         shopPanel.SetActive(!shopPanel.activeSelf);
     }
 
-    public void NextStep(Glass glass)
-    {
-        GlassManager.Main.NextStep(glass);
-    }
-
     private void Awake()
     {
         Main = this;
@@ -162,58 +157,52 @@ public class Controller : MonoBehaviour
 
     private void AskOrder(Customer customer)
     {
-        var order = customer.Order();
+        var order = customer.AskOrder();
         _orders[customer] = order;
         GlassManager.Main.Spawn(order);
         customer.Await();
     }
 
-    public void ReceiveOrder(Customer customer)
+    public void ReceiveOrder(Customer customer, Glass glass)
     {
-        if (!_orders.TryGetValue(customer, out var order))
+        var actual = glass.Cocktail;
+
+        if (!customer.Serve(actual))
         {
-            throw new InvalidOperationException("Customer has no order");
+            return;
         }
 
-        _orders.Remove(customer);
+        var cash = customer.Pay();
+        // TODO: Add cash to cashManager
 
-        var expectedQueue = order.Cocktails;
-        var actualQueue = GlassManager.Main.Ready;
-        var total = 0;
-        var size = expectedQueue.Count;
-        
-        while (expectedQueue.Count > 0 && actualQueue.Count > 0)
-        {
-            var expected = expectedQueue.Dequeue();
-            var actual = actualQueue.Dequeue();
-
-            var satisfaction = customer.Serve(expected, actual.Cocktail);
-            var cash = customer.Pay(expected.Price, satisfaction);
-
-            total += satisfaction;
-        }
-
-        var satisfactionAvg = total / size;
-
-        if (satisfactionAvg > Satisfaction.Low)
-        {
-            _combo++;
-        }
-        else
-        {
-            _combo = 0;
-        }
-
-        if (_combo == Combo)
-        {
-            AudioManager.Main.PlayLaugh();
-            _combo = 0;
-        }
+        HandleCombo(customer.Satisfaction);
+        Leave(customer, customer.Satisfaction);
+        IncreaseDifficulty();
 
         GlassManager.Main.Clean();
-        Leave(customer, satisfactionAvg);
+    }
 
-        //SpawnManager.Main.Spawn(Spawnable.Glass);
+    private void HandleCombo(int satisfaction)
+    {
+        if (satisfaction < SatisfactionHelper.Low)
+        {
+            _combo = 0;
+            return;
+        }
+        
+        _combo++;
+
+        if (_combo != Combo)
+        {
+            return;
+        }
+
+        AudioManager.Main.PlayLaugh();
+        _combo = 0;
+    }
+
+    private void IncreaseDifficulty()
+    {
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
@@ -226,7 +215,7 @@ public class Controller : MonoBehaviour
             throw new InvalidOperationException("Customer couldn't be found in customers queue");
         }
 
-        if (satisfaction > Satisfaction.Low)
+        if (satisfaction > SatisfactionHelper.Low)
         {
             AudioManager.Main.PlaySuccess();
         }

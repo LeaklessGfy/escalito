@@ -34,7 +34,7 @@ public class Bottle : MonoBehaviour
         }
 
         stockSlider.value = ingredient.stock;
-        stockImage.color = Satisfaction.GetColor((int) ingredient.stock);
+        stockImage.color = SatisfactionHelper.GetColor((int) ingredient.stock);
     }
 
     private void OnMouseDrag()

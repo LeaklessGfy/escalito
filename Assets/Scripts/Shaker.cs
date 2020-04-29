@@ -89,7 +89,7 @@ public class Shaker : MonoBehaviour
     {
         _currentMix += speed / 50;
         mixSlider.value = _currentMix;
-        mixImage.color = Satisfaction.GetColor(GetMixPercent());
+        mixImage.color = SatisfactionHelper.GetColor(GetMixPercent());
 
         if (_currentMix < MixTime)
         {

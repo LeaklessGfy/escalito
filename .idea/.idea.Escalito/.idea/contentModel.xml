@@ -23,7 +23,7 @@
             <e p="IngredientKey.cs" t="Include" />
             <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
-            <e p="Satisfaction.cs" t="Include" />
+            <e p="SatisfactionHelper.cs" t="Include" />
             <e p="Spawnable.cs" t="Include" />
           </e>
           <e p="Customer.cs" t="Include" />

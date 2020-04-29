@@ -7,13 +7,6 @@ using UnityEngine.Rendering;
 
 public class Glass : MonoBehaviour, IComparable<Glass>
 {
-    public enum State
-    {
-        InProgress,
-        Ready,
-        Awaiting
-    }
-
     private BoxCollider2D _boxCollider;
     private ParticleSystem _fullParticleSystem;
     private IngredientKey _last;
@@ -22,8 +15,6 @@ public class Glass : MonoBehaviour, IComparable<Glass>
 
     public LinkedList<LineRenderer> LineRenderers { get; } = new LinkedList<LineRenderer>();
     public Cocktail Cocktail { get; } = Cocktail.BuildEmpty();
-    public State InternalState { get; set; } = State.InProgress;
-
     public float OverflowX => _boxCollider.size.x;
     public float OverflowY => _boxCollider.size.y;
 
@@ -65,11 +56,6 @@ public class Glass : MonoBehaviour, IComparable<Glass>
         origin.transform.SetParent(transform);
         Destroy(origin.GetComponent<Rigidbody2D>());
         Cocktail.AddIngredient(consumable.ingredient.key);
-    }
-
-    private void OnMouseDown()
-    {
-        Controller.Main.NextStep(this);
     }
 
     public bool NeedMix()

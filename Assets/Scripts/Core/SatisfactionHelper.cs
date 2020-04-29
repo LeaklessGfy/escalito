@@ -2,7 +2,7 @@
 
 namespace Core
 {
-    public static class Satisfaction
+    public static class SatisfactionHelper
     {
         public const int High = 100;
         public const int Medium = 70;
