@@ -7,12 +7,12 @@ namespace Singleton
     public class GlassManager : MonoBehaviour
     {
         public static GlassManager Main;
-        
+
         private List<Glass> _glasses;
+        [SerializeField] private List<GameObject> prefabs;
 
         [SerializeField] private Transform spawnAwaiting;
         [SerializeField] private Transform spawnInProgress;
-        [SerializeField] private List<GameObject> prefabs;
 
         private void Awake()
         {
@@ -25,7 +25,7 @@ namespace Singleton
             for (var i = 0; i < order.Count; i++)
             {
                 var glass = Controller.CreateComponent<Glass>(prefabs[0], spawnAwaiting, "Glass " + i);
-                
+
                 if (i == 0)
                 {
                     GoToProgress(glass);
@@ -41,10 +41,7 @@ namespace Singleton
 
         public void Clean()
         {
-            foreach (var glass in _glasses)
-            {
-                Destroy(glass.gameObject);
-            }
+            foreach (var glass in _glasses) Destroy(glass.gameObject);
         }
 
         private void GoToAwait(Glass glass)

@@ -6,22 +6,23 @@ using UnityEngine;
 namespace Singleton
 {
     [Serializable]
-    public class SpawnEntry
+    public class IngredientEntry
     {
-        public GameObject prefab;
         public IngredientKey key;
+        public GameObject prefab;
     }
 
     public class IngredientManager : MonoBehaviour
     {
         public static IngredientManager Main;
 
-        private readonly Dictionary<IngredientKey, GameObject> _prefabFactory = new Dictionary<IngredientKey, GameObject>();
+        private readonly Dictionary<IngredientKey, GameObject> _prefabFactory =
+            new Dictionary<IngredientKey, GameObject>();
 
         private int _id;
 
         [SerializeField] private Transform spawn;
-        [SerializeField] private SpawnEntry[] spawnEntries;
+        [SerializeField] private IngredientEntry[] spawnEntries;
 
         private void Awake()
         {
@@ -35,6 +36,7 @@ namespace Singleton
             {
                 throw new InvalidOperationException();
             }
+
             Controller.CreateObject(prefab, spawn, prefab.name);
         }
     }

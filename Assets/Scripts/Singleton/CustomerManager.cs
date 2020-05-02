@@ -6,9 +6,9 @@ namespace Singleton
     public class CustomerManager : MonoBehaviour
     {
         public static CustomerManager Main;
+        [SerializeField] private List<GameObject> prefabs;
 
         [SerializeField] private Transform spawn;
-        [SerializeField] private List<GameObject> prefabs;
 
         private void Awake()
         {

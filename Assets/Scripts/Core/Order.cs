@@ -1,26 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Core
 {
-    public class Order
+    public class Order : IEnumerable<Cocktail>
     {
         private readonly HashSet<Cocktail> _pendingCocktails;
         private readonly HashSet<Cocktail> _servedCocktails;
 
-        public bool Ready => _pendingCocktails.Count == 0;
-        public int ExpectedPrice => _servedCocktails.Sum(c => c.Price);
-        public int Count => _pendingCocktails.Count + _servedCocktails.Count;
-
-        public Order(IEnumerable<Cocktail> cocktails)
+        public Order(Cocktail[] cocktails)
         {
+            All = new List<Cocktail>(cocktails);
             _pendingCocktails = new HashSet<Cocktail>(cocktails);
             _servedCocktails = new HashSet<Cocktail>();
         }
 
+        public IReadOnlyList<Cocktail> All { get; }
+        public bool Ready => _pendingCocktails.Count == 0;
+        public int ExpectedPrice => _servedCocktails.Sum(c => c.Price);
+        public int Count => All.Count;
+
+        public IEnumerator<Cocktail> GetEnumerator()
+        {
+            return _pendingCocktails.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _pendingCocktails.GetEnumerator();
+        }
+
         public (Cocktail, int) FindBest(Customer customer, Cocktail actual)
         {
-            (Cocktail, int) def = (_pendingCocktails.First(), 0);
+            var def = (_pendingCocktails.First(), 0);
 
             foreach (var expected in _pendingCocktails)
             {

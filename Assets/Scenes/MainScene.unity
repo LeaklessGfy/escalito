@@ -4319,6 +4319,7 @@ GameObject:
   - component: {fileID: 1343695596}
   - component: {fileID: 1343695599}
   - component: {fileID: 1343695601}
+  - component: {fileID: 1343695605}
   - component: {fileID: 1343695598}
   - component: {fileID: 1343695597}
   - component: {fileID: 1343695602}
@@ -4757,6 +4758,21 @@ MonoBehaviour:
   spawn: {fileID: 1848826899}
   prefabs:
   - {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8, type: 3}
+--- !u!114 &1343695605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343695593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c10a8674ba54a89922c46f407fb2e06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - key: 0
+    sprite: {fileID: 21300000, guid: 0c7ad2c80f1957549acca18b6eacc9fc, type: 3}
 --- !u!1 &1353122528
 GameObject:
   m_ObjectHideFlags: 0

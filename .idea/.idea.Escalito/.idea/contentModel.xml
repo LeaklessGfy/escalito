@@ -32,6 +32,7 @@
           <e p="Singleton" t="Include">
             <e p="AudioManager.cs" t="Include" />
             <e p="CashManager.cs" t="Include" />
+            <e p="CocktailManager.cs" t="Include" />
             <e p="CursorManager.cs" t="Include" />
             <e p="CustomerManager.cs" t="Include" />
             <e p="GlassManager.cs" t="Include" />

@@ -182,7 +182,7 @@ public class Controller : MonoBehaviour
             _combo = 0;
             return;
         }
-        
+
         _combo++;
 
         if (_combo != Combo)
@@ -234,7 +234,7 @@ public class Controller : MonoBehaviour
 
         return hoursString + ":" + minutesString;
     }
-    
+
     public static T CreateComponent<T>(GameObject prefab, Transform spawn, string name) where T : MonoBehaviour
     {
         var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
@@ -242,7 +242,7 @@ public class Controller : MonoBehaviour
         impl.name = name;
         return component;
     }
-    
+
     public static void CreateObject(GameObject prefab, Transform spawn, string name)
     {
         var impl = Instantiate(prefab, spawn.position, Quaternion.identity);

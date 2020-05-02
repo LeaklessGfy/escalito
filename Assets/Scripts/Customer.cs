@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core;
+using Singleton;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -18,27 +19,24 @@ public class Customer : MonoBehaviour
     private Animator _animator;
     private Vector2 _dst;
     private float _minDistance;
-    private SpriteRenderer _spriteRenderer;
-    private float _timeAwaited;
-    private int _servedCount;
     private Order _order;
     private int _satisfactionSum;
+    private int _servedCount;
+    private SpriteRenderer _spriteRenderer;
+    private float _timeAwaited;
 
     [SerializeField] private Text cashText;
 
-    public Func<Order> OrderBuilder = () =>
-    {
-        return new Order(new[] {Cocktail.BuildRandom()});
-    };
+    public Func<Order> OrderBuilder = () => { return new Order(new[] {Cocktail.BuildRandom()}); };
+
+    [SerializeField] private Image[] slots;
+    [SerializeField] private Image waitingImage;
+    [SerializeField] private Slider waitingSlider;
+
     public float Offset => _spriteRenderer.sprite.bounds.extents.x;
     public bool HasOrder => _order != null;
 
     private int Satisfaction => _satisfactionSum / _order.Count;
-
-    [SerializeField] private Button orderButton;
-    [SerializeField] private Text orderText;
-    [SerializeField] private Image waitingImage;
-    [SerializeField] private Slider waitingSlider;
 
     private void Awake()
     {
@@ -46,9 +44,8 @@ public class Customer : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _rules.Add(Rules.CocktailRule);
 
-        orderButton.gameObject.SetActive(false);
-        orderButton.onClick.AddListener(() => { _timeAwaited -= 1; });
         cashText.gameObject.SetActive(false);
+        HideOrder();
 
         waitingSlider.minValue = 0;
         waitingSlider.maxValue = Patience;
@@ -123,8 +120,7 @@ public class Customer : MonoBehaviour
         }
 
         _order = OrderBuilder();
-        orderButton.gameObject.SetActive(true);
-        orderText.text = "TODO: change";
+        ShowOrder();
 
         return _order;
     }
@@ -153,14 +149,13 @@ public class Customer : MonoBehaviour
 
     public bool Serve(Cocktail actual)
     {
-
         if (!_states.Contains(State.Wait))
         {
             throw new InvalidOperationException("Customer is not awaiting");
         }
 
         var find = _order.FindBest(this, actual);
-        
+
         _satisfactionSum += find.Item2;
 
         if (!_order.Ready)
@@ -200,8 +195,9 @@ public class Customer : MonoBehaviour
     public void LeaveTo(Vector2 dst)
     {
         _spriteRenderer.color = SatisfactionHelper.GetColor(Satisfaction);
-        orderButton.gameObject.SetActive(false);
         waitingSlider.gameObject.SetActive(false);
+        HideOrder();
+
         MoveTo(dst, 0.0f, 0.0f);
     }
 
@@ -241,6 +237,21 @@ public class Customer : MonoBehaviour
             _dst = Vector2.zero;
             _minDistance = 0;
         }
+    }
+
+    private void ShowOrder()
+    {
+        for (var i = 0; i < _order.Count; i++)
+        {
+            slots[i].sprite = CocktailManager.Main.GetSprite(_order.All[i].Key);
+            slots[i].color = Color.white;
+            slots[i].gameObject.SetActive(true);
+        }
+    }
+
+    private void HideOrder()
+    {
+        foreach (var slot in slots) slot.gameObject.SetActive(false);
     }
 
     private enum State
