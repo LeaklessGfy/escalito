@@ -24,7 +24,6 @@
             <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
             <e p="SatisfactionHelper.cs" t="Include" />
-            <e p="Spawnable.cs" t="Include" />
           </e>
           <e p="Customer.cs" t="Include" />
           <e p="Door.cs" t="Include" />
@@ -36,7 +35,7 @@
             <e p="CursorManager.cs" t="Include" />
             <e p="CustomerManager.cs" t="Include" />
             <e p="GlassManager.cs" t="Include" />
-            <e p="SpawnManager.cs" t="Include" />
+            <e p="IngredientManager.cs" t="Include" />
           </e>
         </e>
       </e>

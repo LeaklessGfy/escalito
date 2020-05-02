@@ -28,7 +28,7 @@ namespace Core
         private static Cocktail Build(CocktailKey key)
         {
             var recipe = BuildRecipe(key);
-            var price = CashManager.Main.GetPrice(key);
+            var price = CashManager.GetPrice(key);
             return new Cocktail(key, price, recipe);
         }
 

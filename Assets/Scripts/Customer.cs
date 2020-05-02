@@ -21,18 +21,19 @@ public class Customer : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private float _timeAwaited;
     private int _servedCount;
+    private Order _order;
     private int _satisfactionSum;
 
     [SerializeField] private Text cashText;
 
     public Func<Order> OrderBuilder = () =>
     {
-        var o = new Order();
-        o.Cocktails.Enqueue(Cocktail.BuildRandom());
-        return o;
+        return new Order(new[] {Cocktail.BuildRandom()});
     };
-    public Order Order { get; private set; }
-    public int Satisfaction => _satisfactionSum / Order.Cocktails.Count;
+    public float Offset => _spriteRenderer.sprite.bounds.extents.x;
+    public bool HasOrder => _order != null;
+
+    private int Satisfaction => _satisfactionSum / _order.Count;
 
     [SerializeField] private Button orderButton;
     [SerializeField] private Text orderText;
@@ -74,23 +75,20 @@ public class Customer : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!HasOrder())
+        if (!HasOrder)
         {
             return;
         }
 
         var glass = collision.gameObject.GetComponent<Glass>();
+
+        if (glass == null || glass.Served)
+        {
+            return;
+        }
+
+        glass.Served = true;
         Controller.Main.ReceiveOrder(this, glass);
-    }
-
-    public static string GetName()
-    {
-        return "Michel";
-    }
-
-    public float GetOffset()
-    {
-        return _spriteRenderer.sprite.bounds.extents.x;
     }
 
     private Vector2 Normalize(Vector2 dst, float offset)
@@ -117,23 +115,18 @@ public class Customer : MonoBehaviour
         _spriteRenderer.flipX = _dst.x < transform.position.x;
     }
 
-    public bool HasOrder()
-    {
-        return Order != null;
-    }
-
     public Order AskOrder()
     {
-        if (Order != null)
+        if (_order != null)
         {
             throw new InvalidOperationException("Customer has already order");
         }
 
-        Order = OrderBuilder();
+        _order = OrderBuilder();
         orderButton.gameObject.SetActive(true);
-        orderText.text = Order.Cocktails.Peek().Key.ToString();
+        orderText.text = "TODO: change";
 
-        return Order;
+        return _order;
     }
 
     public void Await()
@@ -160,17 +153,17 @@ public class Customer : MonoBehaviour
 
     public bool Serve(Cocktail actual)
     {
+
         if (!_states.Contains(State.Wait))
         {
             throw new InvalidOperationException("Customer is not awaiting");
         }
 
-        var find = FindExpected(actual);
+        var find = _order.FindBest(this, actual);
         
-        _servedCount++;
         _satisfactionSum += find.Item2;
 
-        if (_servedCount != Order.Cocktails.Count)
+        if (!_order.Ready)
         {
             return false;
         }
@@ -182,16 +175,20 @@ public class Customer : MonoBehaviour
         return true;
     }
 
+    public bool IsSatisfied()
+    {
+        return Satisfaction > SatisfactionHelper.Low;
+    }
+
     public int Pay()
     {
-        if (Satisfaction < SatisfactionHelper.Low)
+        if (!IsSatisfied())
         {
             return 0;
         }
 
-        var expectedPrice = Order.Cocktails.Sum(c => c.Price);
         var bonus = Satisfaction > SatisfactionHelper.High && Random.Range(0, 4) == 0;
-        var price = expectedPrice + (bonus ? Random.Range(1, 5) : 0);
+        var price = _order.ExpectedPrice + (bonus ? Random.Range(1, 5) : 0);
 
         cashText.gameObject.SetActive(true);
         cashText.text = "+" + price + "$";
@@ -200,11 +197,12 @@ public class Customer : MonoBehaviour
         return price;
     }
 
-    public void Leave(int satisfaction)
+    public void LeaveTo(Vector2 dst)
     {
-        _spriteRenderer.color = SatisfactionHelper.GetColor(satisfaction);
+        _spriteRenderer.color = SatisfactionHelper.GetColor(Satisfaction);
         orderButton.gameObject.SetActive(false);
         waitingSlider.gameObject.SetActive(false);
+        MoveTo(dst, 0.0f, 0.0f);
     }
 
     private void StepWait()
@@ -243,16 +241,6 @@ public class Customer : MonoBehaviour
             _dst = Vector2.zero;
             _minDistance = 0;
         }
-    }
-
-    private (Cocktail, int) FindExpected(Cocktail actual)
-    {
-        (Cocktail, int) def = (null, 0);
-        return Order.Cocktails.Aggregate(def, (current, cocktail) =>
-        {
-            var satisfaction = Try(cocktail, actual);
-            return satisfaction > current.Item2 ? (cocktail, satisfaction) : current;
-        });
     }
 
     private enum State

@@ -7,7 +7,7 @@ namespace Singleton
     {
         public static CustomerManager Main;
 
-        [SerializeField] private Transform spawnCustomer;
+        [SerializeField] private Transform spawn;
         [SerializeField] private List<GameObject> prefabs;
 
         private void Awake()
@@ -19,15 +19,7 @@ namespace Singleton
         {
             var rand = Random.Range(0, prefabs.Count);
             var prefab = prefabs[rand];
-            return Create(prefab);
-        }
-
-        private Customer Create(GameObject prefab)
-        {
-            var impl = Instantiate(prefab, spawnCustomer.position, Quaternion.identity);
-            var customer = impl.GetComponent<Customer>();
-            impl.name = Customer.GetName();
-            return customer;
+            return Controller.CreateComponent<Customer>(prefab, spawn, "Michel");
         }
     }
 }

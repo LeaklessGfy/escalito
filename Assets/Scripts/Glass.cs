@@ -17,6 +17,7 @@ public class Glass : MonoBehaviour, IComparable<Glass>
     public Cocktail Cocktail { get; } = Cocktail.BuildEmpty();
     public float OverflowX => _boxCollider.size.x;
     public float OverflowY => _boxCollider.size.y;
+    public bool Served { get; set; }
 
     public int CompareTo(Glass other)
     {

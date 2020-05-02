@@ -4314,6 +4314,7 @@ GameObject:
   - component: {fileID: 1343695594}
   - component: {fileID: 1343695595}
   - component: {fileID: 1343695603}
+  - component: {fileID: 1343695604}
   - component: {fileID: 1343695600}
   - component: {fileID: 1343695596}
   - component: {fileID: 1343695599}
@@ -4611,21 +4612,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91449b14c83147ed9686077f67753624, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawn: {fileID: 2082964753}
   spawnEntries:
-  - prefab: {fileID: 7461737335026085312, guid: 98036a808a1ce6f44a5f2d3ace2623b9,
-      type: 3}
-    spawn: {fileID: 1354794554}
-    spawnable: 0
-  - prefab: {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8,
-      type: 3}
-    spawn: {fileID: 1848826899}
-    spawnable: 1
   - prefab: {fileID: 343386582594907716, guid: 3dee64536b91aa14e84df453e92d6ecd, type: 3}
-    spawn: {fileID: 2082964753}
-    spawnable: 2
+    key: 3
   - prefab: {fileID: 423892049512159731, guid: 4f9343506af943244939bf37b59c0cca, type: 3}
-    spawn: {fileID: 2082964753}
-    spawnable: 3
+    key: 4
 --- !u!114 &1343695601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4746,8 +4738,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48377dfa9650450b9c4b67d81e5cee46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnAwaitingGlass: {fileID: 2082964753}
-  spawnInProgressGlass: {fileID: 1354794554}
+  spawnAwaiting: {fileID: 2082964753}
+  spawnInProgress: {fileID: 1354794554}
+  prefabs:
+  - {fileID: 7461737335026085312, guid: 98036a808a1ce6f44a5f2d3ace2623b9, type: 3}
+--- !u!114 &1343695604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343695593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f91dc362f4924561a85b039954763e1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawn: {fileID: 1848826899}
+  prefabs:
+  - {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8, type: 3}
 --- !u!1 &1353122528
 GameObject:
   m_ObjectHideFlags: 0

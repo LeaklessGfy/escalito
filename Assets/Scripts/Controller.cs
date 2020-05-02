@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Core;
 using Singleton;
 using UnityEngine;
@@ -19,7 +18,6 @@ public class Controller : MonoBehaviour
     private readonly LinkedList<Customer> _customers = new LinkedList<Customer>();
     private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
     private readonly Queue<Customer> _leavingCustomers = new Queue<Customer>();
-    private readonly Dictionary<Customer, Order> _orders = new Dictionary<Customer, Order>();
     private int _combo;
 
     private float _currentSpawnTime;
@@ -89,7 +87,7 @@ public class Controller : MonoBehaviour
                 Leave(customer);
             }
 
-            if (!customer.HasOrder() && customer.IsNear(bar.position, -customer.GetOffset(), MaxDistance))
+            if (!customer.HasOrder && customer.IsNear(bar.position, -customer.Offset, MaxDistance))
             {
                 AskOrder(customer);
             }
@@ -131,34 +129,29 @@ public class Controller : MonoBehaviour
 
         _currentSpawnTime = 0;
         _nextSpawnTime = Random.Range(_spawnTimeRange.x, _spawnTimeRange.y);
-        SpawnCustomer();
-    }
 
-    private void SpawnCustomer()
-    {
         if (_customers.Count >= maxCustomers)
         {
             return;
         }
 
-        var customer = SpawnManager.Main.Spawn<Customer>(Spawnable.Customer);
+        var customer = CustomerManager.Main.Spawn();
         _customers.AddLast(customer);
     }
 
     private void GoToBar(Customer customer)
     {
-        customer.MoveTo(bar.position, -customer.GetOffset(), MinDistance);
+        customer.MoveTo(bar.position, -customer.Offset, MinDistance);
     }
 
     private void GoToCustomer(Customer customer, Customer leader)
     {
-        customer.MoveTo(leader.transform.position, -customer.GetOffset(), MinDistance);
+        customer.MoveTo(leader.transform.position, -customer.Offset, MinDistance);
     }
 
     private void AskOrder(Customer customer)
     {
         var order = customer.AskOrder();
-        _orders[customer] = order;
         GlassManager.Main.Spawn(order);
         customer.Await();
     }
@@ -175,16 +168,16 @@ public class Controller : MonoBehaviour
         var cash = customer.Pay();
         // TODO: Add cash to cashManager
 
-        HandleCombo(customer.Satisfaction);
-        Leave(customer, customer.Satisfaction);
+        HandleCombo(customer);
+        Leave(customer);
         IncreaseDifficulty();
 
         GlassManager.Main.Clean();
     }
 
-    private void HandleCombo(int satisfaction)
+    private void HandleCombo(Customer customer)
     {
-        if (satisfaction < SatisfactionHelper.Low)
+        if (!customer.IsSatisfied())
         {
             _combo = 0;
             return;
@@ -206,7 +199,7 @@ public class Controller : MonoBehaviour
         _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
     }
 
-    private void Leave(Customer customer, int satisfaction = 0)
+    private void Leave(Customer customer)
     {
         var node = _customers.Find(customer);
 
@@ -215,7 +208,7 @@ public class Controller : MonoBehaviour
             throw new InvalidOperationException("Customer couldn't be found in customers queue");
         }
 
-        if (satisfaction > SatisfactionHelper.Low)
+        if (customer.IsSatisfied())
         {
             AudioManager.Main.PlaySuccess();
         }
@@ -226,8 +219,7 @@ public class Controller : MonoBehaviour
 
         _customers.Remove(node);
         _leavingCustomers.Enqueue(customer);
-        customer.Leave(satisfaction);
-        customer.MoveTo(spawnCustomer.position, 0, MinDistance);
+        customer.LeaveTo(spawnCustomer.position);
     }
 
     private static string GetTime()
@@ -241,5 +233,19 @@ public class Controller : MonoBehaviour
         var minutesString = timeStamp.Minutes.ToString().PadLeft(2, '0');
 
         return hoursString + ":" + minutesString;
+    }
+    
+    public static T CreateComponent<T>(GameObject prefab, Transform spawn, string name) where T : MonoBehaviour
+    {
+        var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
+        var component = impl.GetComponent<T>();
+        impl.name = name;
+        return component;
+    }
+    
+    public static void CreateObject(GameObject prefab, Transform spawn, string name)
+    {
+        var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
+        impl.name = name;
     }
 }

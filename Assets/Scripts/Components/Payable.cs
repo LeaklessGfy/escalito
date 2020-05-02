@@ -10,7 +10,7 @@ namespace Components
         private Button _itemButton;
         private Text _itemText;
 
-        [SerializeField] private Spawnable spawnable;
+        [SerializeField] private IngredientKey spawnable;
 
         private void Awake()
         {
@@ -22,18 +22,18 @@ namespace Components
 
         private void Update()
         {
-            _itemButton.interactable = CashManager.Main.GetPrice(spawnable) <= CashManager.Main.Cash;
+            _itemButton.interactable = CashManager.GetPrice(spawnable) <= CashManager.Main.Cash;
         }
 
         private void Buy()
         {
-            if (CashManager.Main.GetPrice(spawnable) > CashManager.Main.Cash)
+            if (CashManager.GetPrice(spawnable) > CashManager.Main.Cash)
             {
                 return;
             }
 
-            CashManager.Main.Cash -= CashManager.Main.GetPrice(spawnable);
-            SpawnManager.Main.Spawn(spawnable);
+            CashManager.Main.Cash -= CashManager.GetPrice(spawnable);
+            IngredientManager.Main.Spawn(spawnable);
         }
     }
 }

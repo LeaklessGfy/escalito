@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Core;
 using UnityEngine;
 
@@ -11,8 +10,9 @@ namespace Singleton
         
         private List<Glass> _glasses;
 
-        [SerializeField] private Transform spawnAwaitingGlass;
-        [SerializeField] private Transform spawnInProgressGlass;
+        [SerializeField] private Transform spawnAwaiting;
+        [SerializeField] private Transform spawnInProgress;
+        [SerializeField] private List<GameObject> prefabs;
 
         private void Awake()
         {
@@ -21,24 +21,22 @@ namespace Singleton
 
         public void Spawn(Order order)
         {
-            var isFirst = true;
-            
-            _glasses = order.Cocktails.Select(cocktail =>
+            _glasses = new List<Glass>();
+            for (var i = 0; i < order.Count; i++)
             {
-                var glass = SpawnManager.Main.Spawn<Glass>(Spawnable.Glass);
+                var glass = Controller.CreateComponent<Glass>(prefabs[0], spawnAwaiting, "Glass " + i);
                 
-                if (isFirst)
+                if (i == 0)
                 {
                     GoToProgress(glass);
-                    isFirst = false;
                 }
                 else
                 {
                     GoToAwait(glass);
                 }
 
-                return glass;
-            }).ToList();
+                _glasses.Add(glass);
+            }
         }
 
         public void Clean()
@@ -53,7 +51,7 @@ namespace Singleton
         {
             var glassTransform = glass.transform;
 
-            var position = spawnAwaitingGlass.position;
+            var position = spawnAwaiting.position;
             var x = position.x;
             var y = position.y;
             var z = glassTransform.position.z;
@@ -65,7 +63,7 @@ namespace Singleton
         {
             var glassTransform = glass.transform;
 
-            var position = spawnInProgressGlass.position;
+            var position = spawnInProgress.position;
             var x = position.x;
             var y = position.y;
             var z = glassTransform.position.z;

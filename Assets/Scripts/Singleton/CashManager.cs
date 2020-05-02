@@ -25,22 +25,20 @@ namespace Singleton
             Main = this;
         }
 
-        public int GetPrice(Spawnable spawnable)
+        public static int GetPrice(IngredientKey ingredient)
         {
-            switch (spawnable)
+            switch (ingredient)
             {
-                case Spawnable.Glass:
-                    return GlassPrice;
-                case Spawnable.Lemon:
+                case IngredientKey.Lemon:
                     return LemonPrice;
-                case Spawnable.Strawberry:
+                case IngredientKey.Strawberry:
                     return StrawberryPrice;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(spawnable), spawnable, null);
+                    return 0;
             }
         }
 
-        public int GetPrice(CocktailKey cocktail)
+        public static int GetPrice(CocktailKey cocktail)
         {
             switch (cocktail)
             {
