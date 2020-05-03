@@ -16,23 +16,19 @@ namespace Singleton
     {
         public static IngredientManager Main;
 
-        private readonly Dictionary<IngredientKey, GameObject> _prefabFactory =
-            new Dictionary<IngredientKey, GameObject>();
-
-        private int _id;
-
+        private readonly Dictionary<IngredientKey, GameObject> _prefabs = new Dictionary<IngredientKey, GameObject>();
+        [SerializeField] private IngredientEntry[] entries;
         [SerializeField] private Transform spawn;
-        [SerializeField] private IngredientEntry[] spawnEntries;
 
         private void Awake()
         {
             Main = this;
-            foreach (var spawnEntry in spawnEntries) _prefabFactory.Add(spawnEntry.key, spawnEntry.prefab);
+            foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
         }
 
         public void Spawn(IngredientKey key)
         {
-            if (!_prefabFactory.TryGetValue(key, out var prefab))
+            if (!_prefabs.TryGetValue(key, out var prefab))
             {
                 throw new InvalidOperationException();
             }

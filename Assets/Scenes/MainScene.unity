@@ -4393,13 +4393,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1343695594}
   - component: {fileID: 1343695595}
-  - component: {fileID: 1343695603}
   - component: {fileID: 1343695604}
+  - component: {fileID: 1343695603}
   - component: {fileID: 1343695600}
-  - component: {fileID: 1343695596}
-  - component: {fileID: 1343695599}
-  - component: {fileID: 1343695601}
   - component: {fileID: 1343695605}
+  - component: {fileID: 1343695601}
+  - component: {fileID: 1343695599}
+  - component: {fileID: 1343695596}
   - component: {fileID: 1343695598}
   - component: {fileID: 1343695597}
   - component: {fileID: 1343695602}
@@ -4694,7 +4694,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawn: {fileID: 2082964753}
-  spawnEntries:
+  entries:
   - key: 3
     prefab: {fileID: 343386582594907716, guid: 3dee64536b91aa14e84df453e92d6ecd, type: 3}
   - key: 4
@@ -4819,10 +4819,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48377dfa9650450b9c4b67d81e5cee46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabs:
-  - {fileID: 2492180453540869003, guid: 4cafff24421bba244969fbeab515b1ed, type: 3}
-  spawnAwaiting: {fileID: 2082964753}
-  spawnInProgress: {fileID: 1354794554}
+  spawn: {fileID: 1354794554}
+  entries:
+  - key: 0
+    prefab: {fileID: 2492180453540869003, guid: 4cafff24421bba244969fbeab515b1ed,
+      type: 3}
 --- !u!114 &1343695604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4835,8 +4836,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f91dc362f4924561a85b039954763e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabs:
-  - {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8, type: 3}
+  entries:
+  - key: 0
+    prefab: {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8,
+      type: 3}
   spawn: {fileID: 1848826899}
 --- !u!114 &1343695605
 MonoBehaviour:
@@ -4852,7 +4855,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprites:
   - key: 0
-    sprite: {fileID: 21300000, guid: 0c7ad2c80f1957549acca18b6eacc9fc, type: 3}
+    sprite: {fileID: 21300000, guid: ad3c47f191573a440b5b58fc526b86ad, type: 3}
+  - key: 1
+    sprite: {fileID: 21300000, guid: 3739ef87935166c439a7434ae7a6af3c, type: 3}
+  - key: 2
+    sprite: {fileID: 21300000, guid: e5f9d0f28d5a9244e968d81813a58f78, type: 3}
+  - key: 3
+    sprite: {fileID: 21300000, guid: 7ed8f7a357ee83445a9cd774059f7d2e, type: 3}
+  - key: 4
+    sprite: {fileID: 21300000, guid: 6e1f03a0377c05f49bf8dc9537ac2915, type: 3}
 --- !u!1 &1353122528
 GameObject:
   m_ObjectHideFlags: 0

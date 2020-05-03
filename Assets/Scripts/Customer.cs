@@ -26,7 +26,6 @@ public class Customer : MonoBehaviour
     private float _timeAwaited;
 
     [SerializeField] private Text cashText;
-
     [SerializeField] private Image[] slots;
     [SerializeField] private Image waitingImage;
     [SerializeField] private Slider waitingSlider;
@@ -251,10 +250,12 @@ public class Customer : MonoBehaviour
     private void InitNextOrder()
     {
         var slotId = _order.All.Count - _order.Pending.Count;
+
         if (slotId - 1 >= 0)
         {
             slots[slotId - 1].color = new Color(1f, 1f, 1f, 0.35f);
         }
+
         if (slotId < _order.All.Count)
         {
             slots[slotId].color = new Color(1f, 1f, 1f, 1f);

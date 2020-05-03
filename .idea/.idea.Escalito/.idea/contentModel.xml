@@ -19,6 +19,8 @@
           <e p="Core" t="Include">
             <e p="Cocktail.cs" t="Include" />
             <e p="CocktailKey.cs" t="Include" />
+            <e p="CustomerKey.cs" t="Include" />
+            <e p="GlassKey.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
             <e p="IngredientKey.cs" t="Include" />
             <e p="Order.cs" t="Include" />

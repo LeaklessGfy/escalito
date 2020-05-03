@@ -34,16 +34,14 @@ namespace Core
 
         public static Cocktail BuildRandom()
         {
-            var names = Enum.GetNames(typeof(CocktailKey)).Where(e => !e.Equals(CocktailKey.Custom.ToString()))
+            var keys = Enum.GetValues(typeof(CocktailKey))
+                .Cast<CocktailKey>()
+                .Where(k => !k.Equals(CocktailKey.Custom))
                 .ToArray();
-            var rand = Random.Range(0, names.Length);
-            Enum.TryParse(names[rand], out CocktailKey name);
-            return Build(name);
-        }
+            var rand = Random.Range(0, keys.Length);
+            var key = keys[rand];
 
-        public static Cocktail BuildCustom(Dictionary<IngredientKey, int> recipe)
-        {
-            return new Cocktail(CocktailKey.Custom, 0, recipe);
+            return Build(key);
         }
 
         public static Cocktail BuildEmpty()
@@ -64,6 +62,7 @@ namespace Core
                 case CocktailKey.CubaLibre:
                     recipe.Add(IngredientKey.Rum, 50);
                     recipe.Add(IngredientKey.Cola, 50);
+                    recipe.Add(IngredientKey.Lemon, 1);
                     break;
                 case CocktailKey.Rum:
                     recipe.Add(IngredientKey.Rum, 100);

@@ -1,66 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core;
 using UnityEngine;
 
 namespace Singleton
 {
+    [Serializable]
+    public class GlassEntry
+    {
+        public GlassKey key;
+        public GameObject prefab;
+    }
+
     public class GlassManager : MonoBehaviour
     {
         public static GlassManager Main;
 
-        private List<GlassSprite> _glasses;
-
-        [SerializeField] private List<GameObject> prefabs;
-        [SerializeField] private Transform spawnAwaiting;
-        [SerializeField] private Transform spawnInProgress;
+        private readonly Dictionary<GlassKey, GameObject> _prefabs = new Dictionary<GlassKey, GameObject>();
+        [SerializeField] private List<GlassEntry> entries;
+        [SerializeField] private Transform spawn;
 
         private void Awake()
         {
             Main = this;
+            foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
         }
 
-        public void Spawn(Order order)
+        public void Spawn(GlassKey key = GlassKey.Default)
         {
-            _glasses = new List<GlassSprite>();
-            for (var i = 0; i < order.Count; i++)
+            if (!_prefabs.TryGetValue(key, out var prefab))
             {
-                var glass = Controller.CreateComponent<GlassSprite>(prefabs[0], spawnAwaiting, "Glass " + i);
-
-                if (i == 0)
-                {
-                    GoToProgress(glass);
-                }
-                else
-                {
-                    GoToAwait(glass);
-                }
-
-                _glasses.Add(glass);
+                throw new InvalidOperationException();
             }
-        }
 
-        private void GoToAwait(Component glass)
-        {
-            var glassTransform = glass.transform;
-
-            var position = spawnAwaiting.position;
-            var x = position.x;
-            var y = position.y;
-            var z = glassTransform.position.z;
-
-            glassTransform.position = new Vector3(x, y, z);
-        }
-
-        private void GoToProgress(Component glass)
-        {
-            var glassTransform = glass.transform;
-
-            var position = spawnInProgress.position;
-            var x = position.x;
-            var y = position.y;
-            var z = glassTransform.position.z;
-
-            glassTransform.position = new Vector3(x, y, z);
+            Controller.CreateComponent<GlassSprite>(prefab, spawn, prefab.name);
         }
     }
 }

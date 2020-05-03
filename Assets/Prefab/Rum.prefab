@@ -132,12 +132,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6672b97c0871d84a9e9bd9b9ee3d0f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stockSlider: {fileID: 4169310441794074230}
-  stockImage: {fileID: 1337094945116637622}
   ingredient:
-    color: {r: 0.6476978, g: 1, b: 0, a: 1}
+    color: {r: 0.81960785, g: 0.99607843, b: 0.827451, a: 1}
     key: 0
     stock: 100
+  stockImage: {fileID: 1337094945116637622}
+  stockSlider: {fileID: 4169310441794074230}
 --- !u!114 &6760367641054987713
 MonoBehaviour:
   m_ObjectHideFlags: 0

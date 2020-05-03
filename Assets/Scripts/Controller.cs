@@ -135,7 +135,7 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        var customer = CustomerManager.Main.Spawn();
+        var customer = CustomerManager.Main.SpawnRandom();
         _customers.AddLast(customer);
     }
 
@@ -152,7 +152,7 @@ public class Controller : MonoBehaviour
     private void AskOrder(Customer customer)
     {
         var order = customer.AskOrder();
-        GlassManager.Main.Spawn(order);
+        GlassManager.Main.Spawn();
         customer.Await();
     }
 
@@ -163,6 +163,7 @@ public class Controller : MonoBehaviour
 
         if (!customer.Serve(actual))
         {
+            GlassManager.Main.Spawn();
             return;
         }
 
