@@ -156,9 +156,10 @@ public class Controller : MonoBehaviour
         customer.Await();
     }
 
-    public void ReceiveOrder(Customer customer, Glass glass)
+    public void ReceiveOrder(Customer customer, GlassSprite glass)
     {
         var actual = glass.Cocktail;
+        Destroy(glass.gameObject);
 
         if (!customer.Serve(actual))
         {
@@ -171,8 +172,6 @@ public class Controller : MonoBehaviour
         HandleCombo(customer);
         Leave(customer);
         IncreaseDifficulty();
-
-        GlassManager.Main.Clean();
     }
 
     private void HandleCombo(Customer customer)

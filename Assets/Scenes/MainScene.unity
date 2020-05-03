@@ -2578,6 +2578,8 @@ GameObject:
   - component: {fileID: 741019296}
   - component: {fileID: 741019295}
   - component: {fileID: 741019294}
+  - component: {fileID: 741019298}
+  - component: {fileID: 741019297}
   m_Layer: 0
   m_Name: Body Guard
   m_TagString: Untagged
@@ -2666,6 +2668,44 @@ Transform:
   m_Father: {fileID: 1343695594}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &741019297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741019293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f1ad0d20b04420addea86704003328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!61 &741019298
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741019293}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 20, y: 32}
+    newSize: {x: 21, y: 33}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 20, y: 32}
+  m_EdgeRadius: 0
 --- !u!1 &752960462
 GameObject:
   m_ObjectHideFlags: 0
@@ -3733,8 +3773,10 @@ GameObject:
   - component: {fileID: 1117358760}
   - component: {fileID: 1117358759}
   - component: {fileID: 1117358758}
+  - component: {fileID: 1117358762}
+  - component: {fileID: 1117358761}
   m_Layer: 0
-  m_Name: Barmaid
+  m_Name: Amedee
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3821,6 +3863,44 @@ Transform:
   m_Father: {fileID: 1343695594}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1117358761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117358757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f1ad0d20b04420addea86704003328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!61 &1117358762
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117358757}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 19, y: 34}
+    newSize: {x: 19, y: 34}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 19, y: 34}
+  m_EdgeRadius: 0
 --- !u!1 &1168867238
 GameObject:
   m_ObjectHideFlags: 0
@@ -4615,10 +4695,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawn: {fileID: 2082964753}
   spawnEntries:
-  - prefab: {fileID: 343386582594907716, guid: 3dee64536b91aa14e84df453e92d6ecd, type: 3}
-    key: 3
-  - prefab: {fileID: 423892049512159731, guid: 4f9343506af943244939bf37b59c0cca, type: 3}
-    key: 4
+  - key: 3
+    prefab: {fileID: 343386582594907716, guid: 3dee64536b91aa14e84df453e92d6ecd, type: 3}
+  - key: 4
+    prefab: {fileID: 423892049512159731, guid: 4f9343506af943244939bf37b59c0cca, type: 3}
 --- !u!114 &1343695601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4739,10 +4819,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48377dfa9650450b9c4b67d81e5cee46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabs:
+  - {fileID: 2492180453540869003, guid: 4cafff24421bba244969fbeab515b1ed, type: 3}
   spawnAwaiting: {fileID: 2082964753}
   spawnInProgress: {fileID: 1354794554}
-  prefabs:
-  - {fileID: 7461737335026085312, guid: 98036a808a1ce6f44a5f2d3ace2623b9, type: 3}
 --- !u!114 &1343695604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4755,9 +4835,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f91dc362f4924561a85b039954763e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawn: {fileID: 1848826899}
   prefabs:
   - {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8, type: 3}
+  spawn: {fileID: 1848826899}
 --- !u!114 &1343695605
 MonoBehaviour:
   m_ObjectHideFlags: 0

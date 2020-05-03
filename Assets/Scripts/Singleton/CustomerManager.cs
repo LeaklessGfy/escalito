@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core;
 using UnityEngine;
 
 namespace Singleton
@@ -19,7 +20,10 @@ namespace Singleton
         {
             var rand = Random.Range(0, prefabs.Count);
             var prefab = prefabs[rand];
-            return Controller.CreateComponent<Customer>(prefab, spawn, "Michel");
+            var customer = Controller.CreateComponent<Customer>(prefab, spawn, "Michel");
+            customer.OrderBuilder = Order.BuildRandom;
+
+            return customer;
         }
     }
 }

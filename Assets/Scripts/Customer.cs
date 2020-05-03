@@ -27,12 +27,11 @@ public class Customer : MonoBehaviour
 
     [SerializeField] private Text cashText;
 
-    public Func<Order> OrderBuilder = () => { return new Order(new[] {Cocktail.BuildRandom()}); };
-
     [SerializeField] private Image[] slots;
     [SerializeField] private Image waitingImage;
     [SerializeField] private Slider waitingSlider;
 
+    public Func<Order> OrderBuilder { private get; set; }
     public float Offset => _spriteRenderer.sprite.bounds.extents.x;
     public bool HasOrder => _order != null;
 
@@ -77,7 +76,7 @@ public class Customer : MonoBehaviour
             return;
         }
 
-        var glass = collision.gameObject.GetComponent<Glass>();
+        var glass = collision.gameObject.GetComponent<GlassSprite>();
 
         if (glass == null || glass.Served)
         {
@@ -120,7 +119,7 @@ public class Customer : MonoBehaviour
         }
 
         _order = OrderBuilder();
-        ShowOrder();
+        InitOrders();
 
         return _order;
     }
@@ -154,18 +153,19 @@ public class Customer : MonoBehaviour
             throw new InvalidOperationException("Customer is not awaiting");
         }
 
-        var find = _order.FindBest(this, actual);
-
-        _satisfactionSum += find.Item2;
+        var expected = _order.Next();
+        _satisfactionSum += Try(expected, actual);
 
         if (!_order.Ready)
         {
+            InitNextOrder();
             return false;
         }
 
         _states.Remove(State.Wait);
         _timeAwaited = 0;
         waitingSlider.gameObject.SetActive(false);
+        HideOrder();
 
         return true;
     }
@@ -196,7 +196,6 @@ public class Customer : MonoBehaviour
     {
         _spriteRenderer.color = SatisfactionHelper.GetColor(Satisfaction);
         waitingSlider.gameObject.SetActive(false);
-        HideOrder();
 
         MoveTo(dst, 0.0f, 0.0f);
     }
@@ -239,13 +238,26 @@ public class Customer : MonoBehaviour
         }
     }
 
-    private void ShowOrder()
+    private void InitOrders()
     {
         for (var i = 0; i < _order.Count; i++)
         {
             slots[i].sprite = CocktailManager.Main.GetSprite(_order.All[i].Key);
-            slots[i].color = Color.white;
+            slots[i].color = new Color(1f, 1f, 1f, i == 0 ? 1 : 0.35f);
             slots[i].gameObject.SetActive(true);
+        }
+    }
+
+    private void InitNextOrder()
+    {
+        var slotId = _order.All.Count - _order.Pending.Count;
+        if (slotId - 1 >= 0)
+        {
+            slots[slotId - 1].color = new Color(1f, 1f, 1f, 0.35f);
+        }
+        if (slotId < _order.All.Count)
+        {
+            slots[slotId].color = new Color(1f, 1f, 1f, 1f);
         }
     }
 

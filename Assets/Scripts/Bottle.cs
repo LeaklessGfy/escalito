@@ -9,8 +9,8 @@ public class Bottle : MonoBehaviour
     private ParticleSystem _particleSystem;
 
     public Ingredient ingredient;
-    [SerializeField] private Image stockImage;
 
+    [SerializeField] private Image stockImage;
     [SerializeField] private Slider stockSlider;
 
     private void Awake()
@@ -57,7 +57,7 @@ public class Bottle : MonoBehaviour
             return;
         }
 
-        transform.position = new Vector2(0, 50);
+        transform.position = new Vector2(0, 70);
         transform.Rotate(0, 0, 180);
         stockSlider.transform.Rotate(0, 0, 180);
         _initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);

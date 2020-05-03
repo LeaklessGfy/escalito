@@ -8,9 +8,9 @@ namespace Singleton
     {
         public static GlassManager Main;
 
-        private List<Glass> _glasses;
-        [SerializeField] private List<GameObject> prefabs;
+        private List<GlassSprite> _glasses;
 
+        [SerializeField] private List<GameObject> prefabs;
         [SerializeField] private Transform spawnAwaiting;
         [SerializeField] private Transform spawnInProgress;
 
@@ -21,10 +21,10 @@ namespace Singleton
 
         public void Spawn(Order order)
         {
-            _glasses = new List<Glass>();
+            _glasses = new List<GlassSprite>();
             for (var i = 0; i < order.Count; i++)
             {
-                var glass = Controller.CreateComponent<Glass>(prefabs[0], spawnAwaiting, "Glass " + i);
+                var glass = Controller.CreateComponent<GlassSprite>(prefabs[0], spawnAwaiting, "Glass " + i);
 
                 if (i == 0)
                 {
@@ -39,12 +39,7 @@ namespace Singleton
             }
         }
 
-        public void Clean()
-        {
-            foreach (var glass in _glasses) Destroy(glass.gameObject);
-        }
-
-        private void GoToAwait(Glass glass)
+        private void GoToAwait(Component glass)
         {
             var glassTransform = glass.transform;
 
@@ -56,7 +51,7 @@ namespace Singleton
             glassTransform.position = new Vector3(x, y, z);
         }
 
-        private void GoToProgress(Glass glass)
+        private void GoToProgress(Component glass)
         {
             var glassTransform = glass.transform;
 

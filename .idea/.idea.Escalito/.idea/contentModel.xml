@@ -9,12 +9,12 @@
         <e p="Scripts" t="Include">
           <e p="Bottle.cs" t="Include" />
           <e p="Components" t="Include">
-            <e p="Consumable.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
             <e p="Payable.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
             <e p="Selectable.cs" t="Include" />
           </e>
+          <e p="Consumable.cs" t="Include" />
           <e p="Controller.cs" t="Include" />
           <e p="Core" t="Include">
             <e p="Cocktail.cs" t="Include" />
@@ -28,6 +28,7 @@
           <e p="Customer.cs" t="Include" />
           <e p="Door.cs" t="Include" />
           <e p="Glass.cs" t="Include" />
+          <e p="GlassSprite.cs" t="Include" />
           <e p="Shaker.cs" t="Include" />
           <e p="Singleton" t="Include">
             <e p="AudioManager.cs" t="Include" />
