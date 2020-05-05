@@ -26,14 +26,14 @@ namespace Singleton
             foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
         }
 
-        public void Spawn(GlassKey key = GlassKey.Default)
+        public GlassSprite Spawn(GlassKey key = GlassKey.Default)
         {
             if (!_prefabs.TryGetValue(key, out var prefab))
             {
                 throw new InvalidOperationException();
             }
 
-            Controller.CreateComponent<GlassSprite>(prefab, spawn, prefab.name);
+            return Controller.CreateComponent<GlassSprite>(prefab, spawn, prefab.name);
         }
     }
 }

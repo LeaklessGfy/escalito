@@ -9,24 +9,23 @@ using Selectable = Components.Selectable;
 
 public class Controller : MonoBehaviour
 {
-    private const int MinutesPerDay = 10;
     private const int MinDistance = 2;
     private const int MaxDistance = 3;
-    private const int Combo = 3;
+    private const int MaxCombo = 3;
     public static Controller Main;
 
     private readonly LinkedList<Customer> _customers = new LinkedList<Customer>();
     private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
     private readonly Queue<Customer> _leavingCustomers = new Queue<Customer>();
-    private int _combo;
-
-    private float _currentSpawnTime;
-    private float _nextSpawnTime;
-    private Vector2 _spawnTimeRange = new Vector2(1f, 2);
+    private readonly Vector2 _spawnRange = new Vector2(2, 5);
+    private int _currentCombo;
+    private int _currentDifficulty = 1;
+    private TimingAction _spawnAction;
+    private TimingAction _expensesAction;
+    private GlassSprite _glass;
 
     [SerializeField] private Transform bar;
     [SerializeField] private Text cashText;
-    [SerializeField] private Text clockText;
     [SerializeField] private int maxCustomers = 3;
     [SerializeField] private Text selectedText;
     [SerializeField] private GameObject shopPanel;
@@ -47,24 +46,26 @@ public class Controller : MonoBehaviour
         shopPanel.gameObject.SetActive(false);
     }
 
+    private void Start()
+    {
+        _spawnAction = new TimingAction(0, () =>
+        {
+            var customer = CustomerManager.Main.SpawnRandom();
+            _customers.AddLast(customer);
+            return Random.Range(_spawnRange.x, _spawnRange.y);
+        });
+
+        _expensesAction = new TimingAction(0, () => { return 10; });
+    }
+
     private void Update()
     {
-        UpdateUi();
-        UpdateSelected();
+        cashText.text = CashManager.Main.Cash + "$";
+        selectedText.text = Selected ? Selected.name : "";
+
         UpdateQueue();
         UpdateLeaving();
         UpdateSpawn();
-    }
-
-    private void UpdateUi()
-    {
-        clockText.text = GetTime();
-        cashText.text = CashManager.Main.Cash + "$";
-    }
-
-    private void UpdateSelected()
-    {
-        selectedText.text = Selected ? Selected.name : "";
     }
 
     private void UpdateQueue()
@@ -103,8 +104,7 @@ public class Controller : MonoBehaviour
             var leavingCustomer = _leavingCustomers.Peek();
             if (leavingCustomer.IsNear(spawnCustomer.position, 0, MinDistance))
             {
-                _leavingCustomers.Dequeue();
-                Destroy(leavingCustomer.gameObject);
+                Destroy(_leavingCustomers.Dequeue().gameObject);
             }
             else
             {
@@ -115,28 +115,16 @@ public class Controller : MonoBehaviour
 
     private void UpdateSpawn()
     {
-        if (!BarIsOpen)
+        if (!BarIsOpen || _customers.Count >= maxCustomers)
         {
             return;
         }
+        _spawnAction.Tick(Time.deltaTime);
+    }
 
-        _currentSpawnTime += Time.deltaTime;
-
-        if (_currentSpawnTime < _nextSpawnTime)
-        {
-            return;
-        }
-
-        _currentSpawnTime = 0;
-        _nextSpawnTime = Random.Range(_spawnTimeRange.x, _spawnTimeRange.y);
-
-        if (_customers.Count >= maxCustomers)
-        {
-            return;
-        }
-
-        var customer = CustomerManager.Main.SpawnRandom();
-        _customers.AddLast(customer);
+    private void UpdateExpenses()
+    {
+        _expensesAction.Tick(Time.deltaTime);
     }
 
     private void GoToBar(Customer customer)
@@ -151,9 +139,9 @@ public class Controller : MonoBehaviour
 
     private void AskOrder(Customer customer)
     {
-        var order = customer.AskOrder();
-        GlassManager.Main.Spawn();
-        customer.Await();
+        customer.AskOrder();
+        customer.Await(_currentDifficulty);
+        _glass = GlassManager.Main.Spawn();
     }
 
     public void ReceiveOrder(Customer customer, GlassSprite glass)
@@ -161,42 +149,32 @@ public class Controller : MonoBehaviour
         var actual = glass.Cocktail;
         Destroy(glass.gameObject);
 
-        if (!customer.Serve(actual))
-        {
-            GlassManager.Main.Spawn();
-            return;
-        }
-
+        customer.Serve(actual);
         var cash = customer.Pay();
-        // TODO: Add cash to cashManager
+        CashManager.Main.Cash += cash * (_currentCombo + 1);
 
+        _currentDifficulty++;
         HandleCombo(customer);
         Leave(customer);
-        IncreaseDifficulty();
     }
 
     private void HandleCombo(Customer customer)
     {
         if (!customer.IsSatisfied())
         {
-            _combo = 0;
+            _currentCombo = 0;
             return;
         }
 
-        _combo++;
+        _currentCombo++;
 
-        if (_combo != Combo)
+        if (_currentCombo != MaxCombo)
         {
             return;
         }
 
         AudioManager.Main.PlayLaugh();
-        _combo = 0;
-    }
-
-    private void IncreaseDifficulty()
-    {
-        _spawnTimeRange.x = Mathf.Max(0, _spawnTimeRange.x - 1);
+        _currentCombo = 0;
     }
 
     private void Leave(Customer customer)
@@ -220,19 +198,8 @@ public class Controller : MonoBehaviour
         _customers.Remove(node);
         _leavingCustomers.Enqueue(customer);
         customer.LeaveTo(spawnCustomer.position);
-    }
-
-    private static string GetTime()
-    {
-        var now = DateTime.Now;
-        var hours = now.TimeOfDay.TotalMinutes % MinutesPerDay;
-        var minutes = hours % 1 * 60;
-        var timeStamp = new TimeSpan((int) hours, (int) minutes, 0);
-
-        var hoursString = timeStamp.Hours.ToString().PadLeft(2, '0');
-        var minutesString = timeStamp.Minutes.ToString().PadLeft(2, '0');
-
-        return hoursString + ":" + minutesString;
+        Destroy(_glass.gameObject);
+        _glass = null;
     }
 
     public static T CreateComponent<T>(GameObject prefab, Transform spawn, string name) where T : MonoBehaviour

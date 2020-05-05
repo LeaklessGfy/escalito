@@ -20,13 +20,14 @@ public class Customer : MonoBehaviour
     private Vector2 _dst;
     private float _minDistance;
     private Order _order;
-    private int _satisfactionSum;
+    private int _satisfaction;
     private int _servedCount;
     private SpriteRenderer _spriteRenderer;
     private float _timeAwaited;
+    private float _currentPatience;
 
     [SerializeField] private Text cashText;
-    [SerializeField] private Image[] slots;
+    [SerializeField] private Image orderImage;
     [SerializeField] private Image waitingImage;
     [SerializeField] private Slider waitingSlider;
 
@@ -34,7 +35,6 @@ public class Customer : MonoBehaviour
     public float Offset => _spriteRenderer.sprite.bounds.extents.x;
     public bool HasOrder => _order != null;
 
-    private int Satisfaction => _satisfactionSum / _order.Count;
 
     private void Awake()
     {
@@ -43,10 +43,7 @@ public class Customer : MonoBehaviour
         _rules.Add(Rules.CocktailRule);
 
         cashText.gameObject.SetActive(false);
-        HideOrder();
-
-        waitingSlider.minValue = 0;
-        waitingSlider.maxValue = Patience;
+        orderImage.gameObject.SetActive(false);
         waitingSlider.gameObject.SetActive(false);
     }
 
@@ -110,7 +107,7 @@ public class Customer : MonoBehaviour
         _spriteRenderer.flipX = _dst.x < transform.position.x;
     }
 
-    public Order AskOrder()
+    public void AskOrder()
     {
         if (_order != null)
         {
@@ -118,12 +115,11 @@ public class Customer : MonoBehaviour
         }
 
         _order = OrderBuilder();
-        InitOrders();
-
-        return _order;
+        orderImage.sprite = CocktailManager.Main.GetSprite(_order.Cocktail.Key);
+        orderImage.gameObject.SetActive(true);
     }
 
-    public void Await()
+    public void Await(int difficulty)
     {
         if (_states.Contains(State.Wait))
         {
@@ -131,47 +127,42 @@ public class Customer : MonoBehaviour
         }
 
         _states.Add(State.Wait);
+        _currentPatience = Patience / difficulty;
         _timeAwaited = 0;
+
         waitingSlider.gameObject.SetActive(true);
+        waitingSlider.minValue = 0;
+        waitingSlider.maxValue = _currentPatience;
     }
 
     public bool IsExhausted()
     {
-        return _states.Contains(State.Wait) && _timeAwaited >= Patience;
+        return _states.Contains(State.Exhausted);
     }
 
-    public int Try(Cocktail expected, Cocktail actual)
+    private int Try(Cocktail expected, Cocktail actual)
     {
         return _rules.Sum(rule => rule(expected, actual)) / _rules.Count;
     }
 
-    public bool Serve(Cocktail actual)
+    public void Serve(Cocktail actual)
     {
         if (!_states.Contains(State.Wait))
         {
             throw new InvalidOperationException("Customer is not awaiting");
         }
 
-        var expected = _order.Next();
-        _satisfactionSum += Try(expected, actual);
-
-        if (!_order.Ready)
-        {
-            InitNextOrder();
-            return false;
-        }
-
         _states.Remove(State.Wait);
         _timeAwaited = 0;
-        waitingSlider.gameObject.SetActive(false);
-        HideOrder();
+        _satisfaction = Try(_order.Cocktail, actual);
 
-        return true;
+        orderImage.gameObject.SetActive(false);
+        waitingSlider.gameObject.SetActive(false);
     }
 
     public bool IsSatisfied()
     {
-        return Satisfaction > SatisfactionHelper.Low;
+        return _satisfaction > SatisfactionHelper.Low;
     }
 
     public int Pay()
@@ -181,38 +172,39 @@ public class Customer : MonoBehaviour
             return 0;
         }
 
-        var bonus = Satisfaction > SatisfactionHelper.High && Random.Range(0, 4) == 0;
-        var price = _order.ExpectedPrice + (bonus ? Random.Range(1, 5) : 0);
+        var bonus = _satisfaction > SatisfactionHelper.High && Random.Range(0, 4) == 0;
+        var price = _order.Cocktail.Price + (bonus ? Random.Range(1, 5) : 0);
 
         cashText.gameObject.SetActive(true);
         cashText.text = "+" + price + "$";
-        cashText.color = SatisfactionHelper.GetColor(Satisfaction);
+        cashText.color = SatisfactionHelper.GetColor(_satisfaction);
 
         return price;
     }
 
     public void LeaveTo(Vector2 dst)
     {
-        _spriteRenderer.color = SatisfactionHelper.GetColor(Satisfaction);
+        _spriteRenderer.color = SatisfactionHelper.GetColor(_satisfaction);
+        orderImage.gameObject.SetActive(false);
         waitingSlider.gameObject.SetActive(false);
-
         MoveTo(dst, 0.0f, 0.0f);
     }
 
     private void StepWait()
     {
         _timeAwaited += Time.deltaTime;
-        waitingSlider.value = Patience - _timeAwaited;
+        waitingSlider.value = _currentPatience - _timeAwaited;
 
-        var percent = 100 - _timeAwaited / Patience * 100;
+        var percent = 100 - _timeAwaited / _currentPatience * 100;
         waitingImage.color = SatisfactionHelper.GetColor((int) percent);
 
-        if (_timeAwaited < Patience)
+        if (_timeAwaited < _currentPatience)
         {
             return;
         }
 
-        waitingSlider.gameObject.SetActive(false);
+        _states.Remove(State.Wait);
+        _states.Add(State.Exhausted);
     }
 
     private void StepIdle()
@@ -237,40 +229,11 @@ public class Customer : MonoBehaviour
         }
     }
 
-    private void InitOrders()
-    {
-        for (var i = 0; i < _order.Count; i++)
-        {
-            slots[i].sprite = CocktailManager.Main.GetSprite(_order.All[i].Key);
-            slots[i].color = new Color(1f, 1f, 1f, i == 0 ? 1 : 0.35f);
-            slots[i].gameObject.SetActive(true);
-        }
-    }
-
-    private void InitNextOrder()
-    {
-        var slotId = _order.All.Count - _order.Pending.Count;
-
-        if (slotId - 1 >= 0)
-        {
-            slots[slotId - 1].color = new Color(1f, 1f, 1f, 0.35f);
-        }
-
-        if (slotId < _order.All.Count)
-        {
-            slots[slotId].color = new Color(1f, 1f, 1f, 1f);
-        }
-    }
-
-    private void HideOrder()
-    {
-        foreach (var slot in slots) slot.gameObject.SetActive(false);
-    }
-
     private enum State
     {
         Idle,
         Move,
-        Wait
+        Wait,
+        Exhausted
     }
 }

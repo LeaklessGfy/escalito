@@ -26,6 +26,7 @@
             <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
             <e p="SatisfactionHelper.cs" t="Include" />
+            <e p="TimingAction.cs" t="Include" />
           </e>
           <e p="Customer.cs" t="Include" />
           <e p="Door.cs" t="Include" />
