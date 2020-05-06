@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core;
 using Singleton;
 using UnityEngine;
@@ -21,7 +22,7 @@ public class Controller : MonoBehaviour
     private int _currentCombo;
     private int _currentDifficulty = 1;
     private TimingAction _spawnAction;
-    private TimingAction _expensesAction;
+    private TimingAction _expenseAction;
     private GlassSprite _glass;
 
     [SerializeField] private Transform bar;
@@ -30,9 +31,11 @@ public class Controller : MonoBehaviour
     [SerializeField] private Text selectedText;
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private Transform spawnCustomer;
+    [SerializeField] private Text expenseText;
 
     public bool BarIsOpen { get; set; }
     public Selectable Selected { get; set; }
+    public List<Expense> IngredientsExpense => new List<Expense>();
 
     public void ToggleShop()
     {
@@ -54,18 +57,35 @@ public class Controller : MonoBehaviour
             _customers.AddLast(customer);
             return Random.Range(_spawnRange.x, _spawnRange.y);
         });
-
-        _expensesAction = new TimingAction(0, () => { return 10; });
+        _expenseAction = new TimingAction(10,
+            (current, trigger) =>
+            {
+                var diff = trigger - current;
+                var percent = (diff / trigger) * 100;
+                expenseText.text = diff.ToString("0.0");
+                expenseText.color = SatisfactionHelper.GetColor((int) percent);
+            },
+            () =>
+            {
+                // TODO: Do some ui stuff such as : Appending expenses summary to top right screen
+                var total = IngredientsExpense.Sum(expense => expense.Amount);
+                CashManager.Main.Cash -= total;
+                AudioManager.Main.PlayCash();
+                // TODO : Check if bankrupt, if it's the case, lose game
+                return 10;
+            }
+        );
     }
 
     private void Update()
     {
-        cashText.text = CashManager.Main.Cash + "$";
+        cashText.text = CashManager.Main.Cash + " $";
         selectedText.text = Selected ? Selected.name : "";
 
         UpdateQueue();
         UpdateLeaving();
         UpdateSpawn();
+        UpdateExpenses();
     }
 
     private void UpdateQueue()
@@ -124,7 +144,7 @@ public class Controller : MonoBehaviour
 
     private void UpdateExpenses()
     {
-        _expensesAction.Tick(Time.deltaTime);
+        _expenseAction.Tick(Time.deltaTime);
     }
 
     private void GoToBar(Customer customer)

@@ -8,6 +8,7 @@ namespace Singleton
         [SerializeField] private AudioSource failure;
         [SerializeField] private AudioSource laugh;
         [SerializeField] private AudioSource success;
+        [SerializeField] private AudioSource cash;
 
         private void Awake()
         {
@@ -27,6 +28,11 @@ namespace Singleton
         public void PlayLaugh()
         {
             laugh.Play();
+        }
+
+        public void PlayCash()
+        {
+            cash.Play();
         }
     }
 }

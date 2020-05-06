@@ -6,9 +6,11 @@ namespace Singleton
 {
     public class CashManager : MonoBehaviour
     {
-        private const int GlassPrice = 5;
         private const int LemonPrice = 5;
         private const int StrawberryPrice = 5;
+        private const int BottleRumPrice = 10;
+        private const int BottleColaPrice = 10;
+        private const int BottleLemonadePrice = 10;
 
         private const int MojitoPrice = 5;
         private const int CubaLibrePrice = 10;
@@ -18,7 +20,7 @@ namespace Singleton
 
         public static CashManager Main;
 
-        public int Cash { get; set; }
+        public int Cash { get; set; } = 50;
 
         private void Awake()
         {
@@ -29,12 +31,18 @@ namespace Singleton
         {
             switch (ingredient)
             {
+                case IngredientKey.Rum:
+                    return BottleRumPrice;
+                case IngredientKey.Cola:
+                    return BottleColaPrice;
+                case IngredientKey.Lemonade:
+                    return BottleLemonadePrice;
                 case IngredientKey.Lemon:
                     return LemonPrice;
                 case IngredientKey.Strawberry:
                     return StrawberryPrice;
                 default:
-                    return 0;
+                    throw new ArgumentOutOfRangeException(nameof(ingredient), ingredient, null);
             }
         }
 
@@ -52,6 +60,8 @@ namespace Singleton
                     return ColaPrice;
                 case CocktailKey.Lemonade:
                     return LemonadePrice;
+                case CocktailKey.Custom:
+                    return 0;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(cocktail), cocktail, null);
             }

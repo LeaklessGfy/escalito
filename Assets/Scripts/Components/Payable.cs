@@ -1,39 +1,43 @@
-﻿using Core;
-using Singleton;
+﻿using Singleton;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Components
 {
-    public class Payable : MonoBehaviour
+    public abstract class Payable : MonoBehaviour
     {
         private Button _itemButton;
+        private Text _itemButtonText;
         private Text _itemText;
-
-        [SerializeField] private IngredientKey spawnable;
+        private Image _itemImage;
+        
+        protected int Price { get; set; }
 
         private void Awake()
         {
-            _itemText = GetComponentInChildren<Text>();
             _itemButton = GetComponentInChildren<Button>();
-            _itemText.text = spawnable.ToString();
+            _itemButtonText = _itemButton.GetComponentInChildren<Text>();
+            _itemText = GetComponentInChildren<Text>();
+            _itemImage = GetComponent<Image>();
             _itemButton.onClick.AddListener(Buy);
         }
 
         private void Update()
         {
-            _itemButton.interactable = CashManager.GetPrice(spawnable) <= CashManager.Main.Cash;
+            _itemButton.interactable = Price <= CashManager.Main.Cash;
         }
 
-        private void Buy()
+        protected void SetName(string name)
         {
-            if (CashManager.GetPrice(spawnable) > CashManager.Main.Cash)
-            {
-                return;
-            }
-
-            CashManager.Main.Cash -= CashManager.GetPrice(spawnable);
-            IngredientManager.Main.Spawn(spawnable);
+            _itemText.text = name;
         }
+
+        protected void SetPrice(int price)
+        {
+            Price = price;
+            _itemButtonText.text = price + " $";
+        }
+
+        protected abstract void Buy();
     }
 }

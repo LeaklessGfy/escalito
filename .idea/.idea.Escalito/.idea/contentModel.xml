@@ -11,6 +11,8 @@
           <e p="Components" t="Include">
             <e p="DraggableTransform.cs" t="Include" />
             <e p="Payable.cs" t="Include" />
+            <e p="PayableIngredient.cs" t="Include" />
+            <e p="PayableSponsor.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
             <e p="Selectable.cs" t="Include" />
           </e>
@@ -20,12 +22,15 @@
             <e p="Cocktail.cs" t="Include" />
             <e p="CocktailKey.cs" t="Include" />
             <e p="CustomerKey.cs" t="Include" />
+            <e p="Expense.cs" t="Include" />
             <e p="GlassKey.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
             <e p="IngredientKey.cs" t="Include" />
+            <e p="ITimingAction.cs" t="Include" />
             <e p="Order.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
             <e p="SatisfactionHelper.cs" t="Include" />
+            <e p="Sponsor.cs" t="Include" />
             <e p="TimingAction.cs" t="Include" />
           </e>
           <e p="Customer.cs" t="Include" />
@@ -41,6 +46,7 @@
             <e p="CustomerManager.cs" t="Include" />
             <e p="GlassManager.cs" t="Include" />
             <e p="IngredientManager.cs" t="Include" />
+            <e p="ShopManager.cs" t="Include" />
           </e>
         </e>
       </e>
