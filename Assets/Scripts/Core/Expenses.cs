@@ -7,6 +7,11 @@ namespace Core
     {
         private readonly Dictionary<ExpenseKey, List<Expense>> _expenses = new Dictionary<ExpenseKey, List<Expense>>();
 
+        public bool HasExpense()
+        {
+            return _expenses.Count > 0;
+        }
+
         public void AddExpense(Expense expense)
         {
             if (_expenses.TryGetValue(expense.Type, out var list))
@@ -15,7 +20,7 @@ namespace Core
             }
             else
             {
-                _expenses.Add(expense.Type, new List<Expense>() { expense });
+                _expenses.Add(expense.Type, new List<Expense> {expense});
             }
         }
 

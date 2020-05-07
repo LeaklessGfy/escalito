@@ -2,12 +2,12 @@
 
 namespace Core
 {
-    public class TimingAction : ITimingAction
+    public class TimingAction
     {
-        private float _currentTime;
-        private float _triggerTime;
         private readonly Action<float, float> _tick;
         private readonly Func<float> _trigger;
+        private float _currentTime;
+        private float _triggerTime;
 
         public TimingAction(float currentTime, float triggerTime, Action<float, float> tick, Func<float> trigger)
         {
@@ -20,8 +20,9 @@ namespace Core
         public TimingAction(float triggerTime, Func<float> trigger) : this(0, triggerTime, null, trigger)
         {
         }
-        
-        public TimingAction(float triggerTime, Action<float, float> tick, Func<float> trigger) : this(0, triggerTime, tick, trigger)
+
+        public TimingAction(float triggerTime, Action<float, float> tick, Func<float> trigger) : this(0, triggerTime,
+            tick, trigger)
         {
         }
 
@@ -33,6 +34,7 @@ namespace Core
             {
                 return;
             }
+
             _currentTime = 0;
             _triggerTime = _trigger();
         }

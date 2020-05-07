@@ -772,7 +772,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1343695595}
+      - m_Target: {fileID: 1560185179}
         m_MethodName: ToggleShop
         m_Mode: 1
         m_Arguments:
@@ -2590,18 +2590,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 835963400}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1343695595}
-        m_MethodName: ToggleShop
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &835963400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3712,13 +3701,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6baa6b70f5904e74a89902a1f8774ea0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bar: {fileID: 1353122530}
-  cashText: {fileID: 463121856}
-  maxCustomers: 3
-  selectedText: {fileID: 1901248802}
-  shopPanel: {fileID: 1560185175}
-  spawnCustomer: {fileID: 1848826899}
   expenseText: {fileID: 324564360}
+  selectedText: {fileID: 1901248802}
 --- !u!114 &1343695596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3731,10 +3715,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa546201b5e14c03ad2d699baf22817d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cash: {fileID: 1343695606}
   failure: {fileID: 1343695597}
   laugh: {fileID: 1343695602}
   success: {fileID: 1343695598}
-  cash: {fileID: 1343695606}
 --- !u!82 &1343695597
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3971,6 +3955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba84c65ed1d4a8483ac965f387f8ea7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cashText: {fileID: 463121856}
 --- !u!82 &1343695602
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4096,6 +4081,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f91dc362f4924561a85b039954763e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bar: {fileID: 1353122530}
   entries:
   - key: 0
     prefab: {fileID: 3005728562095102806, guid: 2d6b90c2c734d2240b2d35fad0c143a8,
@@ -4113,7 +4099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c10a8674ba54a89922c46f407fb2e06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprites:
+  entries:
   - key: 0
     sprite: {fileID: 21300000, guid: ad3c47f191573a440b5b58fc526b86ad, type: 3}
   - key: 1
@@ -4136,7 +4122,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 044ea8151e0e5df47a73692d8c28e46a, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.493
+  m_Volume: 0.177
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -4963,8 +4949,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8465459e67a426698c66377d557b026, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5872433756688040058, guid: 3cc40ceb93fdb4a4db91d276e3334028, type: 3}
   layout: {fileID: 177445744}
+  prefab: {fileID: 5872433756688040058, guid: 3cc40ceb93fdb4a4db91d276e3334028, type: 3}
 --- !u!1 &1566199920
 GameObject:
   m_ObjectHideFlags: 0

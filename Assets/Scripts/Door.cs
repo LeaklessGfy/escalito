@@ -14,12 +14,12 @@ public class Door : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (Controller.Main == null)
+        if (MainController.Main == null)
         {
             return;
         }
 
-        Controller.Main.BarIsOpen = !Controller.Main.BarIsOpen;
-        _spriteRenderer.sprite = Controller.Main.BarIsOpen ? openSprite : closeSprite;
+        MainController.Main.BarIsOpen = !MainController.Main.BarIsOpen;
+        _spriteRenderer.sprite = MainController.Main.BarIsOpen ? openSprite : closeSprite;
     }
 }

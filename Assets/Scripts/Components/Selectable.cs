@@ -1,5 +1,4 @@
-﻿using Singleton;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Components
@@ -10,8 +9,8 @@ namespace Components
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Controller.Main.Selected = this;
-            CursorManager.Main.SetHover(true);
+            MainController.Main.Selected = this;
+            CursorController.Main.SetHover(true);
 
             var position = transform.position;
             transform.position = new Vector3(position.x, position.y, -2f);
@@ -24,8 +23,8 @@ namespace Components
                 return;
             }
 
-            Controller.Main.Selected = null;
-            CursorManager.Main.SetHover(false);
+            MainController.Main.Selected = null;
+            CursorController.Main.SetHover(false);
 
             var position = transform.position;
             transform.position = new Vector3(position.x, position.y, 0f);

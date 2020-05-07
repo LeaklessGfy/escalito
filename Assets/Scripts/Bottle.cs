@@ -1,4 +1,5 @@
 using Core;
+using Ingredients;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,7 +35,7 @@ public class Bottle : MonoBehaviour
         }
 
         stockSlider.value = ingredient.stock;
-        stockImage.color = SatisfactionHelper.GetColor((int) ingredient.stock);
+        stockImage.color = PercentHelper.GetColor((int) ingredient.stock);
     }
 
     private void OnMouseDrag()
