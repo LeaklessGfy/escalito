@@ -24,7 +24,7 @@ namespace Components
 
         private void Update()
         {
-            _itemButton.interactable = Price <= CashManager.Main.Cash;
+            _itemButton.interactable = (Price <= CashManager.Main.Cash && !ForbidBuy());
         }
 
         protected void SetName(string name)
@@ -39,5 +39,6 @@ namespace Components
         }
 
         protected abstract void Buy();
+        protected abstract bool ForbidBuy();
     }
 }

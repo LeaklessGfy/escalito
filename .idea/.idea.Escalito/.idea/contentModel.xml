@@ -23,6 +23,8 @@
             <e p="CocktailKey.cs" t="Include" />
             <e p="CustomerKey.cs" t="Include" />
             <e p="Expense.cs" t="Include" />
+            <e p="ExpenseKey.cs" t="Include" />
+            <e p="Expenses.cs" t="Include" />
             <e p="GlassKey.cs" t="Include" />
             <e p="Ingredient.cs" t="Include" />
             <e p="IngredientKey.cs" t="Include" />

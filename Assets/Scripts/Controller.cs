@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Core;
 using Singleton;
 using UnityEngine;
@@ -16,7 +17,6 @@ public class Controller : MonoBehaviour
     public static Controller Main;
 
     private readonly LinkedList<Customer> _customers = new LinkedList<Customer>();
-    private readonly Dictionary<IngredientKey, int> _inventory = new Dictionary<IngredientKey, int>();
     private readonly Queue<Customer> _leavingCustomers = new Queue<Customer>();
     private readonly Vector2 _spawnRange = new Vector2(2, 5);
     private int _currentCombo;
@@ -35,7 +35,8 @@ public class Controller : MonoBehaviour
 
     public bool BarIsOpen { get; set; }
     public Selectable Selected { get; set; }
-    public List<Expense> IngredientsExpense => new List<Expense>();
+    public Expenses Expenses { get; } = new Expenses();
+    public Dictionary<IngredientKey, bool> Ingredients { get; } = new Dictionary<IngredientKey, bool>();
 
     public void ToggleShop()
     {
@@ -62,13 +63,21 @@ public class Controller : MonoBehaviour
             {
                 var diff = trigger - current;
                 var percent = (diff / trigger) * 100;
-                expenseText.text = diff.ToString("0.0");
-                expenseText.color = SatisfactionHelper.GetColor((int) percent);
+                if (percent < 80)
+                {
+                    expenseText.text = "";
+                }
             },
             () =>
             {
-                // TODO: Do some ui stuff such as : Appending expenses summary to top right screen
-                var total = IngredientsExpense.Sum(expense => expense.Amount);
+                var expensesSum = Expenses.Sum();
+                var text = expensesSum.Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $")).ToString();
+                var total = expensesSum.Aggregate(0, (sum, pair) => sum + pair.Value);
+                var currentCash = CashManager.Main.Cash;
+                
+                expenseText.text = text;
+                expenseText.color = SatisfactionHelper.GetColor((currentCash - total) / currentCash * 100);
+                
                 CashManager.Main.Cash -= total;
                 AudioManager.Main.PlayCash();
                 // TODO : Check if bankrupt, if it's the case, lose game

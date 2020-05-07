@@ -9,6 +9,7 @@ namespace Components
 
         public IngredientKey IngredientKey
         {
+            get => _ingredient;
             set
             {
                 _ingredient = value;
@@ -24,11 +25,16 @@ namespace Components
                 return;
             }
             CashManager.Main.Cash -= Price;
-            Controller.Main.IngredientsExpense.Add(new Expense()
+            Controller.Main.Ingredients.Add(_ingredient, true);
+            Controller.Main.Expenses.AddExpense(new Expense(ExpenseKey.Ingredients, Price)
             {
-                Title = _ingredient.ToString(),
-                Amount = Price // TODO : Probably not buying price
+                Details = _ingredient.ToString()
             });
+        }
+
+        protected override bool ForbidBuy()
+        {
+            return Controller.Main.Ingredients.ContainsKey(_ingredient);
         }
     }
 }

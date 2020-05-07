@@ -6,5 +6,10 @@
         {
             throw new System.NotImplementedException();
         }
+
+        protected override bool ForbidBuy()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
