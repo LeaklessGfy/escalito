@@ -8,6 +8,7 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="Bottle.cs" t="Include" />
+          <e p="Character.cs" t="Include" />
           <e p="Components" t="Include">
             <e p="DraggableTransform.cs" t="Include" />
             <e p="Payable.cs" t="Include" />
@@ -50,6 +51,7 @@
             <e p="IngredientManager.cs" t="Include" />
             <e p="ShopManager.cs" t="Include" />
           </e>
+          <e p="Sponsor.cs" t="Include" />
         </e>
       </e>
       <e p="Escalito.sln" t="IncludeFlat" />
