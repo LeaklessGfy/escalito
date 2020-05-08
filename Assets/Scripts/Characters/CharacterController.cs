@@ -21,7 +21,6 @@ namespace Characters
     {
         private const int MinDistance = 2;
         private const int MaxDistance = 3;
-        private const int MaxCombo = 3;
         private const int ReputationThreshold = 10;
 
         public static CharacterController Main;
@@ -32,7 +31,6 @@ namespace Characters
         private readonly TimingAction _customerSpawnAction;
         private readonly TimingAction _sponsorSpawnAction;
         private readonly Vector2 _spawnRange = new Vector2(2, 5);
-        private int _combo;
         private int _customerLimit = 3;
         private Glass _glass;
         public Transform bar;
@@ -134,30 +132,16 @@ namespace Characters
 
             var cash = customer.Serve(actual);
 
-            CashController.Main.Collect(cash, customer.Satisfaction);
-            MainController.Main.Difficulty++;
+            if (customer.Satisfied)
+            {
+                MainController.Main.IncrementSuccess(customer, cash);
+            }
+            else
+            {
+                MainController.Main.IncrementFailure(customer);
+            }
 
-            HandleCombo(customer);
             Leave(customer);
-        }
-
-        private void HandleCombo(Customer customer)
-        {
-            if (!customer.Satisfied)
-            {
-                _combo = 0;
-                return;
-            }
-
-            _combo++;
-
-            if (_combo != MaxCombo)
-            {
-                return;
-            }
-
-            _combo = 0;
-            AudioController.Main.laugh.Play();
         }
 
         private void Leave(Customer customer)

@@ -32,8 +32,9 @@ namespace Characters
         public void AcceptContract()
         {
             CashController.Main.Pay(_contract.Price);
-            CashController.Main.Expenses.AddExpense(_contract.Expense);
-            CashController.Main.Bonuses.AddBonus(_contract.Bonus);
+            CashController.Main.Expenses.Add(_contract.Expense);
+            CashController.Main.Bonuses.Add(_contract.Bonus);
+            CashController.Main.Penalties.Add(_contract.Penalty);
             panel.SetActive(false);
         }
         

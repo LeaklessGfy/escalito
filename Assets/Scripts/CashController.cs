@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Bonuses;
+using Characters;
 using Cocktails;
 using Core;
 using Ingredients;
@@ -32,7 +33,8 @@ public class CashController : MonoBehaviour
 
     public int Cash { get; private set; } = 50;
     public Expenses Expenses { get; } = new Expenses();
-    public CompositeBonus Bonuses { get; } = new CompositeBonus();
+    public HashSet<Func<Customer, int, int>> Bonuses { get; } = new HashSet<Func<Customer, int, int>>();
+    public HashSet<Func<Customer, int, int>> Penalties { get; } = new HashSet<Func<Customer, int, int>>();
 
     private void Awake()
     {
@@ -79,20 +81,19 @@ public class CashController : MonoBehaviour
         return 10;
     }
 
-    public void Collect(int amount, int satisfaction)
+    public void Bonus(Customer customer, int cash)
     {
-        Cash += Bonuses.Apply(amount, satisfaction);
+        Cash += Bonuses.Aggregate(cash, (current, bonus) => bonus(customer, current));
+    }
+
+    public void Penalty(Customer customer)
+    {
+        Cash -= Penalties.Aggregate(0, (current, penalty) => penalty(customer, current));
     }
 
     public void Pay(int price)
     {
         Cash -= price;
-
-        if (Cash < 0)
-        {
-            Cash = 0;
-            // TODO : Add game over call
-        }
     }
 
     public static int GetPrice(IngredientKey ingredient)

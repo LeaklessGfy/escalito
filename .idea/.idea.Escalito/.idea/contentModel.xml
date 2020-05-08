@@ -8,12 +8,6 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="AudioController.cs" t="Include" />
-          <e p="Bonuses" t="Include">
-            <e p="ComboBonus.cs" t="Include" />
-            <e p="CompositeBonus.cs" t="Include" />
-            <e p="IBonus.cs" t="Include" />
-            <e p="SatisfactionBonus.cs" t="Include" />
-          </e>
           <e p="Bottle.cs" t="Include" />
           <e p="CashController.cs" t="Include" />
           <e p="Characters" t="Include">
@@ -44,6 +38,7 @@
             <e p="Selectable.cs" t="Include" />
           </e>
           <e p="Core" t="Include">
+            <e p="Bonus.cs" t="Include" />
             <e p="Contract.cs" t="Include" />
             <e p="Expense.cs" t="Include" />
             <e p="ExpenseKey.cs" t="Include" />

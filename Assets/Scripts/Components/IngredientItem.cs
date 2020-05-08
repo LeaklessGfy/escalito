@@ -27,7 +27,7 @@ namespace Components
 
             CashController.Main.Pay(Price);
             MainController.Main.Ingredients.Add(_ingredient, true);
-            CashController.Main.Expenses.AddExpense(new Expense(ExpenseKey.Ingredients, Price)
+            CashController.Main.Expenses.Add(new Expense(ExpenseKey.Ingredients, Price)
             {
                 Details = _ingredient.ToString()
             });

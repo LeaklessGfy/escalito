@@ -1,4 +1,5 @@
-﻿using Bonuses;
+﻿using System;
+using Characters;
 
 namespace Core
 {
@@ -6,6 +7,7 @@ namespace Core
     {
         public int Price { get; }
         public Expense Expense { get; }
-        public IBonus Bonus { get; }
+        public Func<Customer, int, int> Bonus { get; }
+        public Func<Customer, int, int> Penalty { get; }
     }
 }

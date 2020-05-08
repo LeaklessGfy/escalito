@@ -12,7 +12,7 @@ namespace Core
             return _expenses.Count > 0;
         }
 
-        public void AddExpense(Expense expense)
+        public void Add(Expense expense)
         {
             if (_expenses.TryGetValue(expense.Type, out var list))
             {
