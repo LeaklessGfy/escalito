@@ -6,5 +6,10 @@
         {
             print("Hello");
         }
+        
+        protected override bool Flip(float x)
+        {
+            return x > transform.position.x;
+        }
     }
 }

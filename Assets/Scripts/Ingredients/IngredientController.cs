@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Components;
 using UnityEngine;
 
 namespace Ingredients
@@ -11,7 +12,7 @@ namespace Ingredients
         public GameObject prefab;
     }
 
-    public class IngredientController : MonoBehaviour
+    public class IngredientController : Controller
     {
         public static IngredientController Main;
 
@@ -31,8 +32,7 @@ namespace Ingredients
             {
                 throw new InvalidOperationException();
             }
-
-            MainController.CreateObject(prefab, spawn, prefab.name);
+            CreateObject(prefab, spawn, prefab.name);
         }
     }
 }

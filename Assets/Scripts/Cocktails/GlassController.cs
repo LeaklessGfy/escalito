@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Components;
 using UnityEngine;
 
 namespace Cocktails
@@ -11,7 +12,7 @@ namespace Cocktails
         public GameObject prefab;
     }
 
-    public class GlassController : MonoBehaviour
+    public class GlassController : Controller
     {
         public static GlassController Main;
 
@@ -32,7 +33,7 @@ namespace Cocktails
                 throw new InvalidOperationException();
             }
 
-            return MainController.CreateComponent<Glass>(prefab, spawn, prefab.name);
+            return CreateComponent<Glass>(prefab, spawn, prefab.name);
         }
     }
 }

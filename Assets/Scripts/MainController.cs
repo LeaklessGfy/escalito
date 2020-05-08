@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Bonuses;
 using Cocktails;
 using Core;
 using Ingredients;
@@ -16,8 +17,8 @@ public class MainController : MonoBehaviour
     private int _currentCombo;
     private readonly int _expenseTime = 10;
     private Glass _glass;
-    [SerializeField] private Text expenseText;
 
+    [SerializeField] private Text expenseText;
     [SerializeField] private Text selectedText;
 
     public MainController()
@@ -27,8 +28,10 @@ public class MainController : MonoBehaviour
 
     public bool BarIsOpen { get; set; }
     public int Difficulty { get; set; } = 1;
+    public int Reputation { get; set; } = 11;
     public Selectable Selected { get; set; }
     public Expenses Expenses { get; } = new Expenses();
+    public IBonus Bonuses { get; } = new CompositeBonus();
     public Dictionary<IngredientKey, bool> Ingredients { get; } = new Dictionary<IngredientKey, bool>();
 
     private void Awake()
@@ -49,7 +52,7 @@ public class MainController : MonoBehaviour
     {
         var diff = trigger - current;
         var percent = diff / trigger * 100;
-        if (percent < 80)
+        if (percent < 70)
         {
             expenseText.text = "";
         }
@@ -59,7 +62,8 @@ public class MainController : MonoBehaviour
     {
         var expensesSum = Expenses.Sum();
         var text = expensesSum
-            .Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $")).ToString();
+            .Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $"))
+            .ToString();
         var total = expensesSum.Aggregate(0, (sum, pair) => sum + pair.Value);
         var currentCash = CashController.Main.Cash;
 
@@ -70,19 +74,5 @@ public class MainController : MonoBehaviour
         AudioController.Main.cash.Play();
         // TODO : Check if bankrupt, if it's the case, lose game
         return 10;
-    }
-
-    public static T CreateComponent<T>(GameObject prefab, Transform spawn, string name) where T : MonoBehaviour
-    {
-        var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
-        var component = impl.GetComponent<T>();
-        impl.name = name;
-        return component;
-    }
-
-    public static void CreateObject(GameObject prefab, Transform spawn, string name)
-    {
-        var impl = Instantiate(prefab, spawn.position, Quaternion.identity);
-        impl.name = name;
     }
 }

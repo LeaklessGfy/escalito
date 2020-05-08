@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Characters
 {
-    public class Character : MonoBehaviour
+    public abstract class Character : MonoBehaviour
     {
         private const int AnimIdle = 0;
         private const int AnimMove = 1;
@@ -15,6 +16,7 @@ namespace Characters
         private Animator _animator;
         private float _distance;
         private Vector2 _dst;
+        private TaskCompletionSource<bool> _onArriveTask;
         protected SpriteRenderer SpriteRenderer;
 
         public float Offset => SpriteRenderer.sprite.bounds.extents.x;
@@ -43,7 +45,7 @@ namespace Characters
             return Vector2.Distance(transform.position, Normalize(dst, offset)) <= distance;
         }
 
-        public void MoveTo(Vector2 dst, float offset, float distance)
+        public void MoveTo(Vector2 dst, float offset = 0f, float distance = 0f)
         {
             if (dst == _dst || IsNear(dst, offset, distance))
             {
@@ -54,7 +56,21 @@ namespace Characters
             _distance = distance;
             States.Remove(State.Idle);
             States.Add(State.Move);
-            SpriteRenderer.flipX = _dst.x < transform.position.x;
+            SpriteRenderer.flipX = Flip(_dst.x);
+        }
+
+        public Task<bool> MoveToAsync(Vector2 dst, float offset = 0f, float distance = 0f)
+        {
+            if (dst == _dst || IsNear(dst, offset, distance))
+            {
+                return Task.FromResult(true);
+            }
+
+            _onArriveTask?.SetResult(false);
+            _onArriveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            MoveTo(dst, offset, distance);
+
+            return _onArriveTask.Task;
         }
 
         private Vector2 Normalize(Vector2 dst, float offset)
@@ -76,13 +92,19 @@ namespace Characters
             }
             else
             {
-                _animator.SetInteger(StateKey, AnimIdle);
                 States.Remove(State.Move);
                 States.Add(State.Idle);
+
+                _animator.SetInteger(StateKey, AnimIdle);
                 _dst = Vector2.zero;
                 _distance = 0;
+
+                _onArriveTask?.SetResult(true);
+                _onArriveTask = null;
             }
         }
+
+        protected abstract bool Flip(float x);
 
         protected enum State
         {

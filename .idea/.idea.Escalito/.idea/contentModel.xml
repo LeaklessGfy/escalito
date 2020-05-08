@@ -8,6 +8,12 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="AudioController.cs" t="Include" />
+          <e p="Bonuses" t="Include">
+            <e p="ComboBonus.cs" t="Include" />
+            <e p="CompositeBonus.cs" t="Include" />
+            <e p="IBonus.cs" t="Include" />
+            <e p="SatisfactionBonus.cs" t="Include" />
+          </e>
           <e p="Bottle.cs" t="Include" />
           <e p="CashController.cs" t="Include" />
           <e p="Characters" t="Include">
@@ -27,8 +33,10 @@
             <e p="GlassController.cs" t="Include" />
             <e p="GlassKey.cs" t="Include" />
             <e p="LegacyGlass.cs" t="Include" />
+            <e p="Order.cs" t="Include" />
           </e>
           <e p="Components" t="Include">
+            <e p="Controller.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
             <e p="IngredientItem.cs" t="Include" />
             <e p="Item.cs" t="Include" />
@@ -39,10 +47,7 @@
             <e p="Expense.cs" t="Include" />
             <e p="ExpenseKey.cs" t="Include" />
             <e p="Expenses.cs" t="Include" />
-            <e p="ITimingAction.cs" t="Include" />
-            <e p="Order.cs" t="Include" />
             <e p="PercentHelper.cs" t="Include" />
-            <e p="Sponsor.cs" t="Include" />
             <e p="TimingAction.cs" t="Include" />
           </e>
           <e p="CursorController.cs" t="Include" />

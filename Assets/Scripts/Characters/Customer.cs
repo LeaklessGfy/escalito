@@ -5,7 +5,6 @@ using Cocktails;
 using Core;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 namespace Characters
 {
@@ -27,6 +26,9 @@ namespace Characters
 
         public Func<Order> OrderBuilder { private get; set; }
         public bool HasOrder => _order != null;
+        public bool Exhausted => States.Contains(State.Exhausted);
+        public bool Satisfied => _satisfaction > PercentHelper.Low;
+        public int Satisfaction => _satisfaction;
 
         protected new void Awake()
         {
@@ -92,17 +94,13 @@ namespace Characters
             waitingSlider.maxValue = _currentPatience;
         }
 
-        public bool IsExhausted()
-        {
-            return States.Contains(State.Exhausted);
-        }
 
         private int Try(Cocktail expected, Cocktail actual)
         {
             return _rules.Sum(rule => rule(expected, actual)) / _rules.Count;
         }
 
-        public void Serve(Cocktail actual)
+        public int Serve(Cocktail actual)
         {
             if (!States.Contains(State.Wait))
             {
@@ -115,29 +113,20 @@ namespace Characters
 
             orderImage.gameObject.SetActive(false);
             waitingSlider.gameObject.SetActive(false);
-        }
-
-        public bool IsSatisfied()
-        {
-            return _satisfaction > PercentHelper.Low;
-        }
-
-        public int Pay()
-        {
-            if (!IsSatisfied())
+            
+            if (!Satisfied)
             {
                 return 0;
             }
 
-            var bonus = _satisfaction > PercentHelper.High && Random.Range(0, 4) == 0;
-            var price = _order.Cocktail.Price + (bonus ? Random.Range(1, 5) : 0);
-
+            var price = _order.Cocktail.Price;
             cashText.gameObject.SetActive(true);
             cashText.text = "+" + price + "$";
             cashText.color = PercentHelper.GetColor(_satisfaction);
 
             return price;
         }
+
 
         public void LeaveTo(Vector2 dst)
         {
@@ -162,6 +151,11 @@ namespace Characters
 
             States.Remove(State.Wait);
             States.Add(State.Exhausted);
+        }
+
+        protected override bool Flip(float x)
+        {
+            return x < transform.position.x;
         }
     }
 }
