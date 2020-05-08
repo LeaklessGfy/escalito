@@ -1,20 +1,19 @@
 ﻿using System;
-using Characters;
 
 namespace Bonuses
 {
     public class CompositeBonus : IBonus
     {
-        public event Func<Customer, int, int> Bonus;
+        public event Func<int, int, int> Bonus;
 
-        public void Add(IBonus bonus)
+        public void AddBonus(IBonus bonus)
         {
             Bonus += bonus.Apply;
         }
 
-        public int Apply(Customer customer, int current)
+        public int Apply(int amount, int satisfaction)
         {
-            return Bonus?.Invoke(customer, current) ?? current;
+            return Bonus?.Invoke(amount, satisfaction) ?? amount;
         }
     }
 }

@@ -1,20 +1,19 @@
-﻿using Characters;
-using Core;
+﻿using Core;
 using UnityEngine;
 
 namespace Bonuses
 {
     public class SatisfactionBonus : IBonus
     {
-        public int Apply(Customer customer, int current)
+        public int Apply(int amount, int satisfaction)
         {
-            if (customer.Satisfaction < PercentHelper.High)
+            if (satisfaction < PercentHelper.High)
             {
-                return current;
+                return amount;
             }
 
             var bonus = Random.Range(0, 4) == 0;
-            return current + (bonus ? Random.Range(5, 10) : 0);
+            return amount + (bonus ? Random.Range(5, 10) : 0);
         }
     }
 }

@@ -338,6 +338,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5e6894071b583645b8f8b4fd191aec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  noButton: {fileID: 5974459096221830843}
+  yesButton: {fileID: 9127639393088118882}
+  panel: {fileID: 5668818162331342695}
 --- !u!114 &3776739787392640929
 MonoBehaviour:
   m_ObjectHideFlags: 0

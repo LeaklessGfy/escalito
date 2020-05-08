@@ -6,8 +6,8 @@ public class CursorController : MonoBehaviour
 
     public static CursorController Main;
 
-    [SerializeField] private Texture2D hover;
-    [SerializeField] private Texture2D normal;
+    public Texture2D hover;
+    public Texture2D normal;
 
     private void Awake()
     {

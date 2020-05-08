@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
+using Bonuses;
 using Cocktails;
+using Core;
 using Ingredients;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,20 +22,77 @@ public class CashController : MonoBehaviour
     private const int ColaPrice = 3;
     private const int LemonadePrice = 2;
 
+    private const int ExpenseTime = 10;
+
     public static CashController Main;
+    private TimingAction _expenseAction;
 
-    [SerializeField] private Text cashText;
+    public Text cashText;
+    public Text expenseText;
 
-    public int Cash { get; set; } = 50;
+    public int Cash { get; private set; } = 50;
+    public Expenses Expenses { get; } = new Expenses();
+    public CompositeBonus Bonuses { get; } = new CompositeBonus();
 
     private void Awake()
     {
         Main = this;
+        _expenseAction = new TimingAction(ExpenseTime, ExpenseCondition, ExpenseTick, ExpenseTrigger);
     }
 
     private void Update()
     {
         cashText.text = Cash + " $";
+        _expenseAction.Tick(Time.deltaTime);
+    }
+
+    private bool ExpenseCondition()
+    {
+        return Expenses.HasExpense();
+    }
+    
+    private void ExpenseTick(float current, float trigger)
+    {
+        var diff = trigger - current;
+        var percent = diff / trigger * 100;
+        if (percent < 70)
+        {
+            expenseText.text = "";
+        }
+    }
+
+    private float ExpenseTrigger()
+    {
+        var expensesSum = Expenses.Sum();
+        var text = expensesSum
+            .Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $"))
+            .ToString();
+        var total = expensesSum.Aggregate(0, (sum, pair) => sum + pair.Value);
+        var currentCash = CashController.Main.Cash;
+
+        expenseText.text = text;
+        expenseText.color = PercentHelper.GetColor((currentCash - total) / currentCash * 100);
+
+        Pay(total);
+        AudioController.Main.cash.Play();
+
+        return 10;
+    }
+
+    public void Collect(int amount, int satisfaction)
+    {
+        Cash += Bonuses.Apply(amount, satisfaction);
+    }
+
+    public void Pay(int price)
+    {
+        Cash -= price;
+
+        if (Cash < 0)
+        {
+            Cash = 0;
+            // TODO : Add game over call
+        }
     }
 
     public static int GetPrice(IngredientKey ingredient)

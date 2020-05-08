@@ -12,7 +12,7 @@ namespace Cocktails
         private ParticleSystem _fullParticleSystem;
         private IngredientKey _last;
 
-        [SerializeField] private Material material;
+        public Material material;
 
         public LinkedList<LineRenderer> LineRenderers { get; } = new LinkedList<LineRenderer>();
         public Cocktail Cocktail { get; } = CocktailBuilder.BuildEmpty();

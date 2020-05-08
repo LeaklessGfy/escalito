@@ -4,6 +4,6 @@ namespace Bonuses
 {
     public interface IBonus
     {
-        int Apply(Customer customer, int current);
+        int Apply(int amount, int satisfaction);
     }
 }

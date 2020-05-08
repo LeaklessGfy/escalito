@@ -4,8 +4,8 @@ public class Door : MonoBehaviour
 {
     private SpriteRenderer _spriteRenderer;
 
-    [SerializeField] private Sprite closeSprite;
-    [SerializeField] private Sprite openSprite;
+    public Sprite closeSprite;
+    public Sprite openSprite;
 
     private void Awake()
     {

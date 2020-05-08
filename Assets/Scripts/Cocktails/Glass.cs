@@ -11,8 +11,7 @@ namespace Cocktails
 
         private IngredientKey _lastIngredient;
 
-        [SerializeField] private Sprite sprite;
-
+        public Sprite sprite;
         public Cocktail Cocktail { get; } = CocktailBuilder.BuildEmpty();
         public bool Served { get; set; }
 

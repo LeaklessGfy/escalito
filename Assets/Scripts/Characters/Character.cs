@@ -20,6 +20,8 @@ namespace Characters
         protected SpriteRenderer SpriteRenderer;
 
         public float Offset => SpriteRenderer.sprite.bounds.extents.x;
+        public bool Exhausted => States.Contains(State.Exhausted);
+        public bool Leaving => States.Contains(State.Leaving);
 
         protected void Awake()
         {
@@ -59,6 +61,12 @@ namespace Characters
             SpriteRenderer.flipX = Flip(_dst.x);
         }
 
+        public void LeaveTo(Vector2 dst)
+        {
+            States.Add(State.Leaving);
+            MoveTo(dst, 0.0f, 0.0f);
+        }
+
         public Task<bool> MoveToAsync(Vector2 dst, float offset = 0f, float distance = 0f)
         {
             if (dst == _dst || IsNear(dst, offset, distance))
@@ -71,6 +79,12 @@ namespace Characters
             MoveTo(dst, offset, distance);
 
             return _onArriveTask.Task;
+        }
+
+        public Task<bool> LeaveToAsync(Vector2 dst)
+        {
+            States.Add(State.Leaving);
+            return MoveToAsync(dst);
         }
 
         private Vector2 Normalize(Vector2 dst, float offset)
@@ -111,6 +125,7 @@ namespace Characters
             Idle,
             Move,
             Wait,
+            Leaving,
             Exhausted
         }
     }

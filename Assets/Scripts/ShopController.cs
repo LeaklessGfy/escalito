@@ -7,8 +7,8 @@ using UnityEngine.UI;
 
 public class ShopController : MonoBehaviour
 {
-    [SerializeField] private VerticalLayoutGroup layout;
-    [SerializeField] private GameObject prefab;
+    public VerticalLayoutGroup layout;
+    public GameObject prefab;
 
     private void Awake()
     {

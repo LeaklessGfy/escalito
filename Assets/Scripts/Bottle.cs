@@ -11,8 +11,8 @@ public class Bottle : MonoBehaviour
 
     public Ingredient ingredient;
 
-    [SerializeField] private Image stockImage;
-    [SerializeField] private Slider stockSlider;
+    public Image stockImage;
+    public Slider stockSlider;
 
     private void Awake()
     {

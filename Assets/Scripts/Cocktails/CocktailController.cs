@@ -18,8 +18,8 @@ namespace Cocktails
 
         private readonly Dictionary<CocktailKey, Sprite> _mapping = new Dictionary<CocktailKey, Sprite>();
 
-        [FormerlySerializedAs("sprites")] [SerializeField]
-        private CocktailEntry[] entries;
+        [FormerlySerializedAs("sprites")]
+        public CocktailEntry[] entries;
 
         private void Awake()
         {

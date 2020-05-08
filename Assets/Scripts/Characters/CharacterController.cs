@@ -35,10 +35,10 @@ namespace Characters
         private int _combo;
         private int _customerLimit = 3;
         private Glass _glass;
-        [SerializeField] private Transform bar;
+        public Transform bar;
 
-        [SerializeField] private List<CustomerEntry> entries;
-        [SerializeField] private Transform spawn;
+        public List<CustomerEntry> entries;
+        public Transform spawn;
 
         public CharacterController()
         {
@@ -133,7 +133,8 @@ namespace Characters
             Destroy(glass.gameObject);
 
             var cash = customer.Serve(actual);
-            CashController.Main.Cash += MainController.Main.Bonuses.Apply(customer, cash);
+
+            CashController.Main.Collect(cash, customer.Satisfaction);
             MainController.Main.Difficulty++;
 
             HandleCombo(customer);
@@ -183,6 +184,42 @@ namespace Characters
             Destroy(_glass.gameObject);
             _glass = null;
         }
+        
+        private async void SponsorBehaviour(Sponsor sponsor)
+        {
+            sponsor.noButton.onClick.AddListener(() => RefuseContract(sponsor));
+            sponsor.yesButton.onClick.AddListener( () => AcceptContract(sponsor));
+
+            if (!await sponsor.MoveToAsync(bar.position))
+            {
+                return;
+            }
+
+            sponsor.AskContract();
+            await Task.Delay(5000);
+            Leave(sponsor);
+        }
+
+        private void RefuseContract(Sponsor sponsor)
+        {
+            sponsor.RefuseContract();
+            Leave(sponsor);
+        }
+
+        private void AcceptContract(Sponsor sponsor)
+        {
+            sponsor.AcceptContract();
+            Leave(sponsor);
+        }
+
+        private async void Leave(Sponsor sponsor)
+        {
+            if (sponsor.Leaving || !await sponsor.LeaveToAsync(spawn.position))
+            {
+                return;
+            }
+            Destroy(sponsor.gameObject);
+        }
 
         private bool SpawnCustomerCondition()
         {
@@ -204,26 +241,14 @@ namespace Characters
         private float SpawnSponsorTrigger()
         {
             var sponsor = SpawnCharacter<Sponsor>(CharacterKey.Sponsor);
+
             var t = sponsor.transform;
             var p = t.position;
-            t.position = new Vector3(p.x, p.y + 4, p.z);
-            
+            t.position = new Vector3(p.x, p.y + 5, p.z);
+
             SponsorBehaviour(sponsor);
             
             return 100;
-        }
-
-        private async void SponsorBehaviour(Sponsor sponsor)
-        {
-            if (!await sponsor.MoveToAsync(bar.position))
-            {
-                return;
-            }
-            
-            await Task.Delay(5000);
-            await sponsor.MoveToAsync(spawn.position);
-
-            Destroy(sponsor.gameObject);
         }
 
         private Customer SpawnRandomCustomer()

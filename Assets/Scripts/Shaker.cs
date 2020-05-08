@@ -17,8 +17,8 @@ public class Shaker : MonoBehaviour
     private LineRenderer _mixLineRenderer;
     private bool _shouldMix;
 
-    [SerializeField] private Image mixImage;
-    [SerializeField] private Slider mixSlider;
+    public Image mixImage;
+    public Slider mixSlider;
 
     private void Awake()
     {

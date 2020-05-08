@@ -15,20 +15,18 @@ namespace Characters
         private float _currentPatience;
 
         private Order _order;
-        private int _satisfaction;
         private int _servedCount;
         private float _timeAwaited;
 
-        [SerializeField] private Text cashText;
-        [SerializeField] private Image orderImage;
-        [SerializeField] private Image waitingImage;
-        [SerializeField] private Slider waitingSlider;
+        public Text cashText;
+        public Image orderImage;
+        public Image waitingImage;
+        public Slider waitingSlider;
 
         public Func<Order> OrderBuilder { private get; set; }
         public bool HasOrder => _order != null;
-        public bool Exhausted => States.Contains(State.Exhausted);
-        public bool Satisfied => _satisfaction > PercentHelper.Low;
-        public int Satisfaction => _satisfaction;
+        public bool Satisfied => Satisfaction > PercentHelper.Low;
+        public int Satisfaction { get; private set; }
 
         protected new void Awake()
         {
@@ -109,7 +107,7 @@ namespace Characters
 
             States.Remove(State.Wait);
             _timeAwaited = 0;
-            _satisfaction = Try(_order.Cocktail, actual);
+            Satisfaction = Try(_order.Cocktail, actual);
 
             orderImage.gameObject.SetActive(false);
             waitingSlider.gameObject.SetActive(false);
@@ -122,18 +120,18 @@ namespace Characters
             var price = _order.Cocktail.Price;
             cashText.gameObject.SetActive(true);
             cashText.text = "+" + price + "$";
-            cashText.color = PercentHelper.GetColor(_satisfaction);
+            cashText.color = PercentHelper.GetColor(Satisfaction);
 
             return price;
         }
 
 
-        public void LeaveTo(Vector2 dst)
+        public new void LeaveTo(Vector2 dst)
         {
-            SpriteRenderer.color = PercentHelper.GetColor(_satisfaction);
+            base.LeaveTo(dst);
+            SpriteRenderer.color = PercentHelper.GetColor(Satisfaction);
             orderImage.gameObject.SetActive(false);
             waitingSlider.gameObject.SetActive(false);
-            MoveTo(dst, 0.0f, 0.0f);
         }
 
         private void StepWait()

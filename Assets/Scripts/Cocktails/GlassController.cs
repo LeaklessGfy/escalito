@@ -17,8 +17,8 @@ namespace Cocktails
         public static GlassController Main;
 
         private readonly Dictionary<GlassKey, GameObject> _prefabs = new Dictionary<GlassKey, GameObject>();
-        [SerializeField] private List<GlassEntry> entries;
-        [SerializeField] private Transform spawn;
+        public List<GlassEntry> entries;
+        public Transform spawn;
 
         private void Awake()
         {

@@ -17,8 +17,8 @@ namespace Ingredients
         public static IngredientController Main;
 
         private readonly Dictionary<IngredientKey, GameObject> _prefabs = new Dictionary<IngredientKey, GameObject>();
-        [SerializeField] private IngredientEntry[] entries;
-        [SerializeField] private Transform spawn;
+        public IngredientEntry[] entries;
+        public Transform spawn;
 
         private void Awake()
         {

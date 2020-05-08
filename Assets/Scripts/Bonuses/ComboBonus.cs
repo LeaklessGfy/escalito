@@ -1,17 +1,17 @@
-﻿using Characters;
+﻿using Core;
 
 namespace Bonuses
 {
     public class ComboBonus : IBonus
     {
-        public int Apply(Customer customer, int current)
+        public int Apply(int amount, int satisfaction)
         {
-            if (!customer.Satisfied)
+            if (satisfaction <= PercentHelper.Low)
             {
-                return current;
+                return amount;
             }
 
-            return current;
+            return amount;
         }
     }
 }

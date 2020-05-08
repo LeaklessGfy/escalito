@@ -1,10 +1,40 @@
-﻿namespace Characters
+﻿using Core;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Characters
 {
     public class Sponsor : Character
     {
-        private void OnMouseDown()
+        private readonly Contract _contract = new Contract();
+
+        public Button noButton;
+        public Button yesButton;
+        public GameObject panel;
+
+        protected new void Awake()
         {
-            print("Hello");
+            base.Awake();
+            panel.SetActive(false);
+        }
+
+        public void AskContract()
+        {
+            yesButton.interactable = CashController.Main.Cash >= _contract.Price;
+            panel.SetActive(true);
+        }
+        
+        public void RefuseContract()
+        {
+            panel.SetActive(false);
+        }
+
+        public void AcceptContract()
+        {
+            CashController.Main.Pay(_contract.Price);
+            CashController.Main.Expenses.AddExpense(_contract.Expense);
+            CashController.Main.Bonuses.AddBonus(_contract.Bonus);
+            panel.SetActive(false);
         }
         
         protected override bool Flip(float x)

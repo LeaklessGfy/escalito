@@ -19,12 +19,7 @@ namespace Core
             _trigger = trigger;
         }
 
-        public TimingAction(float triggerTime, Func<float> trigger) : this(0, triggerTime, null, null, trigger)
-        {
-        }
-
-        public TimingAction(float triggerTime, Action<float, float> tick, Func<float> trigger) : this(0, triggerTime, null,
-            tick, trigger)
+        public TimingAction(float triggerTime, Func<bool> condition, Action<float, float> tick, Func<float> trigger) : this(0, triggerTime, condition, null, trigger)
         {
         }
 
