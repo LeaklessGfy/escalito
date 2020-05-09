@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Cash;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,11 +6,15 @@ namespace Characters
 {
     public class Sponsor : Character
     {
-        private readonly Contract _contract = new Contract();
+        private Contract _contract;
 
         public Button noButton;
         public Button yesButton;
         public GameObject panel;
+        public Text priceText;
+        public Text expenseText;
+        public Text bonusText;
+        public Text penaltyText;
 
         protected new void Awake()
         {
@@ -20,7 +24,14 @@ namespace Characters
 
         public void AskContract()
         {
+            _contract = Contract.Build(MainController.Main);
+
             yesButton.interactable = CashController.Main.Cash >= _contract.Price;
+            priceText.text = $"Price : - {_contract.Price} $";
+            expenseText.text =  $"Tax : - {_contract.Expense.Amount} $ / Day";
+            bonusText.text =  $"Bonus : {_contract.Bonus.Amount} x Combo";
+            penaltyText.text =  $"Penalty : - {_contract.Penalty.Amount} $";;
+            
             panel.SetActive(true);
         }
         
@@ -32,7 +43,7 @@ namespace Characters
         public void AcceptContract()
         {
             CashController.Main.Pay(_contract.Price);
-            CashController.Main.Expenses.Add(_contract.Expense);
+            CashController.Main.ExpenseManager.Add(_contract.Expense);
             CashController.Main.Bonuses.Add(_contract.Bonus);
             CashController.Main.Penalties.Add(_contract.Penalty);
             panel.SetActive(false);

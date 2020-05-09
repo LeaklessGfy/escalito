@@ -181,6 +181,7 @@ namespace Characters
 
             sponsor.AskContract();
             await Task.Delay(5000);
+            sponsor.RefuseContract();
             Leave(sponsor);
         }
 

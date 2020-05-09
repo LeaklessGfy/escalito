@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Core
+namespace Cash.Expense
 {
-    public class Expenses
+    public class ExpenseManager
     {
-        private readonly Dictionary<ExpenseKey, List<Expense>> _expenses = new Dictionary<ExpenseKey, List<Expense>>();
+        private readonly Dictionary<ExpenseKey, List<IExpense>> _expenses = new Dictionary<ExpenseKey, List<IExpense>>();
 
         public bool HasExpense()
         {
             return _expenses.Count > 0;
         }
 
-        public void Add(Expense expense)
+        public void Add(IExpense expense)
         {
             if (_expenses.TryGetValue(expense.Type, out var list))
             {
@@ -20,11 +20,11 @@ namespace Core
             }
             else
             {
-                _expenses.Add(expense.Type, new List<Expense> {expense});
+                _expenses.Add(expense.Type, new List<IExpense> {expense});
             }
         }
 
-        public Dictionary<ExpenseKey, int> Sum()
+        public IReadOnlyDictionary<ExpenseKey, decimal> Sum()
         {
             return _expenses
                 .Select(expense => (expense.Key, expense.Value.Sum(subExpense => subExpense.Amount)))

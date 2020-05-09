@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cash;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Components
@@ -10,7 +11,7 @@ namespace Components
         private Image _itemImage;
         private Text _itemText;
 
-        protected int Price { get; set; }
+        protected decimal Price { get; private set; }
 
         private void Awake()
         {
@@ -31,7 +32,7 @@ namespace Components
             _itemText.text = name;
         }
 
-        protected void SetPrice(int price)
+        protected void SetPrice(decimal price)
         {
             Price = price;
             _itemButtonText.text = price + " $";

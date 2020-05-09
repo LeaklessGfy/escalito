@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cash;
 using Characters;
 using Ingredients;
 using UnityEngine;
@@ -28,7 +29,7 @@ public class MainController : MonoBehaviour
         selectedText.text = Selected ? Selected.name : "";
     }
 
-    public void IncrementSuccess(Customer customer, int cash)
+    public void IncrementSuccess(Customer customer, decimal cash)
     {
         PositiveCombo++;
         NegativeCombo = 0;

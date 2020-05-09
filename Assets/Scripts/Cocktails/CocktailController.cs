@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Cocktails
 {
@@ -18,7 +17,6 @@ namespace Cocktails
 
         private readonly Dictionary<CocktailKey, Sprite> _mapping = new Dictionary<CocktailKey, Sprite>();
 
-        [FormerlySerializedAs("sprites")]
         public CocktailEntry[] entries;
 
         private void Awake()

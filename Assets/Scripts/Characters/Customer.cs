@@ -98,7 +98,7 @@ namespace Characters
             return _rules.Sum(rule => rule(expected, actual)) / _rules.Count;
         }
 
-        public int Serve(Cocktail actual)
+        public decimal Serve(Cocktail actual)
         {
             if (!States.Contains(State.Wait))
             {

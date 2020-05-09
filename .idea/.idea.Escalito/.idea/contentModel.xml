@@ -9,7 +9,24 @@
         <e p="Scripts" t="Include">
           <e p="AudioController.cs" t="Include" />
           <e p="Bottle.cs" t="Include" />
-          <e p="CashController.cs" t="Include" />
+          <e p="Cash" t="Include">
+            <e p="CashController.cs" t="Include" />
+            <e p="Contract.cs" t="Include" />
+            <e p="Effect" t="Include">
+              <e p="ComboBonus.cs" t="Include" />
+              <e p="EffectManager.cs" t="Include" />
+              <e p="IEffect.cs" t="Include" />
+              <e p="SatisfactionBonus.cs" t="Include" />
+              <e p="SimpleEffect.cs" t="Include" />
+            </e>
+            <e p="Expense" t="Include">
+              <e p="ContractExpense.cs" t="Include" />
+              <e p="ExpenseKey.cs" t="Include" />
+              <e p="ExpenseManager.cs" t="Include" />
+              <e p="IExpense.cs" t="Include" />
+              <e p="IngredientExpense.cs" t="Include" />
+            </e>
+          </e>
           <e p="Characters" t="Include">
             <e p="Character.cs" t="Include" />
             <e p="CharacterController.cs" t="Include" />
@@ -38,11 +55,6 @@
             <e p="Selectable.cs" t="Include" />
           </e>
           <e p="Core" t="Include">
-            <e p="Bonus.cs" t="Include" />
-            <e p="Contract.cs" t="Include" />
-            <e p="Expense.cs" t="Include" />
-            <e p="ExpenseKey.cs" t="Include" />
-            <e p="Expenses.cs" t="Include" />
             <e p="PercentHelper.cs" t="Include" />
             <e p="TimingAction.cs" t="Include" />
           </e>

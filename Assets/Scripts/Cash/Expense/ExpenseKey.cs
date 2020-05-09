@@ -1,9 +1,9 @@
-﻿namespace Core
+﻿namespace Cash.Expense
 {
     public enum ExpenseKey
     {
         Ingredients,
-        Sponsors,
+        Contracts,
         Salaries,
         Shipping
     }

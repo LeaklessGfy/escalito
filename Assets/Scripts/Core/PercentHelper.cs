@@ -8,6 +8,11 @@ namespace Core
         public const int Medium = 70;
         public const int Low = 40;
 
+        public static Color GetColor(decimal percent)
+        {
+            return GetColor(decimal.ToInt32(percent));
+        }
+        
         public static Color GetColor(int satisfaction)
         {
             if (satisfaction < Low)

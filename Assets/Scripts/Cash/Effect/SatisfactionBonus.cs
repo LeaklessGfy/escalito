@@ -1,11 +1,15 @@
 ﻿using Characters;
+using Core;
 using UnityEngine;
 
-namespace Core
+namespace Cash.Effect
 {
-    public class Bonus
+    public class SatisfactionBonus : IEffect
     {
-        public static int SatisfactionBonus(Customer customer, int amount)
+        public decimal Amount { get; }
+        public string Details { get; }
+
+        public decimal Apply(Customer customer, decimal amount)
         {
             if (customer.Satisfaction < PercentHelper.High)
             {
@@ -14,11 +18,6 @@ namespace Core
 
             var bonus = Random.Range(0, 4) == 0;
             return amount + (bonus ? Random.Range(5, 10) : 0);
-        }
-
-        public static int ComboBonus(Customer customer, int amount)
-        {
-            return amount;
         }
     }
 }

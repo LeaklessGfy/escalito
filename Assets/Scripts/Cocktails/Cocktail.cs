@@ -5,7 +5,7 @@ namespace Cocktails
 {
     public class Cocktail
     {
-        internal Cocktail(CocktailKey key, int price, Dictionary<IngredientKey, int> recipe)
+        internal Cocktail(CocktailKey key, decimal price, Dictionary<IngredientKey, int> recipe)
         {
             Key = key;
             Price = price;
@@ -13,7 +13,7 @@ namespace Cocktails
         }
 
         public CocktailKey Key { get; }
-        public int Price { get; }
+        public decimal Price { get; }
         public Dictionary<IngredientKey, int> Recipe { get; }
 
         public void AddIngredient(IngredientKey key)
