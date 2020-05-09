@@ -13,7 +13,7 @@ public class MainController : MonoBehaviour
 
     public bool BarIsOpen { get; set; }
     public int Difficulty { get; private set; } = 1;
-    public int Reputation { get; private set; } = 11;
+    public int Reputation { get; private set; } = 1;
     public int PositiveCombo { get; private set; } = 0;
     public int NegativeCombo { get; private set; } = 0;
     public Selectable Selected { get; set; }
@@ -29,12 +29,12 @@ public class MainController : MonoBehaviour
         selectedText.text = Selected ? Selected.name : "";
     }
 
-    public void IncrementSuccess(Customer customer, decimal cash)
+    public void IncrementSuccess(Customer customer, decimal amount)
     {
         PositiveCombo++;
         NegativeCombo = 0;
 
-        CashController.Main.Bonus(customer, cash);
+        CashController.Main.Bonus(customer, amount);
 
         if (PositiveCombo % 3 == 0)
         {
@@ -52,12 +52,12 @@ public class MainController : MonoBehaviour
         }
     }
 
-    public void IncrementFailure(Customer customer)
+    public void IncrementFailure(Customer customer, decimal amount)
     {
         PositiveCombo = 0;
         NegativeCombo++;
 
-        CashController.Main.Penalty(customer);
+        CashController.Main.Penalty(customer, amount);
 
         if (NegativeCombo % 3 == 0)
         {

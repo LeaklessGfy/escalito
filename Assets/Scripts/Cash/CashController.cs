@@ -43,6 +43,7 @@ namespace Cash
         {
             Main = this;
             _expenseAction = new TimingAction(ExpenseTime, ExpenseCondition, ExpenseTick, ExpenseTrigger);
+            Bonuses.Add(new SatisfactionBonus());
         }
 
         private void Update()
@@ -88,9 +89,14 @@ namespace Cash
             Cash += Bonuses.Apply(customer, amount);
         }
 
-        public void Penalty(Customer customer)
+        public void Penalty(Customer customer, decimal amount)
         {
-            Cash -= Penalties.Apply(customer, 0);
+            Cash -= Penalties.Apply(customer, amount);
+
+            if (Cash < 0)
+            {
+                print("Game over");
+            }
         }
 
         public void Pay(decimal price)

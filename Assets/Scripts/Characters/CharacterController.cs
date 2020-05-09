@@ -31,7 +31,6 @@ namespace Characters
         private readonly TimingAction _customerSpawnAction;
         private readonly TimingAction _sponsorSpawnAction;
         private readonly Vector2 _spawnRange = new Vector2(2, 5);
-        private int _customerLimit = 3;
         private Glass _glass;
         public Transform bar;
 
@@ -129,18 +128,7 @@ namespace Characters
         {
             var actual = glass.Cocktail;
             Destroy(glass.gameObject);
-
-            var cash = customer.Serve(actual);
-
-            if (customer.Satisfied)
-            {
-                MainController.Main.IncrementSuccess(customer, cash);
-            }
-            else
-            {
-                MainController.Main.IncrementFailure(customer);
-            }
-
+            customer.Serve(actual);
             Leave(customer);
         }
 
@@ -156,10 +144,12 @@ namespace Characters
             if (customer.Satisfied)
             {
                 AudioController.Main.success.Play();
+                MainController.Main.IncrementSuccess(customer, customer.Pay());
             }
             else
             {
                 AudioController.Main.failure.Play();
+                MainController.Main.IncrementFailure(customer, customer.Pay());
             }
 
             _customersQueue.Remove(node);
@@ -208,7 +198,7 @@ namespace Characters
 
         private bool SpawnCustomerCondition()
         {
-            return MainController.Main.BarIsOpen && _customersQueue.Count <= _customerLimit;
+            return MainController.Main.BarIsOpen && _customersQueue.Count < MainController.Main.Difficulty;
         }
 
         private float SpawnCustomerTrigger()

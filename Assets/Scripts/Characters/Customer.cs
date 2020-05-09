@@ -10,7 +10,7 @@ namespace Characters
 {
     public class Customer : Character
     {
-        private const float Patience = 10f;
+        private const float Patience = 20f;
         private readonly List<Func<Cocktail, Cocktail, int>> _rules = new List<Func<Cocktail, Cocktail, int>>();
         private float _currentPatience;
 
@@ -84,7 +84,7 @@ namespace Characters
             }
 
             States.Add(State.Wait);
-            _currentPatience = Patience / difficulty;
+            _currentPatience = Patience - difficulty;
             _timeAwaited = 0;
 
             waitingSlider.gameObject.SetActive(true);
@@ -98,7 +98,7 @@ namespace Characters
             return _rules.Sum(rule => rule(expected, actual)) / _rules.Count;
         }
 
-        public decimal Serve(Cocktail actual)
+        public void Serve(Cocktail actual)
         {
             if (!States.Contains(State.Wait))
             {
@@ -111,20 +111,24 @@ namespace Characters
 
             orderImage.gameObject.SetActive(false);
             waitingSlider.gameObject.SetActive(false);
-            
-            if (!Satisfied)
-            {
-                return 0;
-            }
+        }
 
+        public decimal Pay()
+        {
+            if (!HasOrder)
+            {
+                return 0m;
+            }
+            
             var price = _order.Cocktail.Price;
+
+            // Todo : Take parameter for the real price paid
             cashText.gameObject.SetActive(true);
-            cashText.text = "+" + price + "$";
+            cashText.text = $"{(Satisfied ? '+' : '-')} {price} $";
             cashText.color = PercentHelper.GetColor(Satisfaction);
 
             return price;
         }
-
 
         public new void LeaveTo(Vector2 dst)
         {
