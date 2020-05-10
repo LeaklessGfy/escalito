@@ -9,6 +9,8 @@
 
         public Cocktail Cocktail { get; }
 
+        public decimal Price => Cocktail.Price;
+
         public static Order BuildRandom()
         {
             return new Order(CocktailBuilder.BuildRandom());

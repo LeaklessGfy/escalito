@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using Cash.Effect;
 using Cash.Expense;
-using Characters;
+using Characters.Impl;
 using Cocktails;
 using Core;
 using Ingredients;
@@ -56,7 +56,7 @@ namespace Cash
         {
             return ExpenseManager.HasExpense();
         }
-    
+
         private void ExpenseTick(float current, float trigger)
         {
             var diff = trigger - current;
@@ -84,19 +84,24 @@ namespace Cash
             return 10;
         }
 
-        public void Bonus(Customer customer, decimal amount)
+        public decimal Bonus(Customer customer)
         {
-            Cash += Bonuses.Apply(customer, amount);
+            var finalAmount = Bonuses.Apply(customer, customer.Order.Price);
+            Cash += finalAmount;
+            return finalAmount;
         }
 
-        public void Penalty(Customer customer, decimal amount)
+        public decimal Penalty(Customer customer)
         {
-            Cash -= Penalties.Apply(customer, amount);
+            var finalAmount = Penalties.Apply(customer, customer.Order.Price);
+            Cash -= finalAmount;
 
             if (Cash < 0)
             {
                 print("Game over");
             }
+
+            return finalAmount;
         }
 
         public void Pay(decimal price)

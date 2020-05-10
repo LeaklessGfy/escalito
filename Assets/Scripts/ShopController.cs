@@ -9,10 +9,11 @@ public class ShopController : MonoBehaviour
 {
     public VerticalLayoutGroup layout;
     public GameObject prefab;
+    public GameObject shopPanel;
 
     private void Awake()
     {
-        gameObject.SetActive(false);
+        shopPanel.SetActive(false);
     }
 
     private void Start()
@@ -28,6 +29,6 @@ public class ShopController : MonoBehaviour
 
     public void ToggleShop()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
+        shopPanel.SetActive(!shopPanel.activeSelf);
     }
 }

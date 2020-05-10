@@ -5,7 +5,8 @@ namespace Cash.Expense
 {
     public class ExpenseManager
     {
-        private readonly Dictionary<ExpenseKey, List<IExpense>> _expenses = new Dictionary<ExpenseKey, List<IExpense>>();
+        private readonly Dictionary<ExpenseKey, List<IExpense>>
+            _expenses = new Dictionary<ExpenseKey, List<IExpense>>();
 
         public bool HasExpense()
         {

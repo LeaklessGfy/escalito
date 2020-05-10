@@ -1,4 +1,4 @@
-﻿using Characters;
+﻿using Characters.Impl;
 using Core;
 using UnityEngine;
 

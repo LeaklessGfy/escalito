@@ -10,7 +10,8 @@ namespace Core
         private float _currentTime;
         private float _triggerTime;
 
-        public TimingAction(float currentTime, float triggerTime, Func<bool> condition, Action<float, float> tick, Func<float> trigger)
+        public TimingAction(float currentTime, float triggerTime, Func<bool> condition, Action<float, float> tick,
+            Func<float> trigger)
         {
             _currentTime = currentTime;
             _triggerTime = triggerTime;
@@ -19,11 +20,13 @@ namespace Core
             _trigger = trigger;
         }
 
-        public TimingAction(float triggerTime, Func<bool> condition, Action<float, float> tick, Func<float> trigger) : this(0, triggerTime, condition, tick, trigger)
+        public TimingAction(float triggerTime, Func<bool> condition, Action<float, float> tick, Func<float> trigger) :
+            this(0, triggerTime, condition, tick, trigger)
         {
         }
 
-        public TimingAction(float triggerTime, Func<bool> condition, Func<float> trigger) : this(0, triggerTime, condition, null, trigger)
+        public TimingAction(float triggerTime, Func<bool> condition, Func<float> trigger) : this(0, triggerTime,
+            condition, null, trigger)
         {
         }
 

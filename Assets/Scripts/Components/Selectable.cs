@@ -12,8 +12,8 @@ namespace Components
             MainController.Main.Selected = this;
             CursorController.Main.SetHover(true);
 
-            var position = transform.position;
-            transform.position = new Vector3(position.x, position.y, -2f);
+            //var position = transform.position;
+            //transform.position = new Vector3(position.x, position.y, -2f);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -26,8 +26,8 @@ namespace Components
             MainController.Main.Selected = null;
             CursorController.Main.SetHover(false);
 
-            var position = transform.position;
-            transform.position = new Vector3(position.x, position.y, 0f);
+            //var position = transform.position;
+            //transform.position = new Vector3(position.x, position.y, 0f);
         }
 
         private void OnMouseDown()

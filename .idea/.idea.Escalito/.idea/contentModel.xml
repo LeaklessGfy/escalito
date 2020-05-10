@@ -31,9 +31,13 @@
             <e p="Character.cs" t="Include" />
             <e p="CharacterController.cs" t="Include" />
             <e p="CharacterKey.cs" t="Include" />
-            <e p="Customer.cs" t="Include" />
+            <e p="Impl" t="Include">
+              <e p="Customer.cs" t="Include" />
+              <e p="Sponsor.cs" t="Include" />
+            </e>
+            <e p="PositionBag.cs" t="Include" />
             <e p="Rules.cs" t="Include" />
-            <e p="Sponsor.cs" t="Include" />
+            <e p="State.cs" t="Include" />
           </e>
           <e p="Cocktails" t="Include">
             <e p="Cocktail.cs" t="Include" />

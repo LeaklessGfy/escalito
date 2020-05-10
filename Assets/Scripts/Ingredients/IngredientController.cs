@@ -32,6 +32,7 @@ namespace Ingredients
             {
                 throw new InvalidOperationException();
             }
+
             CreateObject(prefab, spawn, prefab.name);
         }
     }

@@ -1,95 +1,129 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
+using Core;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Characters
 {
     public abstract class Character : MonoBehaviour
     {
+        private const float Patience = 20f;
         private const int AnimIdle = 0;
         private const int AnimMove = 1;
         private const float Speed = 30f;
         private static readonly int StateKey = Animator.StringToHash("State");
-
-        protected readonly HashSet<State> States = new HashSet<State> {State.Idle};
+        protected readonly State State = new State();
 
         private Animator _animator;
+        private float _currentPatience;
         private float _distance;
         private Vector2 _dst;
         private TaskCompletionSource<bool> _onArriveTask;
+        private Action<Character> _onLeave;
+        private float _timeAwaited;
+        protected PositionBag Position;
         protected SpriteRenderer SpriteRenderer;
 
-        public float Offset => SpriteRenderer.sprite.bounds.extents.x;
-        public bool Exhausted => States.Contains(State.Exhausted);
-        public bool Leaving => States.Contains(State.Leaving);
+        public Image waitingImage;
+        public Slider waitingSlider;
 
-        protected void Awake()
+        public float Offset => SpriteRenderer.sprite.bounds.extents.x;
+
+        private void Awake()
         {
             _animator = GetComponent<Animator>();
             SpriteRenderer = GetComponent<SpriteRenderer>();
+            waitingSlider.gameObject.SetActive(false);
         }
 
-        protected void Update()
+        private void Update()
         {
-            if (States.Contains(State.Idle))
+            if (State.Idling)
             {
                 StepIdle();
             }
-
-            if (States.Contains(State.Move))
+            else if (State.Moving)
             {
                 StepMove();
             }
+
+            if (State.Waiting)
+            {
+                StepWait();
+            }
         }
 
-        public bool IsNear(Vector2 dst, float offset, float distance)
+        protected void Init(PositionBag position, Action<Character> onLeave)
         {
-            return Vector2.Distance(transform.position, Normalize(dst, offset)) <= distance;
+            Position = position;
+            _onLeave = onLeave;
         }
 
-        public void MoveTo(Vector2 dst, float offset = 0f, float distance = 0f)
+        protected abstract bool Flip(float x);
+
+        protected bool IsNear(Vector2 dst, float distance = 0f)
         {
-            if (dst == _dst || IsNear(dst, offset, distance))
+            return Vector2.Distance(transform.position, OnlyX(dst)) <= distance;
+        }
+
+        protected void MoveTo(Vector2 dst, float distance = 0f)
+        {
+            if (dst == _dst)
             {
                 return;
             }
 
-            _dst = Normalize(dst, offset);
+            _dst = dst;
             _distance = distance;
-            States.Remove(State.Idle);
-            States.Add(State.Move);
+
+            State.Move();
             SpriteRenderer.flipX = Flip(_dst.x);
         }
 
-        public void LeaveTo(Vector2 dst)
+        protected Task<bool> MoveToAsync(Vector2 dst, float distance = 0f)
         {
-            States.Add(State.Leaving);
-            MoveTo(dst, 0.0f, 0.0f);
-        }
-
-        public Task<bool> MoveToAsync(Vector2 dst, float offset = 0f, float distance = 0f)
-        {
-            if (dst == _dst || IsNear(dst, offset, distance))
-            {
-                return Task.FromResult(true);
-            }
-
             _onArriveTask?.SetResult(false);
             _onArriveTask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            MoveTo(dst, offset, distance);
+            MoveTo(dst, distance);
 
             return _onArriveTask.Task;
         }
 
-        public Task<bool> LeaveToAsync(Vector2 dst)
+        protected void LeaveTo(Vector2 dst)
         {
-            States.Add(State.Leaving);
+            State.Leave();
+            waitingSlider.gameObject.SetActive(false);
+            _onLeave?.Invoke(this);
+            MoveTo(dst);
+        }
+
+        protected Task<bool> LeaveToAsync(Vector2 dst)
+        {
+            State.Leave();
+            waitingSlider.gameObject.SetActive(false);
+            _onLeave?.Invoke(this);
+
+            var pos = transform.position;
+            transform.position = new Vector3(pos.x, pos.y, 10);
+
             return MoveToAsync(dst);
         }
 
-        private Vector2 Normalize(Vector2 dst, float offset)
+        protected void Await(int difficulty)
         {
-            return new Vector2(dst.x + offset, transform.position.y);
+            if (State.Waiting)
+            {
+                throw new InvalidOperationException("Customer is already awaiting");
+            }
+
+            State.Wait();
+            _timeAwaited = 0;
+            _currentPatience = Patience - difficulty;
+
+            waitingSlider.gameObject.SetActive(true);
+            waitingSlider.minValue = 0;
+            waitingSlider.maxValue = _currentPatience;
         }
 
         private void StepIdle()
@@ -99,34 +133,51 @@ namespace Characters
 
         private void StepMove()
         {
-            if (Vector2.Distance(transform.position, _dst) > _distance)
+            if (IsNear(_dst, _distance))
             {
-                _animator.SetInteger(StateKey, AnimMove);
-                transform.position = Vector2.MoveTowards(transform.position, _dst, Speed * Time.deltaTime);
-            }
-            else
-            {
-                States.Remove(State.Move);
-                States.Add(State.Idle);
+                State.Idle();
 
-                _animator.SetInteger(StateKey, AnimIdle);
-                _dst = Vector2.zero;
                 _distance = 0;
-
                 _onArriveTask?.SetResult(true);
                 _onArriveTask = null;
             }
+            else
+            {
+                _animator.SetInteger(StateKey, AnimMove);
+                transform.position = ComputeTransform();
+            }
         }
 
-        protected abstract bool Flip(float x);
-
-        protected enum State
+        private void StepWait()
         {
-            Idle,
-            Move,
-            Wait,
-            Leaving,
-            Exhausted
+            _timeAwaited += Time.deltaTime;
+            waitingSlider.value = _currentPatience - _timeAwaited;
+
+            var percent = 100 - _timeAwaited / _currentPatience * 100;
+            waitingImage.color = PercentHelper.GetColor((int) percent);
+
+            if (_timeAwaited < _currentPatience)
+            {
+                return;
+            }
+
+            State.Exhaust();
+        }
+
+        private Vector3 ComputeTransform()
+        {
+            var pos = transform.position;
+            var vec = Vector2.MoveTowards(
+                pos,
+                OnlyX(_dst),
+                Speed * Time.deltaTime);
+
+            return new Vector3(vec.x, vec.y, pos.z);
+        }
+
+        private Vector2 OnlyX(Vector2 dst)
+        {
+            return new Vector2(dst.x, transform.position.y);
         }
     }
 }

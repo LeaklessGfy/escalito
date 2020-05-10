@@ -12,7 +12,7 @@ namespace Core
         {
             return GetColor(decimal.ToInt32(percent));
         }
-        
+
         public static Color GetColor(int satisfaction)
         {
             if (satisfaction < Low)
