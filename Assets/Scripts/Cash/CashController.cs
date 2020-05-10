@@ -26,10 +26,7 @@ namespace Cash
         private const int ColaPrice = 3;
         private const int LemonadePrice = 2;
 
-        private const int ExpenseTime = 10;
-
         public static CashController Main;
-        private TimingAction _expenseAction;
 
         public Text cashText;
         public Text expenseText;
@@ -42,34 +39,23 @@ namespace Cash
         private void Awake()
         {
             Main = this;
-            _expenseAction = new TimingAction(ExpenseTime, ExpenseCondition, ExpenseTick, ExpenseTrigger);
             Bonuses.Add(new SatisfactionBonus());
         }
 
         private void Update()
         {
             cashText.text = Cash + " $";
-            _expenseAction.Tick(Time.deltaTime);
         }
 
-        private bool ExpenseCondition()
+        public void Expense()
         {
-            return ExpenseManager.HasExpense();
-        }
-
-        private void ExpenseTick(float current, float trigger)
-        {
-            var diff = trigger - current;
-            var percent = diff / trigger * 100;
-            if (percent < 70)
+            if (!ExpenseManager.HasExpense())
             {
-                expenseText.text = "";
+                return;
             }
-        }
-
-        private float ExpenseTrigger()
-        {
+            
             var expensesSum = ExpenseManager.Sum();
+
             var text = expensesSum
                 .Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $"))
                 .ToString();
@@ -79,27 +65,29 @@ namespace Cash
             expenseText.color = PercentHelper.GetColor((Cash - total) / Cash * 100);
 
             Pay(total);
+
             AudioController.Main.cash.Play();
 
-            return 10;
+            Invoke(nameof(HideExpense), 2);
+        }
+
+        private void HideExpense()
+        {
+            expenseText.text = "";
         }
 
         public decimal Bonus(Customer customer)
         {
             var finalAmount = Bonuses.Apply(customer, customer.Order.Price);
             Cash += finalAmount;
+
             return finalAmount;
         }
 
         public decimal Penalty(Customer customer)
         {
             var finalAmount = Penalties.Apply(customer, customer.Order.Price);
-            Cash -= finalAmount;
-
-            if (Cash < 0)
-            {
-                print("Game over");
-            }
+            Pay(-finalAmount);
 
             return finalAmount;
         }
@@ -107,6 +95,11 @@ namespace Cash
         public void Pay(decimal price)
         {
             Cash -= price;
+            
+            if (Cash < 0)
+            {
+                print("Game over");
+            }
         }
 
         public static decimal GetPrice(IngredientKey ingredient)
