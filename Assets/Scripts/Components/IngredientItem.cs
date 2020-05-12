@@ -26,7 +26,7 @@ namespace Components
                 return;
             }
 
-            CashController.Main.Pay(Price);
+            CashController.Main.Cash -= Price;
             MainController.Main.Ingredients.Add(_ingredient, true);
             CashController.Main.ExpenseManager.Add(new IngredientExpense(_ingredient, Price));
         }

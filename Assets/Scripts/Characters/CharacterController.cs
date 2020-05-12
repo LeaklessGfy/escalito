@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cash.CashIn;
 using Characters.Impl;
 using Cocktails;
 using Components;
@@ -22,11 +23,10 @@ namespace Characters
         private const int ReputationThreshold = 10;
 
         private readonly LinkedList<Customer> _customerQueue = new LinkedList<Customer>();
-        private readonly TimingAction _customerSpawnAction;
         private readonly Dictionary<CharacterKey, GameObject> _prefabs = new Dictionary<CharacterKey, GameObject>();
         private readonly Vector2 _spawnRange = new Vector2(2, 5);
         private readonly HashSet<Sponsor> _sponsors = new HashSet<Sponsor>();
-        private readonly TimingAction _sponsorSpawnAction;
+        private readonly TimedActionManager _timedAction = new TimedActionManager();
 
         public Transform bar;
         public List<CustomerEntry> entries;
@@ -34,8 +34,8 @@ namespace Characters
 
         public CharacterController()
         {
-            _customerSpawnAction = new TimingAction(0, SpawnCustomerCondition, SpawnCustomerTrigger);
-            _sponsorSpawnAction = new TimingAction(1, SpawnSponsorCondition, SpawnSponsorTrigger);
+            _timedAction.Add(new TimedAction(0, SpawnCustomerCondition, SpawnCustomerTrigger));
+            _timedAction.Add(new TimedAction(0, SpawnSponsorCondition, SpawnSponsorTrigger));
         }
 
         private void Awake()
@@ -62,8 +62,7 @@ namespace Characters
 
             foreach (var sponsor in _sponsors) sponsor.Behave(bar.position);
 
-            _customerSpawnAction.Tick(Time.deltaTime);
-            _sponsorSpawnAction.Tick(Time.deltaTime);
+            _timedAction.Tick(Time.deltaTime);
         }
 
         private void Remove(Customer customer)
@@ -88,12 +87,11 @@ namespace Characters
             return MainController.Main.BarIsOpen && _customerQueue.Count < MainController.Main.Difficulty;
         }
 
-        private float SpawnCustomerTrigger()
+        private void SpawnCustomerTrigger()
         {
             var customer = SpawnCustomer();
             _customerQueue.AddLast(customer);
-
-            return Random.Range(_spawnRange.x, _spawnRange.y);
+            //return Random.Range(_spawnRange.x, _spawnRange.y);
         }
 
         private bool SpawnSponsorCondition()
@@ -101,12 +99,10 @@ namespace Characters
             return MainController.Main.Reputation > ReputationThreshold && _sponsors.Count < 1;
         }
 
-        private float SpawnSponsorTrigger()
+        private void SpawnSponsorTrigger()
         {
             var sponsor = SpawnSponsor();
             _sponsors.Add(sponsor);
-
-            return 100; // TODO : not really
         }
 
         private Customer SpawnRandomCustomer()

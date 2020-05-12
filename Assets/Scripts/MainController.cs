@@ -8,17 +8,9 @@ using Selectable = Components.Selectable;
 
 public class MainController : MonoBehaviour
 {
-    private const int SecondsPerPlay = 60;
-    private const int SecondsPerPause = 300;
-    private const int MinHour = 4;
-    private const int MaxHour = 10;
-
     public static MainController Main;
 
-    private int _secondsPerDay = 60;
-    private float _time;
 
-    public Text clockText;
     public Text selectedText;
 
     public bool BarIsOpen { get; set; }
@@ -26,7 +18,6 @@ public class MainController : MonoBehaviour
     public int Reputation { get; private set; } = 1;
     public int PositiveCombo { get; private set; }
     public int NegativeCombo { get; private set; }
-    public int Day { get; private set; }
     public Selectable Selected { get; set; }
     public Dictionary<IngredientKey, bool> Ingredients { get; } = new Dictionary<IngredientKey, bool>();
 
@@ -38,39 +29,9 @@ public class MainController : MonoBehaviour
     private void Update()
     {
         selectedText.text = Selected ? Selected.name : "";
-        UpdateTime();
     }
 
-    private void UpdateTime()
-    {
-        _time += Time.deltaTime / _secondsPerDay;
-
-        var timeNormalized = _time % 1f;
-        var minutes = Mathf.Floor(timeNormalized * 24f % 1f * 60f);
-        var hours = Mathf.Floor(timeNormalized * 24f);
-
-        if (InWorkingHour(hours))
-        {
-            _secondsPerDay = SecondsPerPlay;
-        }
-        else
-        {
-            _secondsPerDay = SecondsPerPause;
-        }
-
-        clockText.text = $"{hours:00}:{minutes:00}";
-    }
-
-    private void UpdateDay(int day)
-    {
-        if (Day == day)
-        {
-            return;
-        }
-        
-        Day = day;
-        CashController.Main.Expense();
-    }
+    
 
     public decimal Increment(Customer customer)
     {
@@ -124,10 +85,5 @@ public class MainController : MonoBehaviour
         // Calculate if lost contract
 
         return amount;
-    }
-
-    private static bool InWorkingHour(float hours)
-    {
-        return hours < MinHour || hours > MaxHour;
     }
 }

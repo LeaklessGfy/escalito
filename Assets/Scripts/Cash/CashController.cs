@@ -31,10 +31,24 @@ namespace Cash
         public Text cashText;
         public Text expenseText;
 
-        public decimal Cash { get; private set; } = 50;
+        public decimal Cash
+        {
+            get => _cash;
+            set
+            {
+                _cash = value;
+                if (_cash < 0)
+                {
+                    print("Game over");
+                }
+            }
+        }
+
         public ExpenseManager ExpenseManager { get; } = new ExpenseManager();
         public EffectManager Bonuses { get; } = new EffectManager();
         public EffectManager Penalties { get; } = new EffectManager();
+
+        private decimal _cash = 50;
 
         private void Awake()
         {
@@ -64,7 +78,7 @@ namespace Cash
             expenseText.text = text;
             expenseText.color = PercentHelper.GetColor((Cash - total) / Cash * 100);
 
-            Pay(total);
+            Cash -= total;
 
             AudioController.Main.cash.Play();
 
@@ -87,19 +101,9 @@ namespace Cash
         public decimal Penalty(Customer customer)
         {
             var finalAmount = Penalties.Apply(customer, customer.Order.Price);
-            Pay(-finalAmount);
+            Cash -= finalAmount;
 
             return finalAmount;
-        }
-
-        public void Pay(decimal price)
-        {
-            Cash -= price;
-            
-            if (Cash < 0)
-            {
-                print("Game over");
-            }
         }
 
         public static decimal GetPrice(IngredientKey ingredient)

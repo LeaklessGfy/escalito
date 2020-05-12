@@ -11,6 +11,10 @@
           <e p="Bottle.cs" t="Include" />
           <e p="Cash" t="Include">
             <e p="CashController.cs" t="Include" />
+            <e p="CashIn" t="Include">
+              <e p="CashIn.cs" t="Include" />
+              <e p="IInvestment.cs" t="Include" />
+            </e>
             <e p="Contract.cs" t="Include" />
             <e p="Effect" t="Include">
               <e p="ComboBonus.cs" t="Include" />
@@ -39,6 +43,7 @@
             <e p="Rules.cs" t="Include" />
             <e p="State.cs" t="Include" />
           </e>
+          <e p="ClockController.cs" t="Include" />
           <e p="Cocktails" t="Include">
             <e p="Cocktail.cs" t="Include" />
             <e p="CocktailBuilder.cs" t="Include" />
@@ -59,8 +64,10 @@
             <e p="Selectable.cs" t="Include" />
           </e>
           <e p="Core" t="Include">
+            <e p="ITimedAction.cs" t="Include" />
             <e p="PercentHelper.cs" t="Include" />
-            <e p="TimingAction.cs" t="Include" />
+            <e p="TimedAction.cs" t="Include" />
+            <e p="TimedActionManager.cs" t="Include" />
           </e>
           <e p="CursorController.cs" t="Include" />
           <e p="Door.cs" t="Include" />
