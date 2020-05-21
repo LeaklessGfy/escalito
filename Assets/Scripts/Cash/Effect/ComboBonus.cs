@@ -17,7 +17,7 @@ namespace Cash.Effect
 
         public decimal Apply(Customer customer, decimal amount)
         {
-            return amount * _mainController.PositiveCombo * Amount;
+            return amount + (_mainController.PositiveCombo * Amount);
         }
     }
 }

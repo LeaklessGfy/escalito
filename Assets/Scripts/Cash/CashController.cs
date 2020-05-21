@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cash.Effect;
@@ -27,6 +28,9 @@ namespace Cash
         private const int LemonadePrice = 2;
 
         public static CashController Main;
+        
+        private readonly HashSet<IEffect> _bonuses = new HashSet<IEffect>();
+        private readonly HashSet<IEffect> _penalties = new HashSet<IEffect>();
 
         public Text cashText;
         public Text expenseText;
@@ -45,15 +49,12 @@ namespace Cash
         }
 
         public ExpenseManager ExpenseManager { get; } = new ExpenseManager();
-        public EffectManager Bonuses { get; } = new EffectManager();
-        public EffectManager Penalties { get; } = new EffectManager();
-
         private decimal _cash = 50;
 
         private void Awake()
         {
             Main = this;
-            Bonuses.Add(new SatisfactionBonus());
+            _bonuses.Add(new SatisfactionBonus());
         }
 
         private void Update()
@@ -90,17 +91,25 @@ namespace Cash
             expenseText.text = "";
         }
 
-        public decimal Bonus(Customer customer)
+        public void AddContract(Contract contract)
+        { 
+            Cash -= contract.Price;
+            // CashController.Main.ExpenseManager.Add(_contract.Expense);
+            _bonuses.Add(contract.Bonus);
+            _penalties.Add(contract.Penalty);
+        }
+
+        public decimal ApplyBonuses(Customer customer)
         {
-            var finalAmount = Bonuses.Apply(customer, customer.Order.Price);
+            var finalAmount = _bonuses.Aggregate(customer.Order.Price, (current, effect) => effect.Apply(customer, current));
             Cash += finalAmount;
 
             return finalAmount;
         }
 
-        public decimal Penalty(Customer customer)
+        public decimal ApplyPenalty(Customer customer)
         {
-            var finalAmount = Penalties.Apply(customer, customer.Order.Price);
+            var finalAmount = _penalties.Aggregate(customer.Order.Price, (current, effect) => effect.Apply(customer, current));
             Cash -= finalAmount;
 
             return finalAmount;

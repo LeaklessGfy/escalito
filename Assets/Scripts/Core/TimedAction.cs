@@ -1,28 +1,28 @@
 ﻿using System;
-using Cash.CashIn;
 
 namespace Core
 {
-    public class TimedAction : ITimedAction
+    public class TimedAction
     {
-        private Func<bool> _condition;
-        private Action _trigger;
+        private readonly float _triggerTime;
+        private readonly Func<bool> _condition;
+        private readonly Action _action;
 
-        public TimedAction(float triggerTime, Func<bool> condition, Action trigger)
+        public TimedAction(float triggerTime, TimeUnit triggerUnit, Func<bool> condition, Action action)
         {
-            CurrentTime = 0;
-            TriggerTime = triggerTime;
+            _triggerTime = ClockController.Main.NextTime(triggerTime, triggerUnit);
             _condition = condition;
-            _trigger = trigger;
+            _action = action;
+            NextTime = _triggerTime;
         }
 
         public bool Enabled => _condition.Invoke();
-        public float CurrentTime { get; set; }
-        public float TriggerTime { get; }
+        public float NextTime { get; private set; }
 
-        public void Trigger()
+        public void Trigger(float currentTime)
         {
-            _trigger.Invoke();
+            NextTime = currentTime + _triggerTime;
+            _action.Invoke();
         }
     }
 }

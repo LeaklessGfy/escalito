@@ -79,10 +79,7 @@ namespace Characters.Impl
 
         private void AcceptContract()
         {
-            CashController.Main.Cash -= _contract.Price;
-            CashController.Main.ExpenseManager.Add(_contract.Expense);
-            CashController.Main.Bonuses.Add(_contract.Bonus);
-            CashController.Main.Penalties.Add(_contract.Penalty);
+            CashController.Main.AddContract(_contract);
             Leave();
         }
 

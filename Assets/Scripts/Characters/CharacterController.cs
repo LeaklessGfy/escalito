@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cash.CashIn;
 using Characters.Impl;
 using Cocktails;
 using Components;
@@ -34,8 +33,8 @@ namespace Characters
 
         public CharacterController()
         {
-            _timedAction.Add(new TimedAction(0, SpawnCustomerCondition, SpawnCustomerTrigger));
-            _timedAction.Add(new TimedAction(0, SpawnSponsorCondition, SpawnSponsorTrigger));
+            _timedAction.Add(new TimedAction(0, TimeUnit.Second, SpawnCustomerCondition, SpawnCustomerTrigger));
+            _timedAction.Add(new TimedAction(0, TimeUnit.Hour, SpawnSponsorCondition, SpawnSponsorTrigger));
         }
 
         private void Awake()

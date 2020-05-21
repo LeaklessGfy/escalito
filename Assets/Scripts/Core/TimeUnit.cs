@@ -4,6 +4,7 @@
     {
         Week,
         Day,
+        Hour,
         Minute,
         Second
     }

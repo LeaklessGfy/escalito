@@ -3300,7 +3300,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6baa6b70f5904e74a89902a1f8774ea0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clockText: {fileID: 2106680161}
   selectedText: {fileID: 1901248802}
 --- !u!114 &1343695596
 MonoBehaviour:

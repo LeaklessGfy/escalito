@@ -31,8 +31,6 @@ public class MainController : MonoBehaviour
         selectedText.text = Selected ? Selected.name : "";
     }
 
-    
-
     public decimal Increment(Customer customer)
     {
         return customer.Satisfied ? IncrementSuccess(customer) : IncrementFailure(customer);
@@ -43,7 +41,7 @@ public class MainController : MonoBehaviour
         PositiveCombo++;
         NegativeCombo = 0;
 
-        var amount = CashController.Main.Bonus(customer);
+        var amount = CashController.Main.ApplyBonuses(customer);
         AudioController.Main.success.Play();
 
         if (PositiveCombo % 3 == 0)
@@ -69,7 +67,7 @@ public class MainController : MonoBehaviour
         PositiveCombo = 0;
         NegativeCombo++;
 
-        var amount = CashController.Main.Penalty(customer);
+        var amount = CashController.Main.ApplyPenalty(customer);
         AudioController.Main.failure.Play();
 
         if (NegativeCombo % 3 == 0)

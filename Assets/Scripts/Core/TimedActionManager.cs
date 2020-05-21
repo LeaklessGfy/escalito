@@ -1,34 +1,25 @@
 ﻿using System.Collections.Generic;
-using Cash.CashIn;
 
 namespace Core
 {
     public class TimedActionManager
     {
-        private readonly List<ITimedAction> _actions = new List<ITimedAction>();
+        private readonly List<TimedAction> _actions = new List<TimedAction>();
 
-        public void Add(ITimedAction action)
+        public void Add(TimedAction action)
         {
             _actions.Add(action);
         }
 
-        public void Tick(float delta)
+        public void Tick(float currentTime)
         {
             foreach (var action in _actions)
             {
-                if (!action.Enabled)
+                if (!action.Enabled || currentTime < action.NextTime)
                 {
                     return;
                 }
-                
-                action.CurrentTime += delta;
-
-                if (action.CurrentTime < action.TriggerTime)
-                {
-                    return;
-                }
-
-                action.Trigger();
+                action.Trigger(currentTime);
             }
         }
     }
