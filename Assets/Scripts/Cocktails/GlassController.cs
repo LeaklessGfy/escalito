@@ -14,15 +14,12 @@ namespace Cocktails
 
     public class GlassController : Controller
     {
-        public static GlassController Main;
-
         private readonly Dictionary<GlassKey, GameObject> _prefabs = new Dictionary<GlassKey, GameObject>();
         public List<GlassEntry> entries;
         public Transform spawn;
 
         private void Awake()
         {
-            Main = this;
             foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
         }
 

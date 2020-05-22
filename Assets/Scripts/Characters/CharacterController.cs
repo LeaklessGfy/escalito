@@ -25,21 +25,21 @@ namespace Characters
         private readonly Dictionary<CharacterKey, GameObject> _prefabs = new Dictionary<CharacterKey, GameObject>();
         private readonly Vector2 _spawnRange = new Vector2(2, 5);
         private readonly HashSet<Sponsor> _sponsors = new HashSet<Sponsor>();
-        private readonly TimeActionManager _timeAction = new TimeActionManager();
 
         public Transform bar;
         public List<CustomerEntry> entries;
         public Transform spawn;
 
-        public CharacterController()
-        {
-            _timeAction.Add(new DelegateTimeAction(5, TimeUnit.Second, SpawnCustomerCondition, SpawnCustomerTrigger));
-            _timeAction.Add(new DelegateTimeAction(10, TimeUnit.Minute, SpawnSponsorCondition, SpawnSponsorTrigger));
-        }
-
         private void Awake()
         {
             foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
+        }
+
+        private void Start()
+        {
+            var clock = MagicBag.Bag.clock;
+            clock.TimeActions.Add(new DelegateTimeAction(5, TimeUnit.Second, SpawnCustomerCondition, SpawnCustomerTrigger));
+            clock.TimeActions.Add(new DelegateTimeAction(10, TimeUnit.Minute, SpawnSponsorCondition, SpawnSponsorTrigger));
         }
 
         private void Update()
@@ -60,8 +60,6 @@ namespace Characters
             }
 
             foreach (var sponsor in _sponsors) sponsor.Behave(bar.position);
-
-            _timeAction.Tick(ClockController.Main.CurrentTime);
         }
 
         private void Remove(Customer customer)
@@ -83,7 +81,7 @@ namespace Characters
 
         private bool SpawnCustomerCondition()
         {
-            return MainController.Main.BarIsOpen && _customerQueue.Count < MainController.Main.Difficulty;
+            return MagicBag.Bag.main.BarIsOpen && _customerQueue.Count < MagicBag.Bag.main.Difficulty;
         }
 
         private void SpawnCustomerTrigger()
@@ -95,7 +93,7 @@ namespace Characters
 
         private bool SpawnSponsorCondition()
         {
-            return MainController.Main.Reputation > ReputationThreshold && _sponsors.Count < 1;
+            return MagicBag.Bag.main.Reputation > ReputationThreshold && _sponsors.Count < 1;
         }
 
         private void SpawnSponsorTrigger()

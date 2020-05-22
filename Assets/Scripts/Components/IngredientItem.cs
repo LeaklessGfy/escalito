@@ -20,19 +20,19 @@ namespace Components
 
         protected override void Buy()
         {
-            if (Price > CashController.Main.Cash)
+            if (Price > MagicBag.Bag.cash.Cash)
             {
                 return;
             }
 
-            CashController.Main.Cash -= Price;
-            MainController.Main.Ingredients.Add(_ingredient, true);
+            MagicBag.Bag.cash.Cash -= Price;
+            MagicBag.Bag.main.Ingredients.Add(_ingredient, true);
             // CashController.Main.ExpenseManager.Add(new IngredientExpense(_ingredient, Price));
         }
 
         protected override bool ForbidBuy()
         {
-            return MainController.Main.Ingredients.ContainsKey(_ingredient);
+            return MagicBag.Bag.main.Ingredients.ContainsKey(_ingredient);
         }
     }
 }

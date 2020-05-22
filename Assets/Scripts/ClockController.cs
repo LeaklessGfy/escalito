@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ClockController : MonoBehaviour
 {
-    public static ClockController Main;
-
     private const int SecondsPerPlay = 60;
     private const int SecondsPerPause = 300;
     private const int MinHour = 4;
@@ -21,6 +19,7 @@ public class ClockController : MonoBehaviour
     public int Hours => Mathf.FloorToInt(_time % 1f * 24f);
     public int Day => Mathf.FloorToInt(_time % 1f);
     public float CurrentTime => _time;
+    public TimeActionManager TimeActions { get; } = new TimeActionManager();
 
     public float NextTime(float triggerTime, TimeUnit triggerUnit)
     {
@@ -42,16 +41,13 @@ public class ClockController : MonoBehaviour
         return 0;
     }
 
-    private void Awake()
-    {
-        Main = this;
-    }
-
     private void Update()
     {
         _secondsPerDay = InWorkingHour() ? SecondsPerPlay : SecondsPerPause;
         _time += Time.deltaTime / _secondsPerDay;
         clockText.text = $"{Hours:00}:{Minutes:00}";
+        
+        TimeActions.Tick(_time);
     }
 
     private bool InWorkingHour()

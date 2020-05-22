@@ -49,8 +49,8 @@ namespace Characters.Impl
             if (Order == null && IsNear(Position.Bar))
             {
                 AskOrder();
-                Await(MainController.Main.Difficulty);
-                _glass = GlassController.Main.Spawn();
+                Await(MagicBag.Bag.main.Difficulty);
+                _glass = MagicBag.Bag.glass.Spawn();
             }
             else if (State.Exhausted)
             {
@@ -91,7 +91,7 @@ namespace Characters.Impl
             }
 
             Order = _orderFactory();
-            orderImage.sprite = CocktailController.Main.GetSprite(Order.Cocktail.Key);
+            orderImage.sprite = MagicBag.Bag.cocktail.GetSprite(Order.Cocktail.Key);
             orderImage.gameObject.SetActive(true);
         }
 
@@ -116,7 +116,7 @@ namespace Characters.Impl
 
         private async void Leave()
         {
-            var amount = MainController.Main.Increment(this);
+            var amount = MagicBag.Bag.main.Increment(this);
             SpriteRenderer.color = PercentHelper.GetColor(Satisfaction);
             orderImage.gameObject.SetActive(false);
             Pay(amount);

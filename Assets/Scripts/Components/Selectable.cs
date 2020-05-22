@@ -9,8 +9,8 @@ namespace Components
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            MainController.Main.Selected = this;
-            CursorController.Main.SetHover(true);
+            MagicBag.Bag.main.Selected = this;
+            MagicBag.Bag.cursor.SetHover(true);
 
             //var position = transform.position;
             //transform.position = new Vector3(position.x, position.y, -2f);
@@ -23,8 +23,8 @@ namespace Components
                 return;
             }
 
-            MainController.Main.Selected = null;
-            CursorController.Main.SetHover(false);
+            MagicBag.Bag.main.Selected = null;
+            MagicBag.Bag.cursor.SetHover(false);
 
             //var position = transform.position;
             //transform.position = new Vector3(position.x, position.y, 0f);

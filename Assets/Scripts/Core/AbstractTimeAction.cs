@@ -7,7 +7,7 @@
 
         protected AbstractTimeAction(float triggerTime, TimeUnit triggerUnit)
         {
-            _triggerTime = ClockController.Main.NextTime(triggerTime, triggerUnit);
+            _triggerTime = MagicBag.Bag.clock.NextTime(triggerTime, triggerUnit);
             _nextTime = _triggerTime;
         }
 

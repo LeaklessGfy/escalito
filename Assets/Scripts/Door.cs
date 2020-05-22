@@ -14,12 +14,8 @@ public class Door : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (MainController.Main == null)
-        {
-            return;
-        }
-
-        MainController.Main.BarIsOpen = !MainController.Main.BarIsOpen;
-        _spriteRenderer.sprite = MainController.Main.BarIsOpen ? openSprite : closeSprite;
+        var main = MagicBag.Bag.main;
+        main.BarIsOpen = !main.BarIsOpen;
+        _spriteRenderer.sprite = main.BarIsOpen ? openSprite : closeSprite;
     }
 }

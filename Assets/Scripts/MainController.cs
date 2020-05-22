@@ -8,9 +8,6 @@ using Selectable = Components.Selectable;
 
 public class MainController : MonoBehaviour
 {
-    public static MainController Main;
-
-
     public Text selectedText;
 
     public bool BarIsOpen { get; set; }
@@ -20,11 +17,6 @@ public class MainController : MonoBehaviour
     public int NegativeCombo { get; private set; }
     public Selectable Selected { get; set; }
     public Dictionary<IngredientKey, bool> Ingredients { get; } = new Dictionary<IngredientKey, bool>();
-
-    private void Awake()
-    {
-        Main = this;
-    }
 
     private void Update()
     {
@@ -41,12 +33,12 @@ public class MainController : MonoBehaviour
         PositiveCombo++;
         NegativeCombo = 0;
 
-        var amount = CashController.Main.ApplyBonuses(customer);
-        AudioController.Main.success.Play();
+        var amount = MagicBag.Bag.cash.ApplyBonuses(customer);
+        MagicBag.Bag.audio.success.Play();
 
         if (PositiveCombo % 3 == 0)
         {
-            AudioController.Main.laugh.Play();
+            MagicBag.Bag.audio.laugh.Play();
         }
 
         if (PositiveCombo % 10 == 0)
@@ -67,15 +59,15 @@ public class MainController : MonoBehaviour
         PositiveCombo = 0;
         NegativeCombo++;
 
-        var amount = CashController.Main.ApplyPenalty(customer);
-        AudioController.Main.failure.Play();
+        var amount = MagicBag.Bag.cash.ApplyPenalty(customer);
+        MagicBag.Bag.audio.failure.Play();
 
         if (NegativeCombo % 3 == 0)
         {
             Reputation--;
         }
 
-        if (CashController.Main.Cash < 0)
+        if (MagicBag.Bag.cash.Cash < 0)
         {
             // GAME OVER
         }

@@ -13,15 +13,12 @@ namespace Cocktails
 
     public class CocktailController : MonoBehaviour
     {
-        public static CocktailController Main;
-
         private readonly Dictionary<CocktailKey, Sprite> _mapping = new Dictionary<CocktailKey, Sprite>();
 
         public CocktailEntry[] entries;
 
         private void Awake()
         {
-            Main = this;
             foreach (var sprite in entries) _mapping.Add(sprite.key, sprite.sprite);
         }
 

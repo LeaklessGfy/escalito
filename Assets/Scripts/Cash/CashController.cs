@@ -5,7 +5,6 @@ using Cash.Effect;
 using Cash.Trigger;
 using Characters.Impl;
 using Cocktails;
-using Core;
 using Ingredients;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,13 +25,10 @@ namespace Cash
         private const int ColaPrice = 3;
         private const int LemonadePrice = 2;
 
-        public static CashController Main;
-        
         private readonly HashSet<Contract.Contract> _contracts = new HashSet<Contract.Contract>();
         private readonly HashSet<IEffect> _bonuses = new HashSet<IEffect>();
         private readonly HashSet<IEffect> _penalties = new HashSet<IEffect>();
         private readonly HashSet<CashTrigger> _cashTriggers = new HashSet<CashTrigger>();
-        private readonly TimeActionManager _timeActions = new TimeActionManager();
 
         public Text cashText;
         public Text expenseText;
@@ -54,14 +50,12 @@ namespace Cash
 
         private void Awake()
         {
-            Main = this;
             _bonuses.Add(new SatisfactionBonus());
         }
 
         private void Update()
         {
             cashText.text = Cash + " $";
-            _timeActions.Tick(ClockController.Main.CurrentTime);
         }
 
         public void AddContract(Contract.Contract contract)
@@ -70,8 +64,9 @@ namespace Cash
             _bonuses.Add(contract.Bonus);
             _penalties.Add(contract.Penalty);
             _cashTriggers.Add(contract.CashTrigger);
-            _timeActions.Add(new CashTriggerAction(contract.CashTrigger, this));
             _contracts.Add(contract);
+
+            MagicBag.Bag.clock.TimeActions.Add(new CashTriggerAction(contract.CashTrigger));
         }
 
         public void RemoveContracts()

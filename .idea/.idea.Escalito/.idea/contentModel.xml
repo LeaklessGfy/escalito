@@ -16,7 +16,6 @@
               <e p="ContractBuilder.cs" t="Include" />
             </e>
             <e p="Effect" t="Include">
-              <e p="ComboBonus.cs" t="Include" />
               <e p="SatisfactionBonus.cs" t="Include" />
               <e p="SimpleEffect.cs" t="Include" />
             </e>
@@ -75,6 +74,7 @@
             <e p="IngredientController.cs" t="Include" />
             <e p="IngredientKey.cs" t="Include" />
           </e>
+          <e p="MagicBag.cs" t="Include" />
           <e p="MainController.cs" t="Include" />
           <e p="Shaker.cs" t="Include" />
           <e p="ShopController.cs" t="Include" />

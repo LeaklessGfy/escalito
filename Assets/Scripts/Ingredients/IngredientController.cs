@@ -14,15 +14,12 @@ namespace Ingredients
 
     public class IngredientController : Controller
     {
-        public static IngredientController Main;
-
         private readonly Dictionary<IngredientKey, GameObject> _prefabs = new Dictionary<IngredientKey, GameObject>();
         public IngredientEntry[] entries;
         public Transform spawn;
 
         private void Awake()
         {
-            Main = this;
             foreach (var spawnEntry in entries) _prefabs.Add(spawnEntry.key, spawnEntry.prefab);
         }
 

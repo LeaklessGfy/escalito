@@ -6,12 +6,10 @@ namespace Cash.Trigger
     public class CashTriggerAction : AbstractTimeAction
     {
         private readonly CashTrigger _cashTrigger;
-        private readonly CashController _cashController;
         
-        public CashTriggerAction(CashTrigger cashTrigger, CashController cashController) : base(cashTrigger.TriggerTime, cashTrigger.TriggerUnit)
+        public CashTriggerAction(CashTrigger cashTrigger) : base(cashTrigger.TriggerTime, cashTrigger.TriggerUnit)
         {
             _cashTrigger = cashTrigger;
-            _cashController = cashController;
         }
 
         protected override bool Condition()
@@ -21,12 +19,13 @@ namespace Cash.Trigger
 
         protected override void Action()
         {
-            _cashController.Cash += _cashTrigger.Amount;
+            var cash = MagicBag.Bag.cash;
+            cash.Cash += _cashTrigger.Amount;
             
-            _cashController.expenseText.text = _cashTrigger.Amount.ToString(CultureInfo.InvariantCulture);
-            _cashController.expenseText.color = PercentHelper.GetColor((_cashController.Cash - _cashTrigger.Amount) / _cashController.Cash * 100);
+            cash.expenseText.text = _cashTrigger.Amount.ToString(CultureInfo.InvariantCulture);
+            cash.expenseText.color = PercentHelper.GetColor((cash.Cash - _cashTrigger.Amount) / cash.Cash * 100);
             
-            AudioController.Main.cash.Play();
+            MagicBag.Bag.audio.cash.Play();
         }
     }
 }

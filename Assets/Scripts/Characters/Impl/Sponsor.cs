@@ -52,7 +52,7 @@ namespace Characters.Impl
             if (_contract == null && IsNear(Position.Bar))
             {
                 AskContract();
-                Await(MainController.Main.Difficulty);
+                Await(MagicBag.Bag.main.Difficulty);
             }
             else if (State.Exhausted)
             {
@@ -62,9 +62,9 @@ namespace Characters.Impl
 
         private void AskContract()
         {
-            _contract = ContractBuilder.Build(MainController.Main);
+            _contract = ContractBuilder.Build();
 
-            yesButton.interactable = CashController.Main.Cash >= _contract.Price;
+            yesButton.interactable = MagicBag.Bag.cash.Cash >= _contract.Price;
             priceText.text = $"Price : - {_contract.Price} $";
             expenseText.text = $"Tax : - {_contract.CashTrigger.Amount} $ / Day";
             bonusText.text = $"Bonus : {_contract.Bonus.Amount} x Combo";
@@ -80,7 +80,7 @@ namespace Characters.Impl
 
         private void AcceptContract()
         {
-            CashController.Main.AddContract(_contract);
+            MagicBag.Bag.cash.AddContract(_contract);
             Leave();
         }
 

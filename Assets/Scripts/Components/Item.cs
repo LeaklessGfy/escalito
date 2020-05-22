@@ -1,5 +1,4 @@
-﻿using Cash;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Components
@@ -24,7 +23,7 @@ namespace Components
 
         private void Update()
         {
-            _itemButton.interactable = Price <= CashController.Main.Cash && !ForbidBuy();
+            _itemButton.interactable = Price <= MagicBag.Bag.cash.Cash && !ForbidBuy();
         }
 
         protected void SetName(string name)

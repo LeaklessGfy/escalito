@@ -6,16 +6,18 @@ namespace Cash.Contract
 {
     public static class ContractBuilder
     {
-        public static Contract Build(MainController mainController)
+        public static Contract Build()
         {
-            var price = 100 * mainController.Difficulty;
-            var triggerTime = 5 * mainController.Difficulty;
-            var triggerAmount = 1000 * mainController.Difficulty;
-            var comboAmount = 1.5m * mainController.Difficulty;
-            var penaltyAmount = triggerAmount * 10 * mainController.Difficulty;
+            var main = MagicBag.Bag.main;
+            
+            var price = 100 * main.Difficulty;
+            var triggerTime = 5 * main.Difficulty;
+            var triggerAmount = 1000 * main.Difficulty;
+            var comboAmount = 1.5m * main.Difficulty;
+            var penaltyAmount = triggerAmount * 10 * main.Difficulty;
             
             var cashTrigger = new CashTrigger(CashTriggerKey.Contracts, triggerTime, TimeUnit.Minute, triggerAmount, "");
-            var bonus = new ComboBonus(mainController, comboAmount);
+            var bonus = new SimpleEffect(comboAmount,  (customer, amount) => amount + (main.PositiveCombo * comboAmount));
             var penalty = new SimpleEffect(penaltyAmount, (customer, amount) => amount + penaltyAmount);
 
             return new Contract(price, cashTrigger, bonus, penalty);
