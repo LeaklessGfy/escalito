@@ -1,5 +1,4 @@
 ﻿using Cash;
-using Cash.Expense;
 using Ingredients;
 
 namespace Components
@@ -28,7 +27,7 @@ namespace Components
 
             CashController.Main.Cash -= Price;
             MainController.Main.Ingredients.Add(_ingredient, true);
-            CashController.Main.ExpenseManager.Add(new IngredientExpense(_ingredient, Price));
+            // CashController.Main.ExpenseManager.Add(new IngredientExpense(_ingredient, Price));
         }
 
         protected override bool ForbidBuy()

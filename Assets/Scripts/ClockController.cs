@@ -20,6 +20,7 @@ public class ClockController : MonoBehaviour
     public int Minutes => Mathf.FloorToInt(_time % 1f * 24f % 1f * 60f);
     public int Hours => Mathf.FloorToInt(_time % 1f * 24f);
     public int Day => Mathf.FloorToInt(_time % 1f);
+    public float CurrentTime => _time;
 
     public float NextTime(float triggerTime, TimeUnit triggerUnit)
     {

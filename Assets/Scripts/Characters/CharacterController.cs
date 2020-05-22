@@ -25,7 +25,7 @@ namespace Characters
         private readonly Dictionary<CharacterKey, GameObject> _prefabs = new Dictionary<CharacterKey, GameObject>();
         private readonly Vector2 _spawnRange = new Vector2(2, 5);
         private readonly HashSet<Sponsor> _sponsors = new HashSet<Sponsor>();
-        private readonly TimedActionManager _timedAction = new TimedActionManager();
+        private readonly TimeActionManager _timeAction = new TimeActionManager();
 
         public Transform bar;
         public List<CustomerEntry> entries;
@@ -33,8 +33,8 @@ namespace Characters
 
         public CharacterController()
         {
-            _timedAction.Add(new TimedAction(0, TimeUnit.Second, SpawnCustomerCondition, SpawnCustomerTrigger));
-            _timedAction.Add(new TimedAction(0, TimeUnit.Hour, SpawnSponsorCondition, SpawnSponsorTrigger));
+            _timeAction.Add(new DelegateTimeAction(5, TimeUnit.Second, SpawnCustomerCondition, SpawnCustomerTrigger));
+            _timeAction.Add(new DelegateTimeAction(10, TimeUnit.Minute, SpawnSponsorCondition, SpawnSponsorTrigger));
         }
 
         private void Awake()
@@ -61,7 +61,7 @@ namespace Characters
 
             foreach (var sponsor in _sponsors) sponsor.Behave(bar.position);
 
-            _timedAction.Tick(Time.deltaTime);
+            _timeAction.Tick(ClockController.Main.CurrentTime);
         }
 
         private void Remove(Customer customer)

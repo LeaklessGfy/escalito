@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Cash.Effect;
-using Cash.Expense;
+using Cash.Trigger;
 using Characters.Impl;
 using Cocktails;
 using Core;
@@ -29,8 +28,11 @@ namespace Cash
 
         public static CashController Main;
         
+        private readonly HashSet<Contract.Contract> _contracts = new HashSet<Contract.Contract>();
         private readonly HashSet<IEffect> _bonuses = new HashSet<IEffect>();
         private readonly HashSet<IEffect> _penalties = new HashSet<IEffect>();
+        private readonly HashSet<CashTrigger> _cashTriggers = new HashSet<CashTrigger>();
+        private readonly TimeActionManager _timeActions = new TimeActionManager();
 
         public Text cashText;
         public Text expenseText;
@@ -48,7 +50,6 @@ namespace Cash
             }
         }
 
-        public ExpenseManager ExpenseManager { get; } = new ExpenseManager();
         private decimal _cash = 50;
 
         private void Awake()
@@ -60,43 +61,26 @@ namespace Cash
         private void Update()
         {
             cashText.text = Cash + " $";
+            _timeActions.Tick(ClockController.Main.CurrentTime);
         }
 
-        public void Expense()
-        {
-            if (!ExpenseManager.HasExpense())
-            {
-                return;
-            }
-            
-            var expensesSum = ExpenseManager.Sum();
-
-            var text = expensesSum
-                .Aggregate(new StringBuilder(), (sb, pair) => sb.AppendLine($"{pair.Key} : -{pair.Value} $"))
-                .ToString();
-            var total = expensesSum.Aggregate(0m, (sum, pair) => sum + pair.Value);
-
-            expenseText.text = text;
-            expenseText.color = PercentHelper.GetColor((Cash - total) / Cash * 100);
-
-            Cash -= total;
-
-            AudioController.Main.cash.Play();
-
-            Invoke(nameof(HideExpense), 2);
-        }
-
-        private void HideExpense()
-        {
-            expenseText.text = "";
-        }
-
-        public void AddContract(Contract contract)
+        public void AddContract(Contract.Contract contract)
         { 
             Cash -= contract.Price;
-            // CashController.Main.ExpenseManager.Add(_contract.Expense);
             _bonuses.Add(contract.Bonus);
             _penalties.Add(contract.Penalty);
+            _cashTriggers.Add(contract.CashTrigger);
+            _timeActions.Add(new CashTriggerAction(contract.CashTrigger, this));
+            _contracts.Add(contract);
+        }
+
+        public void RemoveContracts()
+        {
+            foreach (var contract in _contracts)
+            {
+                _bonuses.Remove(contract.Bonus);
+                _penalties.Remove(contract.Penalty);
+            }
         }
 
         public decimal ApplyBonuses(Customer customer)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using Cash;
+using Cash.Contract;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -61,11 +62,11 @@ namespace Characters.Impl
 
         private void AskContract()
         {
-            _contract = Contract.Build(MainController.Main);
+            _contract = ContractBuilder.Build(MainController.Main);
 
             yesButton.interactable = CashController.Main.Cash >= _contract.Price;
             priceText.text = $"Price : - {_contract.Price} $";
-            expenseText.text = $"Tax : - {_contract.Expense.Amount} $ / Day";
+            expenseText.text = $"Tax : - {_contract.CashTrigger.Amount} $ / Day";
             bonusText.text = $"Bonus : {_contract.Bonus.Amount} x Combo";
             penaltyText.text = $"Penalty : - {_contract.Penalty.Amount} $";
 

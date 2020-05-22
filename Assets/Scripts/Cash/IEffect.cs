@@ -1,6 +1,6 @@
 ﻿using Characters.Impl;
 
-namespace Cash.Effect
+namespace Cash
 {
     public interface IEffect
     {
