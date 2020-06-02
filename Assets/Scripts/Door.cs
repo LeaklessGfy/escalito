@@ -4,8 +4,8 @@ public class Door : MonoBehaviour
 {
     private SpriteRenderer _spriteRenderer;
 
-    [SerializeField] private Sprite closeSprite;
-    [SerializeField] private Sprite openSprite;
+    public Sprite closeSprite;
+    public Sprite openSprite;
 
     private void Awake()
     {
@@ -14,12 +14,8 @@ public class Door : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (Controller.Main == null)
-        {
-            return;
-        }
-
-        Controller.Main.BarIsOpen = !Controller.Main.BarIsOpen;
-        _spriteRenderer.sprite = Controller.Main.BarIsOpen ? openSprite : closeSprite;
+        var main = MagicBag.Bag.main;
+        main.BarIsOpen = !main.BarIsOpen;
+        _spriteRenderer.sprite = main.BarIsOpen ? openSprite : closeSprite;
     }
 }

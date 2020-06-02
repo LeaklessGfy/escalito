@@ -1,5 +1,4 @@
-﻿using Singleton;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Components
@@ -10,11 +9,11 @@ namespace Components
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Controller.Main.Selected = this;
-            CursorManager.Main.SetHover(true);
+            MagicBag.Bag.main.Selected = this;
+            MagicBag.Bag.cursor.SetHover(true);
 
-            var position = transform.position;
-            transform.position = new Vector3(position.x, position.y, -2f);
+            //var position = transform.position;
+            //transform.position = new Vector3(position.x, position.y, -2f);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -24,11 +23,11 @@ namespace Components
                 return;
             }
 
-            Controller.Main.Selected = null;
-            CursorManager.Main.SetHover(false);
+            MagicBag.Bag.main.Selected = null;
+            MagicBag.Bag.cursor.SetHover(false);
 
-            var position = transform.position;
-            transform.position = new Vector3(position.x, position.y, 0f);
+            //var position = transform.position;
+            //transform.position = new Vector3(position.x, position.y, 0f);
         }
 
         private void OnMouseDown()

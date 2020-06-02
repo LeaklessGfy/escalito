@@ -1,4 +1,5 @@
 using Core;
+using Ingredients;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +10,9 @@ public class Bottle : MonoBehaviour
     private ParticleSystem _particleSystem;
 
     public Ingredient ingredient;
-    [SerializeField] private Image stockImage;
 
-    [SerializeField] private Slider stockSlider;
+    public Image stockImage;
+    public Slider stockSlider;
 
     private void Awake()
     {
@@ -34,7 +35,7 @@ public class Bottle : MonoBehaviour
         }
 
         stockSlider.value = ingredient.stock;
-        stockImage.color = Satisfaction.GetColor((int) ingredient.stock);
+        stockImage.color = PercentHelper.GetColor((int) ingredient.stock);
     }
 
     private void OnMouseDrag()
@@ -57,7 +58,7 @@ public class Bottle : MonoBehaviour
             return;
         }
 
-        transform.position = new Vector2(0, 50);
+        transform.position = new Vector2(0, 70);
         transform.Rotate(0, 0, 180);
         stockSlider.transform.Rotate(0, 0, 180);
         _initialPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);

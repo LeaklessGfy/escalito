@@ -7,34 +7,77 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
+          <e p="AudioController.cs" t="Include" />
           <e p="Bottle.cs" t="Include" />
-          <e p="Client.cs" t="Include" />
+          <e p="Cash" t="Include">
+            <e p="CashController.cs" t="Include" />
+            <e p="Contract" t="Include">
+              <e p="Contract.cs" t="Include" />
+              <e p="ContractBuilder.cs" t="Include" />
+            </e>
+            <e p="Effect" t="Include">
+              <e p="SatisfactionBonus.cs" t="Include" />
+              <e p="SimpleEffect.cs" t="Include" />
+            </e>
+            <e p="IEffect.cs" t="Include" />
+            <e p="Trigger" t="Include">
+              <e p="CashTrigger.cs" t="Include" />
+              <e p="CashTriggerAction.cs" t="Include" />
+              <e p="CashTriggerKey.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Characters" t="Include">
+            <e p="Character.cs" t="Include" />
+            <e p="CharacterController.cs" t="Include" />
+            <e p="CharacterKey.cs" t="Include" />
+            <e p="Impl" t="Include">
+              <e p="Customer.cs" t="Include" />
+              <e p="Sponsor.cs" t="Include" />
+            </e>
+            <e p="PositionBag.cs" t="Include" />
+            <e p="Rules.cs" t="Include" />
+            <e p="State.cs" t="Include" />
+          </e>
+          <e p="ClockController.cs" t="Include" />
+          <e p="Cocktails" t="Include">
+            <e p="Cocktail.cs" t="Include" />
+            <e p="CocktailBuilder.cs" t="Include" />
+            <e p="CocktailController.cs" t="Include" />
+            <e p="CocktailKey.cs" t="Include" />
+            <e p="Glass.cs" t="Include" />
+            <e p="GlassController.cs" t="Include" />
+            <e p="GlassKey.cs" t="Include" />
+            <e p="LegacyGlass.cs" t="Include" />
+            <e p="Order.cs" t="Include" />
+          </e>
           <e p="Components" t="Include">
-            <e p="Consumable.cs" t="Include" />
+            <e p="Controller.cs" t="Include" />
             <e p="DraggableTransform.cs" t="Include" />
-            <e p="Payable.cs" t="Include" />
+            <e p="IngredientItem.cs" t="Include" />
+            <e p="Item.cs" t="Include" />
             <e p="RotatableTransform.cs" t="Include" />
             <e p="Selectable.cs" t="Include" />
           </e>
-          <e p="Controller.cs" t="Include" />
           <e p="Core" t="Include">
-            <e p="Cocktail.cs" t="Include" />
-            <e p="CocktailKey.cs" t="Include" />
-            <e p="Ingredient.cs" t="Include" />
-            <e p="IngredientKey.cs" t="Include" />
-            <e p="Rules.cs" t="Include" />
-            <e p="Satisfaction.cs" t="Include" />
-            <e p="Spawnable.cs" t="Include" />
+            <e p="AbstractTimeAction.cs" t="Include" />
+            <e p="DelegateTimeAction.cs" t="Include" />
+            <e p="ITimeAction.cs" t="Include" />
+            <e p="PercentHelper.cs" t="Include" />
+            <e p="TimeActionManager.cs" t="Include" />
+            <e p="TimeUnit.cs" t="Include" />
           </e>
+          <e p="CursorController.cs" t="Include" />
           <e p="Door.cs" t="Include" />
-          <e p="Glass.cs" t="Include" />
-          <e p="Shaker.cs" t="Include" />
-          <e p="Singleton" t="Include">
-            <e p="AudioManager.cs" t="Include" />
-            <e p="CashManager.cs" t="Include" />
-            <e p="CursorManager.cs" t="Include" />
-            <e p="SpawnManager.cs" t="Include" />
+          <e p="Ingredients" t="Include">
+            <e p="Consumable.cs" t="Include" />
+            <e p="Ingredient.cs" t="Include" />
+            <e p="IngredientController.cs" t="Include" />
+            <e p="IngredientKey.cs" t="Include" />
           </e>
+          <e p="MagicBag.cs" t="Include" />
+          <e p="MainController.cs" t="Include" />
+          <e p="Shaker.cs" t="Include" />
+          <e p="ShopController.cs" t="Include" />
         </e>
       </e>
       <e p="Escalito.sln" t="IncludeFlat" />
