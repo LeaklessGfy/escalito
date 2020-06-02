@@ -14,7 +14,7 @@ public class MagicBag : MonoBehaviour
     public MainController main;
     public CashController cash;
     public ClockController clock;
-    public AudioController audio;
+    public AudioController song;
     public CursorController cursor;
     public CocktailController cocktail;
     public GlassController glass;

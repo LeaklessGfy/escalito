@@ -25,7 +25,7 @@ namespace Cash.Trigger
             cash.expenseText.text = _cashTrigger.Amount.ToString(CultureInfo.InvariantCulture);
             cash.expenseText.color = PercentHelper.GetColor((cash.Cash - _cashTrigger.Amount) / cash.Cash * 100);
             
-            MagicBag.Bag.audio.cash.Play();
+            MagicBag.Bag.song.cash.Play();
         }
     }
 }

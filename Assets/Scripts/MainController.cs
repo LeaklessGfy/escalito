@@ -34,11 +34,11 @@ public class MainController : MonoBehaviour
         NegativeCombo = 0;
 
         var amount = MagicBag.Bag.cash.ApplyBonuses(customer);
-        MagicBag.Bag.audio.success.Play();
+        MagicBag.Bag.song.success.Play();
 
         if (PositiveCombo % 3 == 0)
         {
-            MagicBag.Bag.audio.laugh.Play();
+            MagicBag.Bag.song.laugh.Play();
         }
 
         if (PositiveCombo % 10 == 0)
@@ -60,7 +60,7 @@ public class MainController : MonoBehaviour
         NegativeCombo++;
 
         var amount = MagicBag.Bag.cash.ApplyPenalty(customer);
-        MagicBag.Bag.audio.failure.Play();
+        MagicBag.Bag.song.failure.Play();
 
         if (NegativeCombo % 3 == 0)
         {

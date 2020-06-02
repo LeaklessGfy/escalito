@@ -3237,6 +3237,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1343695594}
+  - component: {fileID: 1343695609}
   - component: {fileID: 1343695595}
   - component: {fileID: 1343695604}
   - component: {fileID: 1343695603}
@@ -3246,6 +3247,7 @@ GameObject:
   - component: {fileID: 1343695601}
   - component: {fileID: 1343695599}
   - component: {fileID: 1343695596}
+  - component: {fileID: 1343695608}
   - component: {fileID: 1343695598}
   - component: {fileID: 1343695597}
   - component: {fileID: 1343695602}
@@ -3824,6 +3826,38 @@ MonoBehaviour:
   prefab: {fileID: 5872433756688040058, guid: 3cc40ceb93fdb4a4db91d276e3334028, type: 3}
   shopPanel: {fileID: 1560185175}
   shopButton: {fileID: 185289097}
+--- !u!114 &1343695608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343695593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef2c14ec795142d4a729138981ab1c9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clockText: {fileID: 2106680161}
+--- !u!114 &1343695609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343695593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92986fc0fb284d85a86b0c11930cee5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  main: {fileID: 1343695595}
+  cash: {fileID: 1343695601}
+  clock: {fileID: 1343695608}
+  song: {fileID: 1343695596}
+  cursor: {fileID: 1343695599}
+  cocktail: {fileID: 1343695605}
+  glass: {fileID: 1343695603}
 --- !u!1 &1353122528
 GameObject:
   m_ObjectHideFlags: 0
